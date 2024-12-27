@@ -11,67 +11,68 @@ import {
 } from "@/components/ui/breadcrumb"
 import {Separator} from "@/components/ui/separator.tsx";
 import {ItemTask} from "@/components/item-task.tsx";
-import {useState} from "react";
-import {Assignment, Task, User} from "@/types.tsx";
+import {useEffect, useState} from "react";
 import {DndContext, DragEndEvent} from "@dnd-kit/core";
+import {getTasksByProjectId} from "@/services/taskService.ts";
+import {Task} from "@/models/Task.ts";
+import {Assignment} from "@/models/Assignment.ts";
+import {useParams} from "react-router-dom";
+import {Project} from "@/models/Project.ts";
+import {getProjectById} from "@/services/projectService.ts";
+import {getAssignmentsByProjectId, updateAssignment} from "@/services/assignmentService.ts";
 
-const tasks: Task[] = [
-  {id: 'TODO', title: 'To Do'},
-  {id: 'IN_PROGRESS', title: 'In Progress'},
-  {id: 'DONE', title: 'Done'},
-  {id: 'TEST', title: 'Test'},
-]
+export default function TaskPage() {
+  const {projectId} = useParams();
+  const [project, setProject] = useState<Project | null>(null);
+  const [assignments, setAssignments] = useState<Assignment[]>([]);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-const example_assignments: Assignment[] = [
-  {
-    id: '1',
-    title: 'Research Project',
-    description: 'Gather requirements and create initial documentation',
-    status: 'TODO'
-  },
-  {
-    id: '2',
-    title: 'Research',
-    description: 'Gather requirements and create initial documentation',
-    status: 'TODO'
-  },
-  {
-    id: '3',
-    title: 'Research',
-    description: 'Gather requirements and create initial documentation',
-    status: 'TODO'
-  },
-  {
-    id: '4',
-    title: 'Research',
-    description: 'Gather requirements and create initial documentation',
-    status: 'TODO'
+  if (!projectId) {
+    throw new Error("Project not found");
   }
-]
 
-const user: User = {
-  name: "Tran Trong",
-  email: "m@example.com",
-  avatar: "/avatars/shadcn.jpg",
-}
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
 
+        const [projectData, tasksData, assignmentsData] = await Promise.all([
+          getProjectById(projectId),
+          getTasksByProjectId(projectId),
+          getAssignmentsByProjectId(projectId)
+        ]);
 
-export default function ProjectPage() {
-  const [assignments, setAssignments] = useState<Assignment[]>(example_assignments);
+        setProject(projectData);
+        setTasks(tasksData);
+        setAssignments(assignmentsData);
+      } catch (err: unknown) {
+        setError((err as Error).message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error}</p>;
 
   const handleDragEnd = (event: DragEndEvent) => {
     const {active, over} = event;
 
     if (!over) return;
 
-    const assignmentId = active.id as string;
-    const newStatus = over.id as Assignment['status'];
+    const assignmentId = active.id as number;
+    const newStatus = over.id as string;
 
-    setAssignments(() =>
-        assignments.map((assignment) =>
+    setAssignments((prevAssignments) =>
+        prevAssignments.map((assignment) =>
             assignment.id === assignmentId ? {...assignment, status: newStatus} : assignment
         )
-    )
+    );
   }
 
   return (
@@ -98,19 +99,18 @@ export default function ProjectPage() {
                 </Breadcrumb>
               </div>
             </header>
-            <div className="flex flex-1 gap-4 p-4 pt-0 ">
-              <div className="grid gap-4 grid-flow-col grid-cols-[repeat(auto-fill,_minmax(300px,_1fr))]">
+            <div className="flex flex-1 gap-4 p-4 pt-0">
+              <div className="grid grid-flow-col">
                 <DndContext onDragEnd={handleDragEnd}>
                   {
-                    tasks.map((task: Task) => {
-
-                      return <ItemTask
-                          key={task.id}
-                          task={task}
-                          assignments={assignments.filter((assignment) => assignment.status === task.id)}
-                          user={user}
-                      />
-                    })
+                    tasks.map((task: Task, index: number) => (
+                        <ItemTask
+                            key={task.id}
+                            isLast={index === tasks.length - 1}
+                            task={task}
+                            assignments={assignments.filter((assignment) => assignment.status === task.status)}
+                        />
+                    ))
                   }
                 </DndContext>
               </div>

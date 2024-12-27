@@ -12,18 +12,37 @@ import {
 import {Separator} from "@/components/ui/separator.tsx";
 import {ItemProject} from "@/components/item-project.tsx";
 import {Link} from "react-router";
-
-const data = {
-  user: {
-    name: "Tran Trong",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-}
-
-
+import {useEffect, useState} from "react";
+import {Project} from "@/models/Project.ts";
+import {getProjects} from "@/services/projectService.ts";
 
 function ProjectPage() {
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+
+        const [projectsData] = await Promise.all([
+          getProjects(),
+        ]);
+
+        setProjects(projectsData);
+      } catch (err: unknown) {
+        setError((err as Error).message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error}</p>;
 
   return (
       <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
@@ -51,26 +70,17 @@ function ProjectPage() {
             </header>
             <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
               <div className="grid auto-rows-min gap-4 md:grid-cols-4">
-                <div className="aspect-video rounded-xl bg-muted/50 cursor-pointer hover:bg-sidebar-accent duration-500">
-                  <Link to="/task">
-                    <ItemProject user={data.user}/>
-                  </Link>
-                </div>
-                <div className="aspect-video rounded-xl bg-muted/50 cursor-pointer hover:bg-sidebar-accent duration-500">
-                  <Link to="/task">
-                    <ItemProject user={data.user}/>
-                  </Link>
-                </div>
-                <div className="aspect-video rounded-xl bg-muted/50 cursor-pointer hover:bg-sidebar-accent duration-500">
-                  <Link to="/task">
-                    <ItemProject user={data.user}/>
-                  </Link>
-                </div>
-                <div className="aspect-video rounded-xl bg-muted/50 cursor-pointer hover:bg-sidebar-accent duration-500">
-                  <Link to="/task">
-                    <ItemProject user={data.user}/>
-                  </Link>
-                </div>
+                {
+                  projects.map((project: Project) => {
+                    return (
+                        <Link key={project.id} to={`/project/task/${project.id}`}>
+                          <ItemProject
+                              project={project}
+                          />
+                        </Link>
+                    )
+                  })
+                }
               </div>
             </div>
           </SidebarInset>

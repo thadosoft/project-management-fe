@@ -9,5 +9,5 @@ export const router = createBrowserRouter([
   {path: "/", element: <DashboardPage/>},
   {path: "/login", element: <LoginPage/>},
   {path: "/project", element: <ProjectPage/>},
-  {path: "/task", element: <TaskPage/>}
+  {path: "/project/task/:projectId", element: <TaskPage/>}
 ]);
