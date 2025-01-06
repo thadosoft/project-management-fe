@@ -1,95 +1,89 @@
-import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar.tsx";
-import {DndContext, DragEndEvent, useDraggable, useDroppable} from "@dnd-kit/core";
-import {Assignment} from "@/models/Assignment.ts";
-import {User} from "@/models/User.ts";
+import type { UniqueIdentifier } from "@dnd-kit/core";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { cva } from "class-variance-authority";
+import { GripVertical } from "lucide-react";
+import {TaskId} from "@/pages/TaskPage.tsx";
+import {Badge} from "@/components/ui/badge.tsx";
 
-type AssignmentProps = {
-  assignment: Assignment,
-  user: User,
-  isLast?: boolean,
-  isOver?: boolean,
-  setNodeRef?: (element: (HTMLElement | null)) => void
+export interface Assignment {
+  id: UniqueIdentifier;
+  taskId: TaskId;
+  content: string;
 }
 
-export function ItemAssignment(
-    {
-      assignment,
-      user,
-      isLast,
-      isOver,
-      setNodeRef
-    }: AssignmentProps
-) {
+interface Props {
+  assignment: Assignment;
+  isOverlay?: boolean;
+}
+
+export type AssignmentType = "Assignment";
+
+export interface AssignmentDragData {
+  type: AssignmentType;
+  assignment: Assignment;
+}
+
+export function ItemAssignment({ assignment, isOverlay }: Props) {
   const {
+    setNodeRef,
     attributes,
     listeners,
-    setNodeRef: setDraggableNodeRef,
-    transform
-  } = useDraggable({
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
     id: assignment.id,
-    data: assignment
+    data: {
+      type: "Assignment",
+      assignment,
+    } satisfies AssignmentDragData,
+    attributes: {
+      roleDescription: "Assignment",
+    },
   });
 
-  // const {
-  //   isOver,
-  //   setNodeRef: setDroppableNodeRef,
-  // } = useDroppable({
-  //   id: assignment.assignmentOrder
-  // });
-
   const style = {
-    backgroundColor: isOver ? '#9ca3af' : undefined,
-    transition: 'all 0.3s ease'
+    transition,
+    transform: CSS.Translate.toString(transform),
   };
 
-  const dragStyle = transform ?
-      {
-        transform: `translate(${transform.x}px, ${transform.y}px)`
-      } :
-      undefined;
+  const variants = cva("", {
+    variants: {
+      dragging: {
+        over: "ring-2 opacity-30",
+        overlay: "ring-2 ring-primary",
+      },
+    },
+  });
 
   return (
-      <div>
-        <div
-            className="h-[2px] my-1"
-            ref={setNodeRef}
-            style={style}
-        />
-        <div
-            ref={setDraggableNodeRef}
-            {...listeners}
-            {...attributes}
-            className="flex flex-col p-2 pb-2 bg-zinc-700 rounded-sm hover:bg-opacity-70 cursor-pointer"
-            style={dragStyle}
-        >
-          <div className="flex justify-between items-center">
-            <div>
-              <p>{assignment.title}</p>
-            </div>
-            <div>
-              <p>•••</p>
-            </div>
-          </div>
-          <div className="flex justify-between items-center">
-            <div>
-              <p>{assignment.status} {assignment.assignmentOrder}</p>
-            </div>
-            <Avatar className="h-5 w-5">
-              <AvatarImage src="https://github.com/shadcn.png" alt={user.name}/>
-              <AvatarFallback>TT</AvatarFallback>
-            </Avatar>
-          </div>
-        </div>
-        {
-            isLast && (
-                <div
-                    className="h-[2px] my-1"
-                    ref={setNodeRef}
-                    style={style}
-                />
-            )
-        }
-      </div>
-
-  )
+      <Card
+          ref={setNodeRef}
+          style={style}
+          className={variants({
+            dragging: isOverlay ? "overlay" : isDragging ? "over" : undefined,
+          })}
+      >
+        <CardHeader className="px-3 py-3 space-between flex flex-row border-b-2 border-secondary relative">
+          <Button
+              variant={"ghost"}
+              {...attributes}
+              {...listeners}
+              className="p-1 text-secondary-foreground/50 -ml-2 h-auto cursor-grab"
+          >
+            <span className="sr-only">Move assignment</span>
+            <GripVertical />
+          </Button>
+          <Badge variant={"outline"} className="ml-auto font-semibold">
+            Assignment
+          </Badge>
+        </CardHeader>
+        <CardContent className="px-3 pt-3 pb-6 text-left whitespace-pre-wrap">
+          {assignment.content}
+        </CardContent>
+      </Card>
+  );
 }

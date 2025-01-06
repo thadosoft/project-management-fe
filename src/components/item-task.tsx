@@ -1,67 +1,128 @@
-import {ItemAssignment} from "@/components/item-assignment.tsx";
-import {useDroppable} from "@dnd-kit/core";
-import {Task} from "@/models/Task.ts";
-import {Assignment} from "@/models/Assignment.ts";
-import {useEffect} from "react";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faPlus} from "@fortawesome/free-solid-svg-icons";
+import { SortableContext, useSortable } from "@dnd-kit/sortable";
+import { useDndContext, type UniqueIdentifier } from "@dnd-kit/core";
+import { CSS } from "@dnd-kit/utilities";
+import React, { useMemo } from "react";
+import { Assignment, ItemAssignment } from "./item-assignment.tsx";
+import { cva } from "class-variance-authority";
+import { Card, CardContent, CardHeader } from "./ui/card";
+import { Button } from "./ui/button";
+import { GripVertical } from "lucide-react";
+import { ScrollArea, ScrollBar } from "./ui/scroll-area";
 
-type TaskProps = {
-  task: Task,
-  assignments: Assignment[],
-  isLast?: boolean
+export interface Task {
+  id: UniqueIdentifier;
+  title: string;
 }
 
-export function ItemTask({
-                           task,
-                           assignments,
-                           isLast
-                         }: TaskProps) {
+export type TaskType = "Task";
 
-  useEffect(() => {
-    assignments.sort((a, b) =>
-        a.assignmentOrder - b.assignmentOrder);
+export interface TaskDragData {
+  type: TaskType;
+  task: Task;
+}
+
+interface Props {
+  task: Task;
+  assignments: Assignment[];
+  isOverlay?: boolean;
+}
+
+export function ItemTask({ task, assignments, isOverlay }: Props) {
+  const assignmentsIds = useMemo(() => {
+    return assignments.map((assignment) => assignment.id);
   }, [assignments]);
 
-  const {isOver, setNodeRef} = useDroppable({
-    id: task.status
+  const {
+    setNodeRef,
+    attributes,
+    listeners,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: task.id,
+    data: {
+      type: "Task",
+      task,
+    } satisfies TaskDragData,
+    attributes: {
+      roleDescription: `Task: ${task.title}`,
+    },
   });
 
   const style = {
-    backgroundColor: isOver ? '#334155' : undefined,
-    transition: 'all 0.3s ease'
+    transition,
+    transform: CSS.Translate.toString(transform),
   };
 
-  return (
-      <div className="flex">
-        <div className="w-[2px] bg-zinc-400 mx-1"/>
-        <div className="rounded-xl min-w-[300px]">
-          <div ref={setNodeRef} style={style} className="flex flex-col rounded-xl p-4 bg-zinc-900">
-            <div className="gap-2 pb-2 hover:bg-sidebar-accent">
-              <p>{task.status}</p>
-            </div>
-            {
-              assignments.map((assignment: Assignment, index: number) => (
-                  <div key={assignment.id}>
-                    <ItemAssignment
-                        isOver={isOver}
-                        setNodeRef={setNodeRef}
-                        isLast={index === assignments.length - 1}
-                        user={assignment.receiver}
-                        assignment={assignment}/>
-                  </div>
-              ))
-            }
-            <div className="flex items-center p-1 pl-2 hover:bg-sidebar-accent cursor-pointer">
-              <FontAwesomeIcon icon={faPlus} />
-              <p className="pl-4">Create</p>
-            </div>
-          </div>
+  const variants = cva(
+      "h-[500px] max-h-[500px] w-[350px] max-w-full bg-primary-foreground flex flex-col flex-shrink-0 snap-center",
+      {
+        variants: {
+          dragging: {
+            default: "border-2 border-transparent",
+            over: "ring-2 opacity-30",
+            overlay: "ring-2 ring-primary",
+          },
+        },
+      }
+  );
 
+  return (
+      <Card
+          ref={setNodeRef}
+          style={style}
+          className={variants({
+            dragging: isOverlay ? "overlay" : isDragging ? "over" : undefined,
+          })}
+      >
+        <CardHeader className="p-4 font-semibold border-b-2 text-left flex flex-row space-between items-center">
+          <Button
+              variant={"ghost"}
+              {...attributes}
+              {...listeners}
+              className=" p-1 text-primary/50 -ml-2 h-auto cursor-grab relative"
+          >
+            <span className="sr-only">{`Move task: ${task.title}`}</span>
+            <GripVertical />
+          </Button>
+          <span className="ml-auto"> {task.title}</span>
+        </CardHeader>
+        <ScrollArea>
+          <CardContent className="flex flex-grow flex-col gap-2 p-2">
+            <SortableContext items={assignmentsIds}>
+              {assignments.map((assignment) => (
+                  <ItemAssignment key={assignment.id} assignment={assignment} />
+              ))}
+            </SortableContext>
+          </CardContent>
+        </ScrollArea>
+      </Card>
+  );
+}
+
+export function BoardContainer({ children }: { children: React.ReactNode }) {
+  const dndContext = useDndContext();
+
+  const variations = cva("px-2 md:px-0 flex lg:justify-center pb-4", {
+    variants: {
+      dragging: {
+        default: "snap-x snap-mandatory",
+        active: "snap-none",
+      },
+    },
+  });
+
+  return (
+      <ScrollArea
+          className={variations({
+            dragging: dndContext.active ? "active" : "default",
+          })}
+      >
+        <div className="flex gap-4 items-center flex-row justify-center">
+          {children}
         </div>
-        {
-            isLast && (<div className="w-[2px] bg-zinc-400 mx-1"/>)
-        }
-      </div>
-  )
+        <ScrollBar orientation="horizontal" />
+      </ScrollArea>
+  );
 }

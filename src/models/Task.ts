@@ -1,12 +1,22 @@
 import {Project} from "@/models/Project.ts";
-import {Assignment} from "@/models/Assignment.ts";
 
 export interface Task {
-  id: number;
+  id: string;
   status: string;
   taskOrder: number;
   project: Project;
-  assignments: Assignment[];
   modifiedDate: string;
   createdDate: string;
+}
+
+export interface TaskCreate {
+  status: string;
+  taskOrder: number;
+  projectId: string;
+}
+
+export interface TaskUpdate {
+  status: string;
+  taskOrder: number;
+  projectId: string;
 }

@@ -1,122 +1,396 @@
-import {ThemeProvider} from "@/components/theme-provider.tsx";
-import {SidebarInset, SidebarProvider, SidebarTrigger} from "@/components/ui/sidebar.tsx";
-import {AppSidebar} from "@/components/app-sidebar.tsx";
+import {useEffect, useMemo, useRef, useState} from "react";
+import {createPortal} from "react-dom";
+
+import {ItemTask, BoardContainer} from "@/components/item-task.tsx";
 import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
-import {Separator} from "@/components/ui/separator.tsx";
-import {ItemTask} from "@/components/item-task.tsx";
-import {useEffect, useState} from "react";
-import {DndContext, DragEndEvent} from "@dnd-kit/core";
+  DndContext,
+  type DragEndEvent,
+  type DragOverEvent,
+  DragOverlay,
+  type DragStartEvent,
+  useSensor,
+  useSensors,
+  KeyboardSensor,
+  Announcements,
+  UniqueIdentifier,
+  TouchSensor,
+  MouseSensor,
+} from "@dnd-kit/core";
+import {SortableContext, arrayMove} from "@dnd-kit/sortable";
+import {type Assignment, ItemAssignment} from "@/components/item-assignment.tsx";
+import type {Task} from "@/components/item-task.tsx";
+import {hasDraggableData} from "@/components/utils";
+import {coordinateGetter} from "@/components/multipleContainersKeyboardPreset";
 import {getTasksByProjectId} from "@/services/taskService.ts";
-import {Task} from "@/models/Task.ts";
-import {Assignment} from "@/models/Assignment.ts";
-import {useParams} from "react-router-dom";
-import {Project} from "@/models/Project.ts";
-import {getProjectById} from "@/services/projectService.ts";
-import {getAssignmentsByProjectId, updateAssignment} from "@/services/assignmentService.ts";
+import {useParams} from "react-router";
+
+const defaultTasks = [
+  {
+    id: 123,
+    title: "Todo",
+  },
+  {
+    id: 456,
+    title: "In progress",
+  },
+  {
+    id: 789,
+    title: "Done",
+  },
+] satisfies Task[];
+
+export type TaskId = (typeof defaultTasks)[number]["id"];
+
+const initialAssignments: Assignment[] = [
+  {
+    id: 1,
+    taskId: 789,
+    content: "Project initiation and planning",
+  },
+  {
+    id: 2,
+    taskId: 789,
+    content: "Gather requirements from stakeholders",
+  },
+  {
+    id: 3,
+    taskId: 789,
+    content: "Create wireframes and mockups",
+  },
+  {
+    id: 4,
+    taskId: 456,
+    content: "Develop homepage layout",
+  },
+  {
+    id: 5,
+    taskId: 456,
+    content: "Design color scheme and typography",
+  },
+  {
+    id: 6,
+    taskId: 123,
+    content: "Implement user authentication",
+  },
+  {
+    id: 7,
+    taskId: 123,
+    content: "Build contact us page",
+  },
+  {
+    id: 8,
+    taskId: 123,
+    content: "Create product catalog",
+  },
+  {
+    id: 9,
+    taskId: 123,
+    content: "Develop about us page",
+  },
+  {
+    id: 10,
+    taskId: 123,
+    content: "Optimize website for mobile devices",
+  },
+  {
+    id: 11,
+    taskId: 123,
+    content: "Integrate payment gateway",
+  },
+  {
+    id: 12,
+    taskId: 123,
+    content: "Perform testing and bug fixing",
+  },
+  {
+    id: 13,
+    taskId: 123,
+    content: "Launch website and deploy to server",
+  },
+];
 
 export default function TaskPage() {
-  const {projectId} = useParams();
-  const [project, setProject] = useState<Project | null>(null);
-  const [assignments, setAssignments] = useState<Assignment[]>([]);
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // const {projectId} = useParams<{ projectId: string }>();
 
-  if (!projectId) {
-    throw new Error("Project not found");
-  }
+  // if (!projectId) return <p>Can not found project ID...</p>;
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
+  const [tasks, setTasks] = useState<Task[]>(defaultTasks);
+  const pickedUpAssignmentTask = useRef<TaskId | null>(null);
+  const tasksId = useMemo(() => tasks.map((col) => col.id), [tasks]);
 
-        const [projectData, tasksData, assignmentsData] = await Promise.all([
-          getProjectById(projectId),
-          getTasksByProjectId(projectId),
-          getAssignmentsByProjectId(projectId)
-        ]);
+  const [assignments, setAssignments] = useState<Assignment[]>(initialAssignments);
+  const [activeTask, setActiveTask] = useState<Task | null>(null);
+  const [activeAssignment, setActiveAssignment] = useState<Assignment | null>(null);
 
-        setProject(projectData);
-        setTasks(tasksData);
-        setAssignments(assignmentsData);
-      } catch (err: unknown) {
-        setError((err as Error).message);
-      } finally {
-        setLoading(false);
-      }
+  const sensors = useSensors(
+      useSensor(MouseSensor),
+      useSensor(TouchSensor),
+      useSensor(KeyboardSensor, {
+        coordinateGetter: coordinateGetter,
+      })
+  );
+
+  // const [tasks, setTasks] = useState<Task[]>([]);
+  // const [loading, setLoading] = useState<boolean>(false);
+  // const [error, setError] = useState<string | null>(null);
+  //
+  // useEffect(() => {
+  //   const fetchTasks = async () => {
+  //     setLoading(true);
+  //     try {
+  //       const tasks = await getTasksByProjectId(projectId);
+  //       setTasks(tasks);
+  //     } catch (error) {
+  //       setError('Error fetching tasks: ' + error.message);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+  //
+  //   fetchTasks();
+  // }, []);
+
+  function getDraggingAssignmentData(assignmentId: UniqueIdentifier, taskId: TaskId) {
+    const assignmentsInTask = assignments.filter((assignment) => assignment.taskId === taskId);
+    const assignmentPosition = assignmentsInTask.findIndex((assignment) => assignment.id === assignmentId);
+    const task = tasks.find((task) => task.id === taskId);
+    return {
+      assignmentsInTask,
+      assignmentPosition,
+      task,
     };
-
-    fetchData();
-  }, []);
-
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error}</p>;
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const {active, over} = event;
-
-    if (!over) return;
-
-    const assignmentId = active.id as number;
-    const newStatus = over.id as string;
-
-    setAssignments((prevAssignments) =>
-        prevAssignments.map((assignment) =>
-            assignment.id === assignmentId ? {...assignment, status: newStatus} : assignment
-        )
-    );
   }
+
+  const announcements: Announcements = {
+    onDragStart({active}) {
+      if (!hasDraggableData(active)) return;
+      if (active.data.current?.type === "Task") {
+        const startTaskIdx = tasksId.findIndex((id) => id === active.id);
+        const startTask = tasks[startTaskIdx];
+        return `Picked up Task ${startTask?.title} at position: ${
+            startTaskIdx + 1
+        } of ${tasksId.length}`;
+      } else if (active.data.current?.type === "Assignment") {
+        pickedUpAssignmentTask.current = active.data.current.assignment.taskId;
+        const {assignmentsInTask, assignmentPosition, task} = getDraggingAssignmentData(
+            active.id,
+            pickedUpAssignmentTask.current
+        );
+        return `Picked up Assignment ${
+            active.data.current.assignment.content
+        } at position: ${assignmentPosition + 1} of ${
+            assignmentsInTask.length
+        } in task ${task?.title}`;
+      }
+    },
+    onDragOver({active, over}) {
+      if (!hasDraggableData(active) || !hasDraggableData(over)) return;
+
+      if (
+          active.data.current?.type === "Task" &&
+          over.data.current?.type === "Task"
+      ) {
+        const overTaskIdx = tasksId.findIndex((id) => id === over.id);
+        return `Task ${active.data.current.task.title} was moved over ${
+            over.data.current.task.title
+        } at position ${overTaskIdx + 1} of ${tasksId.length}`;
+      } else if (
+          active.data.current?.type === "Assignment" &&
+          over.data.current?.type === "Assignment"
+      ) {
+        const {assignmentsInTask, assignmentPosition, task} = getDraggingAssignmentData(
+            over.id,
+            over.data.current.assignment.taskId
+        );
+        if (over.data.current.assignment.taskId !== pickedUpAssignmentTask.current) {
+          return `Assignment ${
+              active.data.current.assignment.content
+          } was moved over task ${task?.title} in position ${
+              assignmentPosition + 1
+          } of ${assignmentsInTask.length}`;
+        }
+        return `Assignment was moved over position ${assignmentPosition + 1} of ${
+            assignmentsInTask.length
+        } in task ${task?.title}`;
+      }
+    },
+    onDragEnd({active, over}) {
+      if (!hasDraggableData(active) || !hasDraggableData(over)) {
+        pickedUpAssignmentTask.current = null;
+        return;
+      }
+      if (
+          active.data.current?.type === "Task" &&
+          over.data.current?.type === "Task"
+      ) {
+        const overTaskPosition = tasksId.findIndex((id) => id === over.id);
+
+        return `Task ${
+            active.data.current.task.title
+        } was dropped into position ${overTaskPosition + 1} of ${
+            tasksId.length
+        }`;
+      } else if (
+          active.data.current?.type === "Assignment" &&
+          over.data.current?.type === "Assignment"
+      ) {
+        const {assignmentsInTask, assignmentPosition, task} = getDraggingAssignmentData(
+            over.id,
+            over.data.current.assignment.taskId
+        );
+        if (over.data.current.assignment.taskId !== pickedUpAssignmentTask.current) {
+          return `Assignment was dropped into task ${task?.title} in position ${
+              assignmentPosition + 1
+          } of ${assignmentsInTask.length}`;
+        }
+        return `Assignment was dropped into position ${assignmentPosition + 1} of ${
+            assignmentsInTask.length
+        } in task ${task?.title}`;
+      }
+      pickedUpAssignmentTask.current = null;
+    },
+    onDragCancel({active}) {
+      pickedUpAssignmentTask.current = null;
+      if (!hasDraggableData(active)) return;
+      return `Dragging ${active.data.current?.type} cancelled.`;
+    },
+  };
 
   return (
-      <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-        <SidebarProvider>
-          <AppSidebar/>
-          <SidebarInset className="overflow-x-auto">
-            <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrProjectPageer:h-12">
-              <div className="flex items-center gap-2 px-4">
-                <SidebarTrigger className="-ml-1"/>
-                <Separator orientation="vertical" className="mr-2 h-4"/>
-                <Breadcrumb>
-                  <BreadcrumbList>
-                    <BreadcrumbItem className="hidden md:block">
-                      <BreadcrumbLink href="#">
-                        Building Your Application
-                      </BreadcrumbLink>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator className="hidden md:block"/>
-                    <BreadcrumbItem>
-                      <BreadcrumbPage>Data Fetching</BreadcrumbPage>
-                    </BreadcrumbItem>
-                  </BreadcrumbList>
-                </Breadcrumb>
-              </div>
-            </header>
-            <div className="flex flex-1 gap-4 p-4 pt-0">
-              <div className="grid grid-flow-col">
-                <DndContext onDragEnd={handleDragEnd}>
-                  {
-                    tasks.map((task: Task, index: number) => (
-                        <ItemTask
-                            key={task.id}
-                            isLast={index === tasks.length - 1}
-                            task={task}
-                            assignments={assignments.filter((assignment) => assignment.status === task.status)}
-                        />
-                    ))
-                  }
-                </DndContext>
-              </div>
-            </div>
-          </SidebarInset>
-        </SidebarProvider>
-      </ThemeProvider>
-  )
+      <DndContext
+          accessibility={{
+            announcements,
+          }}
+          sensors={sensors}
+          onDragStart={onDragStart}
+          onDragEnd={onDragEnd}
+          onDragOver={onDragOver}
+      >
+        <BoardContainer>
+          <SortableContext items={tasksId}>
+            {tasks.map((col) => (
+                <ItemTask
+                    key={col.id}
+                    task={col}
+                    assignments={assignments.filter((assignment) => assignment.taskId === col.id)}
+                />
+            ))}
+          </SortableContext>
+        </BoardContainer>
+
+        {"document" in window &&
+            createPortal(
+                <DragOverlay>
+                  {activeTask && (
+                      <ItemTask
+                          isOverlay
+                          task={activeTask}
+                          assignments={assignments.filter(
+                              (assignment) => assignment.taskId === activeTask.id
+                          )}
+                      />
+                  )}
+                  {activeAssignment && <ItemAssignment assignment={activeAssignment} isOverlay/>}
+                </DragOverlay>,
+                document.body
+            )}
+      </DndContext>
+  );
+
+  function onDragStart(event: DragStartEvent) {
+    if (!hasDraggableData(event.active)) return;
+    const data = event.active.data.current;
+    if (data?.type === "Task") {
+      setActiveTask(data.task);
+      return;
+    }
+
+    if (data?.type === "Assignment") {
+      setActiveAssignment(data.assignment);
+      return;
+    }
+  }
+
+  function onDragEnd(event: DragEndEvent) {
+    setActiveTask(null);
+    setActiveAssignment(null);
+
+    const {active, over} = event;
+    if (!over) return;
+
+    const activeId = active.id;
+    const overId = over.id;
+
+    if (!hasDraggableData(active)) return;
+
+    const activeData = active.data.current;
+
+    if (activeId === overId) return;
+
+    const isActiveATask = activeData?.type === "Task";
+    if (!isActiveATask) return;
+
+    setTasks((tasks) => {
+      const activeTaskIndex = tasks.findIndex((col) => col.id === activeId);
+
+      const overTaskIndex = tasks.findIndex((col) => col.id === overId);
+
+      return arrayMove(tasks, activeTaskIndex, overTaskIndex);
+    });
+  }
+
+  function onDragOver(event: DragOverEvent) {
+    const {active, over} = event;
+    if (!over) return;
+
+    const activeId = active.id;
+    const overId = over.id;
+
+    if (activeId === overId) return;
+
+    if (!hasDraggableData(active) || !hasDraggableData(over)) return;
+
+    const activeData = active.data.current;
+    const overData = over.data.current;
+
+    const isActiveAAssignment = activeData?.type === "Assignment";
+    const isOverAAssignment = overData?.type === "Assignment";
+
+    if (!isActiveAAssignment) return;
+
+    // Im dropping a Assignment over another Assignment
+    if (isActiveAAssignment && isOverAAssignment) {
+      setAssignments((assignments) => {
+        const activeIndex = assignments.findIndex((t) => t.id === activeId);
+        const overIndex = assignments.findIndex((t) => t.id === overId);
+        const activeAssignment = assignments[activeIndex];
+        const overAssignment = assignments[overIndex];
+        if (
+            activeAssignment &&
+            overAssignment &&
+            activeAssignment.taskId !== overAssignment.taskId
+        ) {
+          activeAssignment.taskId = overAssignment.taskId;
+          return arrayMove(assignments, activeIndex, overIndex - 1);
+        }
+
+        return arrayMove(assignments, activeIndex, overIndex);
+      });
+    }
+
+    const isOverATask = overData?.type === "Task";
+
+    // Im dropping a Assignment over a task
+    if (isActiveAAssignment && isOverATask) {
+      setAssignments((assignments) => {
+        const activeIndex = assignments.findIndex((t) => t.id === activeId);
+        const activeAssignment = assignments[activeIndex];
+        if (activeAssignment) {
+          activeAssignment.taskId = overId as TaskId;
+          return arrayMove(assignments, activeIndex, activeIndex);
+        }
+        return assignments;
+      });
+    }
+  }
 }

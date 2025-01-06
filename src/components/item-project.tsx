@@ -1,5 +1,5 @@
 import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar.tsx";
-import {Project} from "@/models/Project.ts";
+import {Project} from "@/models/types.ts";
 
 interface ItemProjectProps {
   project: Project;
