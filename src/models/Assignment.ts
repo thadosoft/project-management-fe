@@ -30,7 +30,9 @@ export interface AssignmentUpdate {
   title?: string;
   description?: string;
   status?: string;
+  oldAssignmentOrder?: number;
   assignmentOrder?: number;
+  oldTaskId?: string;
   taskId?: string;
   assignerId?: string;
   receiverId?: string;

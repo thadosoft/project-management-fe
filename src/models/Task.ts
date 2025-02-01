@@ -16,7 +16,8 @@ export interface TaskCreate {
 }
 
 export interface TaskUpdate {
-  status: string;
-  taskOrder: number;
-  projectId: string;
+  status?: string;
+  projectId?: string;
+  oldTaskOrder?: number;
+  taskOrder?: number;
 }

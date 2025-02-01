@@ -29,8 +29,9 @@ function ProjectPage() {
         const [projectsData] = await Promise.all([
           getProjects(),
         ]);
-
-        setProjects(projectsData);
+        if (projectsData) {
+          setProjects(projectsData);
+        }
       } catch (err: unknown) {
         setError((err as Error).message);
       } finally {

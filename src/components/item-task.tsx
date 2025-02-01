@@ -1,18 +1,15 @@
-import { SortableContext, useSortable } from "@dnd-kit/sortable";
-import { useDndContext, type UniqueIdentifier } from "@dnd-kit/core";
-import { CSS } from "@dnd-kit/utilities";
-import React, { useMemo } from "react";
-import { Assignment, ItemAssignment } from "./item-assignment.tsx";
-import { cva } from "class-variance-authority";
-import { Card, CardContent, CardHeader } from "./ui/card";
-import { Button } from "./ui/button";
-import { GripVertical } from "lucide-react";
-import { ScrollArea, ScrollBar } from "./ui/scroll-area";
-
-export interface Task {
-  id: UniqueIdentifier;
-  title: string;
-}
+import {SortableContext, useSortable} from "@dnd-kit/sortable";
+import {useDndContext} from "@dnd-kit/core";
+import {CSS} from "@dnd-kit/utilities";
+import React, {useMemo} from "react";
+import {ItemAssignment} from "./item-assignment.tsx";
+import {cva} from "class-variance-authority";
+import {Card, CardContent, CardHeader} from "./ui/card";
+import {Button} from "./ui/button";
+import {GripVertical} from "lucide-react";
+import {ScrollArea, ScrollBar} from "./ui/scroll-area";
+import {Task} from "@/models/Task.ts";
+import {Assignment} from "@/models/Assignment.ts";
 
 export type TaskType = "Task";
 
@@ -27,11 +24,10 @@ interface Props {
   isOverlay?: boolean;
 }
 
-export function ItemTask({ task, assignments, isOverlay }: Props) {
+export function ItemTask({task, assignments, isOverlay}: Props) {
   const assignmentsIds = useMemo(() => {
     return assignments.map((assignment) => assignment.id);
   }, [assignments]);
-
   const {
     setNodeRef,
     attributes,
@@ -46,17 +42,16 @@ export function ItemTask({ task, assignments, isOverlay }: Props) {
       task,
     } satisfies TaskDragData,
     attributes: {
-      roleDescription: `Task: ${task.title}`,
+      roleDescription: `Task: ${task.status}`,
     },
   });
-
   const style = {
     transition,
     transform: CSS.Translate.toString(transform),
   };
 
   const variants = cva(
-      "h-[500px] max-h-[500px] w-[350px] max-w-full bg-primary-foreground flex flex-col flex-shrink-0 snap-center",
+      "h-[90vh] max-h-full w-[300px] max-w-full bg-primary-foreground flex flex-col flex-shrink-0 snap-center",
       {
         variants: {
           dragging: {
@@ -83,17 +78,19 @@ export function ItemTask({ task, assignments, isOverlay }: Props) {
               {...listeners}
               className=" p-1 text-primary/50 -ml-2 h-auto cursor-grab relative"
           >
-            <span className="sr-only">{`Move task: ${task.title}`}</span>
-            <GripVertical />
+            <span className="sr-only">{`Move task: ${task.status}`}</span>
+            <GripVertical/>
           </Button>
-          <span className="ml-auto"> {task.title}</span>
+          <span className="ml-auto"> {task.status}</span>
         </CardHeader>
         <ScrollArea>
           <CardContent className="flex flex-grow flex-col gap-2 p-2">
             <SortableContext items={assignmentsIds}>
-              {assignments.map((assignment) => (
-                  <ItemAssignment key={assignment.id} assignment={assignment} />
-              ))}
+              {
+                assignments.map((assignment) => (
+                    <ItemAssignment key={assignment.id} assignment={assignment}/>
+                ))
+              }
             </SortableContext>
           </CardContent>
         </ScrollArea>
@@ -101,7 +98,7 @@ export function ItemTask({ task, assignments, isOverlay }: Props) {
   );
 }
 
-export function BoardContainer({ children }: { children: React.ReactNode }) {
+export function BoardContainer({children}: { children: React.ReactNode }) {
   const dndContext = useDndContext();
 
   const variations = cva("px-2 md:px-0 flex lg:justify-center pb-4", {
@@ -114,15 +111,15 @@ export function BoardContainer({ children }: { children: React.ReactNode }) {
   });
 
   return (
-      <ScrollArea
-          className={variations({
-            dragging: dndContext.active ? "active" : "default",
-          })}
-      >
-        <div className="flex gap-4 items-center flex-row justify-center">
-          {children}
-        </div>
-        <ScrollBar orientation="horizontal" />
-      </ScrollArea>
+      //<ScrollArea
+      //    className={variations({
+      //    dragging: dndContext.active ? "active" : "default",
+      //   })}
+      //>
+      <div className="flex gap-4 flex-row">
+        {children}
+      </div>
+      //  <ScrollBar orientation="horizontal"/>
+      //</ScrollArea>
   );
 }

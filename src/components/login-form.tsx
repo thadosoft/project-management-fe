@@ -11,7 +11,7 @@ import {Input} from "@/components/ui/input"
 import {Label} from "@/components/ui/label"
 import React, {useState} from "react";
 import {login} from "@/services/authService.ts";
-import { useNavigate } from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 
 export function LoginForm({
                             className,
@@ -27,7 +27,11 @@ export function LoginForm({
     try {
       const response = await login(username, password);
 
-      const { accessToken, refreshToken } = response;
+      if (!response) {
+        throw new Error("Login failed, response is null");
+      }
+
+      const {accessToken, refreshToken} = response;
 
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("refreshToken", refreshToken);

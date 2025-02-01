@@ -1,6 +1,6 @@
 import {fetchData} from "@/utils/api.ts";
 
-export const login = async (username: string, password: string): Promise<{ accessToken: string; refreshToken: string }> => {
+export const login = async (username: string, password: string): Promise<{ accessToken: string; refreshToken: string } | null> => {
   return await fetchData<
       { accessToken: string; refreshToken: string },
       { username: string, password: string }
