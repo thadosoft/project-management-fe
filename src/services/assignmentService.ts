@@ -1,5 +1,5 @@
 import {fetchData} from "@/utils/api.ts";
-import {Assignment, AssignmentUpdate} from "@/models/Assignment.ts";
+import {Assignment, AssignmentRequest} from "@/models/Assignment.ts";
 import {accessToken} from "@/utils/token.ts";
 
 export const getAssignments = async (): Promise<Assignment[] | null> => {
@@ -10,6 +10,6 @@ export const getAssignmentsByProjectId = async (id: string): Promise<Assignment[
   return await fetchData<Assignment[]>(`assignments/project/${id}`, "GET", accessToken);
 };
 
-export const updateAssignment = async (id: string, assignmentUpdate: AssignmentUpdate): Promise<void | null> => {
-  return await fetchData<void, AssignmentUpdate>(`assignments/${id}`, "PUT", accessToken, assignmentUpdate);
+export const updateAssignment = async (id: string, assignmentRequest: AssignmentRequest): Promise<void | null> => {
+  return await fetchData<void, AssignmentRequest>(`assignments/${id}`, "PUT", accessToken, assignmentRequest);
 };

@@ -23,7 +23,7 @@ import {getTasksByProjectId, updateTask} from "@/services/taskService.ts";
 import {useParams} from "react-router";
 import {getAssignmentsByProjectId, updateAssignment} from "@/services/assignmentService.ts";
 import {Task, TaskUpdate} from "@/models/Task.ts";
-import {Assignment, AssignmentUpdate} from "@/models/Assignment.ts";
+import {Assignment, AssignmentRequest} from "@/models/Assignment.ts";
 import {AppSidebar} from "@/components/app-sidebar.tsx";
 import {ThemeProvider} from "@/components/theme-provider.tsx";
 import {SidebarInset, SidebarProvider, SidebarTrigger} from "@/components/ui/sidebar.tsx";
@@ -47,7 +47,7 @@ export default function TaskPage() {
       })
   );
   const [taskUpdated, setTaskUpdated] = useState<TaskUpdate | null>(null);
-  const [assignmentUpdated, setAssignmentUpdated] = useState<AssignmentUpdate | null>(null);
+  const [assignmentUpdated, setAssignmentUpdated] = useState<AssignmentRequest | null>(null);
 
   const {projectId} = useParams<{ projectId: string }>();
 

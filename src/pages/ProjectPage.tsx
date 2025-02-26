@@ -15,6 +15,7 @@ import {Link} from "react-router";
 import {useEffect, useState} from "react";
 import {Project} from "@/models/Project.ts";
 import {getProjects} from "@/services/projectService.ts";
+import {download} from "@/services/mediaService.ts";
 
 function ProjectPage() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -22,25 +23,46 @@ function ProjectPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
+        // const a = "Test project";
+        // const c = "fc5b94da-184d-4917-96f1-d022cbcb09d2_attach_icon.jpg";
+        //
+        // download(a, c)
+        // .then(response => {
+        //   if (response) {
+        //     const imgURL = URL.createObjectURL(response);
+        //     console.log(imgURL);
+        //   } else {
+        //     console.error("No image data received");
+        //   }
+        // })
+        // .catch(error => {
+        //   console.error("Error fetching image:", error);
+        // });
 
-        const [projectsData] = await Promise.all([
-          getProjects(),
-        ]);
-        if (projectsData) {
-          setProjects(projectsData);
-        }
-      } catch (err: unknown) {
-        setError((err as Error).message);
-      } finally {
-        setLoading(false);
+        const fetchData = async () => {
+          try {
+            setLoading(true);
+
+            const [projectsData] = await Promise.all([
+              getProjects(),
+            ]);
+            if (projectsData) {
+              setProjects(projectsData);
+            }
+          } catch (err: unknown) {
+            setError((err as Error).message);
+          } finally {
+            setLoading(false);
+          }
+        };
+
+        fetchData();
       }
-    };
 
-    fetchData();
-  }, []);
+      ,
+      []
+  )
+  ;
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
@@ -70,7 +92,7 @@ function ProjectPage() {
               </div>
             </header>
             <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-              <div className="grid auto-rows-min gap-4 md:grid-cols-4">
+              <div className="grid auto-rows-min gap-4 md:grid-cols-4 ">
                 {
                   projects.map((project: Project) => {
                     return (

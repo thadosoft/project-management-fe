@@ -16,20 +16,9 @@ export interface Assignment {
   createdDate: string;
 }
 
-export interface AssignmentCreate {
-  title: string;
-  description: string;
-  status: string;
-  assignmentOrder: number;
-  taskId: string;
-  assignerId: string;
-  receiverId: string;
-}
-
-export interface AssignmentUpdate {
+export interface AssignmentRequest {
   title?: string;
   description?: string;
-  status?: string;
   oldAssignmentOrder?: number;
   assignmentOrder?: number;
   oldTaskId?: string;

@@ -1,19 +1,20 @@
-const BASE_API_URL = "http://localhost:8080/api/v1/";
+export const BASE_API_URL = "http://localhost:8080/api/v1/";
 
-export const fetchData = async <T, B = undefined>(
+export const fetchData = async <T, B = unknown>(
     url: string,
     method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE" = "GET",
     token: string | null = null,
     body?: B,
 ): Promise<T | null> => {
   try {
+    const isFormData = body instanceof FormData;
     const response = await fetch(BASE_API_URL + url, {
       method: method,
       headers: {
-        "Content-Type": "application/json",
         ...(token ? {Authorization: `Bearer ${token}`} : {}),
+        ...(!isFormData ? {"Content-Type": "application/json"} : {}),
       },
-      body: body ? JSON.stringify(body) : undefined,
+      body: isFormData ? (body as FormData) : body ? JSON.stringify(body) : undefined,
     });
 
     if (!response.ok) {
@@ -27,11 +28,15 @@ export const fetchData = async <T, B = undefined>(
       throw new Error(errorMessage);
     }
 
-    // return await response.json();
+    const contentType = response.headers.get("Content-Type");
 
-
-    const responseText = await response.text();
-    return responseText ? JSON.parse(responseText) as T : null;
+    if (contentType?.includes("application/json")) {
+      return (await response.json()) as T;
+    } else if (contentType?.includes("text/plain")) {
+      return (await response.text()) as T;
+    } else {
+      return (await response.blob()) as T;
+    }
   } catch (error) {
     console.error("Fetch error:", {
       url,

@@ -6,14 +6,10 @@ export interface Media {
   createdDate: string;
 }
 
-export interface MediaCreate {
-  type: string;
-  path: string;
-  assignmentId: number;
-}
-
-export interface MediaUpdate {
-  type?: string;
-  path?: string;
-  assignmentId?: number;
+export interface MediaRequest {
+  projectName?: string;
+  file?: File;
+  assignmentId?: string;
+  isContent?: boolean;
+  fileName?: string;
 }
