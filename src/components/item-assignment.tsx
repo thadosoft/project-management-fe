@@ -130,6 +130,8 @@ export function ItemAssignment({assignment, isOverlay}: Props) {
       }
     });
 
+    console.log(changedContent.body.innerHTML)
+
     const assignmentRequest: AssignmentRequest = {
       title: assignment.title,
       description: changedContent.body.innerHTML,
@@ -229,8 +231,11 @@ export function ItemAssignment({assignment, isOverlay}: Props) {
         console.error("Error download image:", error);
       });
     });
+  }, [])
 
-  }, [content])
+  useEffect(() => {
+    setContent(content);
+  }, [content]);
 
   const handleDeleteAttachFile = async (fileName: string) => {
     setAttachFiles(prev => prev.filter(file => file.name !== fileName));

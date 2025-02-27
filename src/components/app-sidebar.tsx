@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/sidebar"
 import {NavApp} from "@/components/nav-app.tsx";
 import {Calendar, Home, Inbox, Search, Settings} from "lucide-react"
+import {ScrollArea} from "@/components/ui/scroll-area.tsx";
 
 const data = {
   user: {
@@ -34,20 +35,20 @@ const data = {
   },
   teams: [
     {
-      name: "Acme Inc",
+      name: "Thadosoft",
       logo: GalleryVerticalEnd,
       plan: "Enterprise",
     },
-    {
-      name: "Acme Corp.",
-      logo: AudioWaveform,
-      plan: "Startup",
-    },
-    {
-      name: "Evil Corp.",
-      logo: Command,
-      plan: "Free",
-    },
+    // {
+    //   name: "Acme Corp.",
+    //   logo: AudioWaveform,
+    //   plan: "Startup",
+    // },
+    // {
+    //   name: "Evil Corp.",
+    //   logo: Command,
+    //   plan: "Free",
+    // },
   ],
   navApp: [
     {
@@ -55,112 +56,148 @@ const data = {
       url: "#",
       icon: Home,
     },
-    {
-      title: "Inbox",
-      url: "#",
-      icon: Inbox,
-    },
-    {
-      title: "Calendar",
-      url: "#",
-      icon: Calendar,
-    },
-    {
-      title: "Search",
-      url: "#",
-      icon: Search,
-    },
-    {
-      title: "Settings",
-      url: "#",
-      icon: Settings,
-    },
+    // {
+    //   title: "Inbox",
+    //   url: "#",
+    //   icon: Inbox,
+    // },
+    // {
+    //   title: "Calendar",
+    //   url: "#",
+    //   icon: Calendar,
+    // },
+    // {
+    //   title: "Search",
+    //   url: "#",
+    //   icon: Search,
+    // },
+    // {
+    //   title: "Settings",
+    //   url: "#",
+    //   icon: Settings,
+    // },
   ],
   navMain: [
     {
-      title: "Playground",
+      title: "HRM(Office & Facility Management)",
       url: "#",
       icon: SquareTerminal,
       isActive: true,
       items: [
         {
-          title: "History",
+          title: "Lịch làm việc",
           url: "#",
         },
         {
-          title: "Starred",
+          title: "Lịch tính lương",
           url: "#",
         },
         {
-          title: "Settings",
+          title: "Thông tin nhân viên",
           url: "#",
+          items: [
+            {
+              title: "Khởi tạo",
+              url: "#",
+            },
+            {
+              title: "Tìm kiếm",
+              url: "#",
+            },
+          ]
+        },
+        {
+          title: "Hợp đồng lao động",
+          url: "#",
+          items: [
+            {
+              title: "Quy định công ty",
+              url: "#",
+            },
+            {
+              title: "Phụ lục hợp đồng lao động",
+              url: "#",
+            },
+            {
+              title: "Tìm kiếm HĐ / Phụ lục HĐLĐ",
+              url: "#",
+            },
+          ]
+        },
+        {
+          title: "Chấm công",
+          url: "#",
+          items: [
+            {
+              title: "Tạo bảng chấm công",
+              url: "#",
+            },
+            {
+              title: "Tìm bảng chấm công",
+              url: "#",
+            },
+          ]
         },
       ],
     },
     {
-      title: "Models",
+      title: "Điều vận - Technical",
       url: "#",
       icon: Bot,
       items: [
         {
-          title: "Genesis",
-          url: "#",
-        },
-        {
-          title: "Explorer",
-          url: "#",
-        },
-        {
-          title: "Quantum",
+          title: "Quản lý dự án",
           url: "#",
         },
       ],
     },
     {
-      title: "Documentation",
+      title: "Điều phối - Coordination",
       url: "#",
       icon: BookOpen,
       items: [
         {
-          title: "Introduction",
-          url: "#",
-        },
-        {
-          title: "Get Started",
-          url: "#",
-        },
-        {
-          title: "Tutorials",
-          url: "#",
-        },
-        {
-          title: "Changelog",
+          title: "Hợp đồng bán hàng",
           url: "#",
         },
       ],
     },
     {
-      title: "Settings",
+      title: "Manufacturing",
       url: "#",
       icon: Settings2,
       items: [
         {
-          title: "General",
+          title: "BOM",
           url: "#",
+          items: [
+            {
+              title: "Khởi tạo",
+              url: "#",
+            },
+            {
+              title: "Tìm kiếm",
+              url: "#",
+            },
+          ],
         },
+      ],
+    },
+    {
+      title: "Warehouse",
+      url: "#",
+      icon: Settings,
+      items: [
         {
-          title: "Team",
-          url: "#",
-        },
-        {
-          title: "Billing",
-          url: "#",
-        },
-        {
-          title: "Limits",
+          title: "Report",
           url: "#",
         },
       ],
+    },
+    {
+      title: "Reference Profile",
+      url: "#",
+      icon: Settings,
     },
   ],
   projects: [
@@ -184,19 +221,19 @@ const data = {
 
 export function AppSidebar({...props}: React.ComponentProps<typeof Sidebar>) {
   return (
-      <Sidebar collapsible="icon" {...props}>
-        <SidebarHeader>
-          <TeamSwitcher teams={data.teams}/>
-        </SidebarHeader>
-        <SidebarContent>
-          <NavApp items={data.navApp}/>
-          <NavMain items={data.navMain}/>
-          <NavProjects projects={data.projects}/>
-        </SidebarContent>
-        <SidebarFooter>
-          <NavUser user={data.user}/>
-        </SidebarFooter>
-        <SidebarRail/>
-      </Sidebar>
+        <Sidebar collapsible="icon" {...props}>
+          <SidebarHeader>
+            <TeamSwitcher teams={data.teams}/>
+          </SidebarHeader>
+          <SidebarContent>
+            <NavApp items={data.navApp}/>
+            <NavMain items={data.navMain}/>
+            {/*<NavProjects projects={data.projects}/>*/}
+          </SidebarContent>
+          <SidebarFooter>
+            <NavUser user={data.user}/>
+          </SidebarFooter>
+          <SidebarRail/>
+        </Sidebar>
   )
 }
