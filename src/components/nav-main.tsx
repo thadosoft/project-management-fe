@@ -17,6 +17,7 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
+import {Link} from "react-router";
 
 interface NavItem {
   title: string
@@ -47,7 +48,7 @@ function NavItemComponent({item}: { item: NavItem }) {
           <CollapsibleTrigger asChild>
             <SidebarMenuButton tooltip={item.title}>
               {item.icon && <item.icon/>}
-              <span>{item.title}</span>
+              <Link to={item.url}><span>{item.title}</span></Link>
               {item.items && (
                   <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90"/>
               )}
@@ -63,9 +64,7 @@ function NavItemComponent({item}: { item: NavItem }) {
                             <NavItemComponent item={subItem}/>
                         ) : (
                             <SidebarMenuSubButton asChild>
-                              <a href={subItem.url}>
-                                <span>{subItem.title}</span>
-                              </a>
+                              <Link to={subItem.url}><span>{subItem.title}</span></Link>
                             </SidebarMenuSubButton>
                         )}
                       </SidebarMenuSubItem>

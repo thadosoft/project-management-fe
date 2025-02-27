@@ -9,7 +9,7 @@ import {
   Map,
   PieChart,
   Settings2,
-  SquareTerminal,
+  SquareTerminal, Warehouse,
 } from "lucide-react"
 
 import {NavMain} from "@/components/nav-main"
@@ -26,6 +26,11 @@ import {
 import {NavApp} from "@/components/nav-app.tsx";
 import {Calendar, Home, Inbox, Search, Settings} from "lucide-react"
 import {ScrollArea} from "@/components/ui/scroll-area.tsx";
+import {CgProfile} from "react-icons/cg";
+import {MdOutlinePrecisionManufacturing} from "react-icons/md";
+import {GiConcentrationOrb} from "react-icons/gi";
+import {SiAudiotechnica} from "react-icons/si";
+import {PiFinnTheHuman} from "react-icons/pi";
 
 const data = {
   user: {
@@ -81,7 +86,7 @@ const data = {
     {
       title: "HRM(Office & Facility Management)",
       url: "#",
-      icon: SquareTerminal,
+      icon: PiFinnTheHuman,
       isActive: true,
       items: [
         {
@@ -143,18 +148,18 @@ const data = {
     {
       title: "Điều vận - Technical",
       url: "#",
-      icon: Bot,
+      icon: SiAudiotechnica,
       items: [
         {
           title: "Quản lý dự án",
-          url: "#",
+          url: "/project",
         },
       ],
     },
     {
       title: "Điều phối - Coordination",
       url: "#",
-      icon: BookOpen,
+      icon: GiConcentrationOrb,
       items: [
         {
           title: "Hợp đồng bán hàng",
@@ -165,7 +170,7 @@ const data = {
     {
       title: "Manufacturing",
       url: "#",
-      icon: Settings2,
+      icon: MdOutlinePrecisionManufacturing,
       items: [
         {
           title: "BOM",
@@ -186,7 +191,7 @@ const data = {
     {
       title: "Warehouse",
       url: "#",
-      icon: Settings,
+      icon: Warehouse,
       items: [
         {
           title: "Report",
@@ -196,8 +201,8 @@ const data = {
     },
     {
       title: "Reference Profile",
-      url: "#",
-      icon: Settings,
+      url: "/profile",
+      icon: CgProfile,
     },
   ],
   projects: [

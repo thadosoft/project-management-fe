@@ -1,15 +1,16 @@
 import {SortableContext, useSortable} from "@dnd-kit/sortable";
 import {useDndContext} from "@dnd-kit/core";
 import {CSS} from "@dnd-kit/utilities";
-import React, {useMemo} from "react";
+import React, {useMemo, useState} from "react";
 import {ItemAssignment} from "./item-assignment.tsx";
 import {cva} from "class-variance-authority";
 import {Card, CardContent, CardHeader} from "./ui/card";
 import {Button} from "./ui/button";
-import {GripVertical} from "lucide-react";
+import {Check, GripVertical, X} from "lucide-react";
 import {ScrollArea, ScrollBar} from "./ui/scroll-area";
-import {Task} from "@/models/Task.ts";
+import {Task, TaskRequest} from "@/models/Task.ts";
 import {Assignment} from "@/models/Assignment.ts";
+import {updateTask} from "@/services/taskService.ts";
 
 export type TaskType = "Task";
 
@@ -63,6 +64,24 @@ export function ItemTask({task, assignments, isOverlay}: Props) {
       }
   );
 
+  const [isEditing, setIsEditing] = useState(false);
+  const [status, setStatus] = useState(task.status);
+  const handleChangeStatus = async (isChanged: boolean) => {
+    if (isChanged) {
+      const newTask: TaskRequest = {
+        status: status,
+        taskOrder: task.taskOrder,
+        projectId: task.project.id
+      }
+
+      await updateTask(task.id, newTask);
+      setIsEditing(false);
+    } else {
+      setStatus(task.status);
+      setIsEditing(false)
+    }
+  }
+
   return (
       <Card
           ref={setNodeRef}
@@ -71,17 +90,39 @@ export function ItemTask({task, assignments, isOverlay}: Props) {
             dragging: isOverlay ? "overlay" : isDragging ? "over" : undefined,
           })}
       >
-        <CardHeader className="p-4 font-semibold border-b-2 text-left flex flex-row space-between items-center">
+        <CardHeader className="p-2 font-semibold border-b-2 text-left flex flex-row space-between items-center">
+          {isEditing ? (
+              <div className="flex items-center gap-1">
+                <input
+                    type="text"
+                    value={status}
+                    onChange={(e) => setStatus(e.target.value)}
+                    className="py-1 rounded-md text-black"
+                />
+                <button onClick={() => handleChangeStatus(true)} className="hover:bg-zinc-700 p-1 duration-200 rounded">
+                  <Check size={20}/>
+                </button>
+                <button onClick={() => handleChangeStatus(false)} className="hover:bg-zinc-700 p-1 duration-200 rounded">
+                  <X size={20}/>
+                </button>
+              </div>
+          ) : (
+              <span
+                  onClick={() => setIsEditing(true)}
+                  className="hover:bg-zinc-700 px-2 py-1 rounded duration-200 cursor-pointer"
+              >
+          {status}
+        </span>
+          )}
           <Button
               variant={"ghost"}
               {...attributes}
               {...listeners}
-              className=" p-1 text-primary/50 -ml-2 h-auto cursor-grab relative"
+              className="flex p-1 text-primary/50 h-auto cursor-grab relative ml-auto"
           >
             <span className="sr-only">{`Move task: ${task.status}`}</span>
             <GripVertical/>
           </Button>
-          <span className="ml-auto"> {task.status}</span>
         </CardHeader>
         <ScrollArea>
           <CardContent className="flex flex-grow flex-col gap-2 p-2">

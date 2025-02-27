@@ -19,16 +19,18 @@ import {SortableContext, arrayMove} from "@dnd-kit/sortable";
 import {ItemAssignment} from "@/components/item-assignment.tsx";
 import {hasDraggableData} from "@/components/utils";
 import {coordinateGetter} from "@/components/multipleContainersKeyboardPreset";
-import {getTasksByProjectId, updateTask} from "@/services/taskService.ts";
+import {createTask, getTasksByProjectId, updateTask} from "@/services/taskService.ts";
 import {useParams} from "react-router";
 import {getAssignmentsByProjectId, updateAssignment} from "@/services/assignmentService.ts";
-import {Task, TaskUpdate} from "@/models/Task.ts";
+import {Task, TaskRequest} from "@/models/Task.ts";
 import {Assignment, AssignmentRequest} from "@/models/Assignment.ts";
 import {AppSidebar} from "@/components/app-sidebar.tsx";
 import {ThemeProvider} from "@/components/theme-provider.tsx";
 import {SidebarInset, SidebarProvider, SidebarTrigger} from "@/components/ui/sidebar.tsx";
 import {Separator} from "@/components/ui/separator.tsx";
 import {Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator} from "@/components/ui/breadcrumb.tsx";
+import {Button} from "@/components/ui/button.tsx";
+import {Plus} from "lucide-react";
 
 export default function TaskPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -46,10 +48,22 @@ export default function TaskPage() {
         coordinateGetter: coordinateGetter,
       })
   );
-  const [taskUpdated, setTaskUpdated] = useState<TaskUpdate | null>(null);
+  const [taskRequest, setTaskRequest] = useState<TaskRequest | null>(null);
   const [assignmentUpdated, setAssignmentUpdated] = useState<AssignmentRequest | null>(null);
 
   const {projectId} = useParams<{ projectId: string }>();
+
+  const handleAddTask = async () => {
+    const newTask: TaskRequest = {
+      status: "NEW1",
+      projectId: projectId,
+      taskOrder: tasks.length + 1
+    }
+
+    const newTaskCreated: Task = await createTask(newTask);
+
+    // setTasks(async prev => [...prev, newTaskCreated]);
+  }
 
   useEffect(() => {
     console.log(assignmentUpdated);
@@ -123,7 +137,7 @@ export default function TaskPage() {
           active.data.current?.type === "Task" &&
           over.data.current?.type === "Task"
       ) {
-        setTaskUpdated((prev) =>
+        setTaskRequest((prev) =>
             ({
               ...prev,
               taskOrder: over.data.current?.sortable.index + 1,
@@ -268,6 +282,13 @@ export default function TaskPage() {
                       ))
                     }
                   </SortableContext>
+                  <div className="pr-40">
+                    <Button
+                        onClick={handleAddTask}
+                    >
+                      <Plus/>
+                    </Button>
+                  </div>
                 </BoardContainer>
                 {
                     "document" in window &&
@@ -302,7 +323,7 @@ export default function TaskPage() {
     if (!hasDraggableData(event.active)) return;
     const data = event.active.data.current;
     if (data?.type === "Task") {
-      setTaskUpdated((prev) => ({...prev, oldTaskOrder: event.active.data.current?.task.taskOrder}));
+      setTaskRequest((prev) => ({...prev, oldTaskOrder: event.active.data.current?.task.taskOrder}));
       setActiveTask(data.task);
       return;
     }
@@ -331,14 +352,14 @@ export default function TaskPage() {
     if (activeId === overId) return;
 
     if (activeData?.type === "Task") {
-      if (activeTask?.id && taskUpdated) {
-        if (taskUpdated.taskOrder !== taskUpdated.oldTaskOrder) {
-          taskUpdated.status = activeTask.status;
-          taskUpdated.projectId = activeTask.project.id;
+      if (activeTask?.id && taskRequest) {
+        if (taskRequest.taskOrder !== taskRequest.oldTaskOrder) {
+          taskRequest.status = activeTask.status;
+          taskRequest.projectId = activeTask.project.id;
 
-          Object.assign(activeTask, taskUpdated);
+          Object.assign(activeTask, taskRequest);
 
-          updateTask(activeTask.id, taskUpdated)
+          updateTask(activeTask.id, taskRequest)
           .then(() => console.log("Task updated successfully"))
           .catch((error) => console.error("Error in update Task:", error));
         }
@@ -406,7 +427,7 @@ export default function TaskPage() {
             activeAssignment.task.id !== overAssignment.task.id
         ) {
           activeAssignment.task.id = overAssignment.task.id;
-          
+
           return arrayMove(assignments, activeIndex, overIndex - 1);
         }
 

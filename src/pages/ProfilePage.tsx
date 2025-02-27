@@ -40,7 +40,12 @@ function ProjectPage() {
         };
 
         fetchData();
-      },[]);
+      }
+
+      ,
+      []
+  )
+  ;
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
@@ -71,17 +76,7 @@ function ProjectPage() {
             </header>
             <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
               <div className="grid auto-rows-min gap-4 md:grid-cols-4 ">
-                {
-                  projects.map((project: Project) => {
-                    return (
-                        <Link key={project.id} to={`/project/task/${project.id}`}>
-                          <ItemProject
-                              project={project}
-                          />
-                        </Link>
-                    )
-                  })
-                }
+                trang tong
               </div>
             </div>
           </SidebarInset>

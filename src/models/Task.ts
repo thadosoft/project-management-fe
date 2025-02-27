@@ -9,15 +9,9 @@ export interface Task {
   createdDate: string;
 }
 
-export interface TaskCreate {
-  status: string;
-  taskOrder: number;
-  projectId: string;
-}
-
-export interface TaskUpdate {
+export interface TaskRequest {
   status?: string;
   projectId?: string;
-  oldTaskOrder?: number;
   taskOrder?: number;
+  oldTaskOrder?: number;
 }
