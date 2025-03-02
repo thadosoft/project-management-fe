@@ -30,7 +30,8 @@ import {SidebarInset, SidebarProvider, SidebarTrigger} from "@/components/ui/sid
 import {Separator} from "@/components/ui/separator.tsx";
 import {Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator} from "@/components/ui/breadcrumb.tsx";
 import {Button} from "@/components/ui/button.tsx";
-import {Plus} from "lucide-react";
+import {Check, Plus, X} from "lucide-react";
+import {Input} from "@/components/ui/input.tsx";
 
 export default function TaskPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -53,17 +54,28 @@ export default function TaskPage() {
 
   const {projectId} = useParams<{ projectId: string }>();
 
-  const handleAddTask = async () => {
-    const newTask: TaskRequest = {
-      status: "NEW1",
-      projectId: projectId,
-      taskOrder: tasks.length + 1
+  const handleAddTask = async (isChanged: boolean) => {
+    if (isChanged) {
+      const newTask: TaskRequest = {
+        status: newTaskTitle,
+        projectId: projectId,
+        taskOrder: tasks.length + 1
+      }
+
+      const newTaskCreated: Task | null = await createTask(newTask);
+
+      if (newTaskCreated) {
+        setTasks(prev => [...prev, newTaskCreated]);
+      }
     }
 
-    const newTaskCreated: Task = await createTask(newTask);
-
-    // setTasks(async prev => [...prev, newTaskCreated]);
+    setNewTaskTitle("");
+    setIsNewTaskEditing(false);
   }
+
+  const addNewAssignment = (newAssignment: Assignment) => {
+    setAssignments((prev) => [...prev, newAssignment]);
+  };
 
   useEffect(() => {
     console.log(assignmentUpdated);
@@ -92,6 +104,9 @@ export default function TaskPage() {
     .then(() => console.log("Tasks fetched successfully"))
     .catch((error) => console.error("Error in fetchTasks:", error));
   }, [projectId]);
+
+  const [isNewTaskEditing, setIsNewTaskEditing] = useState(false);
+  const [newTaskTitle, setNewTaskTitle] = useState("");
 
   function getDraggingAssignmentData(assignmentId: string, taskId: string) {
     const assignmentsInTask = assignments.filter((assignment) =>
@@ -278,16 +293,50 @@ export default function TaskPage() {
                                     assignment.task.id === task.id
                                 )
                               }
+                              addNewAssignment={addNewAssignment}
                           />
                       ))
                     }
                   </SortableContext>
                   <div className="pr-40">
-                    <Button
-                        onClick={handleAddTask}
-                    >
-                      <Plus/>
-                    </Button>
+                    {isNewTaskEditing ? (
+                        <div className="flex flex-col gap-2">
+                          <Input
+                              value={newTaskTitle}
+                              onChange={(e) => setNewTaskTitle(e.target.value)}
+                              autoFocus
+                              className="w-[300px] "
+                          />
+                          <div className="flex gap-2 justify-end">
+                            {
+                              newTaskTitle !== "" && !tasks.some((task) => task.status.toLowerCase() === newTaskTitle.toLowerCase())
+                                  ?
+                                  <Button
+                                      onClick={() => handleAddTask(true)}
+                                      variant="outline"
+                                  >
+                                    <Check/>
+                                  </Button>
+                                  :
+                                  <Button variant="outline" className="opacity-50 hover:bg-transparent cursor-auto">
+                                    <Check/>
+                                  </Button>
+                            }
+                            <Button onClick={() => handleAddTask(false)} variant="destructive">
+                              <X/>
+                            </Button>
+                          </div>
+                        </div>
+                    ) : (
+                        <Button
+                            className="bg-zinc-900 text-white hover:bg-zinc-600" size="sm"
+                            onClick={() => setIsNewTaskEditing(true)}
+                        >
+                          <Plus/>
+                        </Button>
+                    )}
+
+
                   </div>
                 </BoardContainer>
                 {
@@ -304,6 +353,7 @@ export default function TaskPage() {
                                             assignment.task.id === activeTask.id
                                         )
                                       }
+                                      addNewAssignment={addNewAssignment}
                                   />
                               )
                           }

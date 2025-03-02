@@ -6,6 +6,10 @@ export const getAssignments = async (): Promise<Assignment[] | null> => {
   return await fetchData<Assignment[]>("assignments", "GET", accessToken);
 };
 
+export const createAssignment = async (assignmentRequest: AssignmentRequest): Promise<Assignment | null> => {
+  return await fetchData<Assignment>("assignments", "POST", accessToken, assignmentRequest);
+};
+
 export const getAssignmentsByProjectId = async (id: string): Promise<Assignment[] | null> => {
   return await fetchData<Assignment[]>(`assignments/project/${id}`, "GET", accessToken);
 };

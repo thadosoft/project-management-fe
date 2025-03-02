@@ -323,6 +323,7 @@ export function ItemAssignment({assignment, isOverlay}: Props) {
             </CardContent>
           </DialogTrigger>
           <DialogContent
+
               onInteractOutside={(event) => event.preventDefault()}
               className="sm:max-w-max"
           >

@@ -18,11 +18,12 @@ import {
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
 import {Link} from "react-router";
+import {IconType} from "react-icons";
 
 interface NavItem {
   title: string
   url: string
-  icon?: LucideIcon
+  icon?: LucideIcon | IconType
   isActive?: boolean
   items?: NavItem[]
 }
@@ -40,7 +41,6 @@ export function NavMain({items}: { items: NavItem[] }) {
   )
 }
 
-// Component đệ quy hiển thị menu con
 function NavItemComponent({item}: { item: NavItem }) {
   return (
       <Collapsible asChild defaultOpen={item.isActive} className="group/collapsible">
@@ -58,17 +58,19 @@ function NavItemComponent({item}: { item: NavItem }) {
           {item.items && (
               <CollapsibleContent>
                 <SidebarMenuSub>
-                  {item.items.map((subItem) => (
-                      <SidebarMenuSubItem key={subItem.title}>
-                        {subItem.items ? (
-                            <NavItemComponent item={subItem}/>
-                        ) : (
+                  {item.items.map((subItem) =>
+                      subItem.items ? (
+                          <NavItemComponent key={subItem.title} item={subItem} />
+                      ) : (
+                          <SidebarMenuSubItem key={subItem.title}>
                             <SidebarMenuSubButton asChild>
-                              <Link to={subItem.url}><span>{subItem.title}</span></Link>
+                              <Link to={subItem.url}>
+                                <span>{subItem.title}</span>
+                              </Link>
                             </SidebarMenuSubButton>
-                        )}
-                      </SidebarMenuSubItem>
-                  ))}
+                          </SidebarMenuSubItem>
+                      )
+                  )}
                 </SidebarMenuSub>
               </CollapsibleContent>
           )}

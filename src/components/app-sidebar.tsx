@@ -1,19 +1,13 @@
 import * as React from "react"
 import {
-  AudioWaveform,
-  BookOpen,
-  Bot,
-  Command,
   Frame,
   GalleryVerticalEnd,
   Map,
   PieChart,
-  Settings2,
-  SquareTerminal, Warehouse,
+  Warehouse,
 } from "lucide-react"
 
 import {NavMain} from "@/components/nav-main"
-import {NavProjects} from "@/components/nav-projects"
 import {NavUser} from "@/components/nav-user"
 import {TeamSwitcher} from "@/components/team-switcher"
 import {
@@ -24,9 +18,9 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar"
 import {NavApp} from "@/components/nav-app.tsx";
-import {Calendar, Home, Inbox, Search, Settings} from "lucide-react"
-import {ScrollArea} from "@/components/ui/scroll-area.tsx";
+import {Home} from "lucide-react"
 import {CgProfile} from "react-icons/cg";
+
 import {MdOutlinePrecisionManufacturing} from "react-icons/md";
 import {GiConcentrationOrb} from "react-icons/gi";
 import {SiAudiotechnica} from "react-icons/si";
@@ -226,19 +220,19 @@ const data = {
 
 export function AppSidebar({...props}: React.ComponentProps<typeof Sidebar>) {
   return (
-        <Sidebar collapsible="icon" {...props}>
-          <SidebarHeader>
-            <TeamSwitcher teams={data.teams}/>
-          </SidebarHeader>
-          <SidebarContent>
-            <NavApp items={data.navApp}/>
-            <NavMain items={data.navMain}/>
-            {/*<NavProjects projects={data.projects}/>*/}
-          </SidebarContent>
-          <SidebarFooter>
-            <NavUser user={data.user}/>
-          </SidebarFooter>
-          <SidebarRail/>
-        </Sidebar>
+      <Sidebar collapsible="icon" {...props}>
+        <SidebarHeader>
+          <TeamSwitcher teams={data.teams}/>
+        </SidebarHeader>
+        <SidebarContent>
+          <NavApp items={data.navApp}/>
+          <NavMain items={data.navMain}/>
+          {/*<NavProjects projects={data.projects}/>*/}
+        </SidebarContent>
+        <SidebarFooter>
+          <NavUser user={data.user}/>
+        </SidebarFooter>
+        <SidebarRail/>
+      </Sidebar>
   )
 }

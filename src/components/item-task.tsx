@@ -6,11 +6,15 @@ import {ItemAssignment} from "./item-assignment.tsx";
 import {cva} from "class-variance-authority";
 import {Card, CardContent, CardHeader} from "./ui/card";
 import {Button} from "./ui/button";
-import {Check, GripVertical, X} from "lucide-react";
-import {ScrollArea, ScrollBar} from "./ui/scroll-area";
+import {Check, GripVertical, Trash2, X} from "lucide-react";
+import {ScrollArea} from "./ui/scroll-area";
 import {Task, TaskRequest} from "@/models/Task.ts";
-import {Assignment} from "@/models/Assignment.ts";
+import {Assignment, AssignmentRequest} from "@/models/Assignment.ts";
 import {updateTask} from "@/services/taskService.ts";
+import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger} from "@/components/ui/dropdown-menu.tsx";
+import {BsThreeDots} from "react-icons/bs";
+import {Input} from "@/components/ui/input.tsx";
+import {createAssignment} from "@/services/assignmentService.ts";
 
 export type TaskType = "Task";
 
@@ -23,9 +27,10 @@ interface Props {
   task: Task;
   assignments: Assignment[];
   isOverlay?: boolean;
+  addNewAssignment: (newAssignment: Assignment) => void;
 }
 
-export function ItemTask({task, assignments, isOverlay}: Props) {
+export function ItemTask({task, assignments, isOverlay, addNewAssignment}: Props) {
   const assignmentsIds = useMemo(() => {
     return assignments.map((assignment) => assignment.id);
   }, [assignments]);
@@ -52,7 +57,7 @@ export function ItemTask({task, assignments, isOverlay}: Props) {
   };
 
   const variants = cva(
-      "h-[90vh] max-h-full w-[300px] max-w-full bg-primary-foreground flex flex-col flex-shrink-0 snap-center",
+      "h-[85vh] max-h-full w-[300px] max-w-full bg-primary-foreground flex flex-col flex-shrink-0 snap-center",
       {
         variants: {
           dragging: {
@@ -63,9 +68,11 @@ export function ItemTask({task, assignments, isOverlay}: Props) {
         },
       }
   );
-
-  const [isEditing, setIsEditing] = useState(false);
+  const [isTaskEditing, setIsTaskEditing] = useState(false);
+  const [isNewAssignmentEditing, setIsNewAssignmentEditing] = useState(false);
+  const [newAssignmentTitle, setNewAssignmentTitle] = useState("");
   const [status, setStatus] = useState(task.status);
+
   const handleChangeStatus = async (isChanged: boolean) => {
     if (isChanged) {
       const newTask: TaskRequest = {
@@ -75,11 +82,34 @@ export function ItemTask({task, assignments, isOverlay}: Props) {
       }
 
       await updateTask(task.id, newTask);
-      setIsEditing(false);
+      if (newTask.status != null) {
+        task.status = newTask.status;
+      }
     } else {
       setStatus(task.status);
-      setIsEditing(false)
     }
+
+    setIsTaskEditing(false);
+  }
+
+  const handleCreateAssignment = async (isChanged: boolean) => {
+    if (isChanged) {
+      const assignmentRequest: AssignmentRequest = {
+        title: newAssignmentTitle,
+        description: "",
+        assignmentOrder: assignments.length + 1,
+        taskId: task.id,
+        assignerId: "8843b7b1-2b84-4dcd-9ded-5359e5e1bcc5",
+      }
+
+      const newAssignmentCreated: Assignment | null = await createAssignment(assignmentRequest);
+
+      if (newAssignmentCreated) {
+        addNewAssignment(newAssignmentCreated);
+      }
+    }
+
+    setIsNewAssignmentEditing(false);
   }
 
   return (
@@ -88,10 +118,19 @@ export function ItemTask({task, assignments, isOverlay}: Props) {
           style={style}
           className={variants({
             dragging: isOverlay ? "overlay" : isDragging ? "over" : undefined,
-          })}
+          }) + " relative group"}
       >
         <CardHeader className="p-2 font-semibold border-b-2 text-left flex flex-row space-between items-center">
-          {isEditing ? (
+          <Button
+              variant={"ghost"}
+              {...attributes}
+              {...listeners}
+              className="flex p-1 text-primary/50 h-auto cursor-grab relative mt-0"
+          >
+            <span className="sr-only">{`Move task: ${task.status}`}</span>
+            <GripVertical/>
+          </Button>
+          {isTaskEditing ? (
               <div className="flex items-center gap-1">
                 <input
                     type="text"
@@ -108,21 +147,25 @@ export function ItemTask({task, assignments, isOverlay}: Props) {
               </div>
           ) : (
               <span
-                  onClick={() => setIsEditing(true)}
-                  className="hover:bg-zinc-700 px-2 py-1 rounded duration-200 cursor-pointer"
+                  onClick={() => setIsTaskEditing(true)}
+                  className="hover:bg-zinc-700 px-2 py-1 rounded duration-200 cursor-pointer flex-1 min-h-8"
               >
           {status}
         </span>
           )}
-          <Button
-              variant={"ghost"}
-              {...attributes}
-              {...listeners}
-              className="flex p-1 text-primary/50 h-auto cursor-grab relative ml-auto"
-          >
-            <span className="sr-only">{`Move task: ${task.status}`}</span>
-            <GripVertical/>
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline">
+                <BsThreeDots/>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-40">
+              <DropdownMenuItem>
+                <Trash2/>
+                <span>Delete</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </CardHeader>
         <ScrollArea>
           <CardContent className="flex flex-grow flex-col gap-2 p-2">
@@ -132,11 +175,55 @@ export function ItemTask({task, assignments, isOverlay}: Props) {
                     <ItemAssignment key={assignment.id} assignment={assignment}/>
                 ))
               }
+              {
+                isNewAssignmentEditing
+                    ?
+                    <div>
+                      <Input
+                          type="text"
+                          value={newAssignmentTitle}
+                          onChange={(e) => setNewAssignmentTitle(e.target.value)}
+                          autoFocus
+                          className="px-2 py-1 rounded text-white border border-gray-600"
+                      />
+                      <div className="flex justify-end pt-2 gap-2">
+                        {
+                          newAssignmentTitle !== "" && !assignments.some((assignment) => assignment.title.toLowerCase() === newAssignmentTitle.toLowerCase())
+                              ?
+                              <Button
+                                  onClick={() => handleCreateAssignment(true)}
+                                  variant="outline"
+                              >
+                                <Check/>
+                              </Button>
+                              :
+                              <Button
+                                  variant="outline"
+                                  className="opacity-50 hover:bg-zinc-950 cursor-auto hover:none border-0"
+                              >
+                                <Check/>
+                              </Button>
+                        }
+                        <Button onClick={() => handleCreateAssignment(false)} variant="destructive">
+                          <X/>
+                        </Button>
+                      </div>
+                    </div>
+                    :
+                    <span
+                        onClick={() => setIsNewAssignmentEditing(true)}
+                        className="text-center text-sm text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                    >
+                + Create assignment
+              </span>
+              }
+
             </SortableContext>
           </CardContent>
         </ScrollArea>
       </Card>
-  );
+  )
+      ;
 }
 
 export function BoardContainer({children}: { children: React.ReactNode }) {

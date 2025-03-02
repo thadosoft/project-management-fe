@@ -9,13 +9,7 @@ export interface Project {
   createdDate: string;
 }
 
-export interface ProjectCreate {
-  name: string;
-  description: string;
-  userId: string;
-}
-
-export interface ProjectUpdate {
+export interface ProjectRequest {
   name?: string;
   description?: string;
   userId?: string;
