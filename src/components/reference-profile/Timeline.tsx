@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import TimelineItem from "./TimelineItem";
-import { getAll } from "@/services/reference-profile/referenceProfileService";
-import { Module } from "@/models/Module";
+import { getAll } from "@/services/reference-profile/moduleService";
+import { ModuleModel } from "@/models/Module";
 
 
 const Timeline: React.FC = () => {
-  const [timelineData, setTimelineData] = useState<Module[]>([]);
+  const [timelineData, setTimelineData] = useState<ModuleModel[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -30,6 +30,7 @@ const Timeline: React.FC = () => {
         {timelineData.map((item, index) => (
           <TimelineItem
             key={index}
+            id={item.id}
             number={index + 1} // 🌟 Tự động đánh số
             title={item.title}
             description={item.description}
