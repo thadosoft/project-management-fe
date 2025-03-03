@@ -129,7 +129,7 @@ function ProjectPage() {
                     <Card>
                       <DialogTitle></DialogTitle>
                       <CardHeader>
-                        <CardTitle>Create project</CardTitle>
+                        <CardTitle className="pl-6 py-4">Create project</CardTitle>
                       </CardHeader>
                       <CardContent>
                         <form>
@@ -158,12 +158,16 @@ function ProjectPage() {
                       <CardFooter className="flex justify-center">
                         {
                           newProjectName !== "" && !projects.some(project => project.name.toLowerCase() === newProjectName.toLowerCase())
-                            ?
-                              <Button onClick={handleCreateProject}>Create</Button>
+                              ?
+                              <div className="pt-4">
+                                <Button onClick={handleCreateProject}>Create</Button>
+                              </div>
                               :
-                              <Button
-                                  className="opacity-50 hover:bg-white cursor-auto"
-                              >Create</Button>
+                              <div className="pt-4">
+                                <Button
+                                    className="opacity-50 hover:bg-white cursor-auto"
+                                >Create</Button>
+                              </div>
                         }
                       </CardFooter>
                     </Card>

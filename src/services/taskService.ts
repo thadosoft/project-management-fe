@@ -17,3 +17,7 @@ export const createTask = async (taskRequest: TaskRequest): Promise<Task | null>
 export const updateTask = async (id: string, taskRequest: TaskRequest): Promise<void | null> => {
   return await fetchData<void, TaskRequest>(`tasks/${id}`, "PUT", accessToken, taskRequest);
 };
+
+export const deleteTask = async (id: string): Promise<void | null> => {
+  return await fetchData<void>(`tasks/${id}`, "DELETE", accessToken);
+};

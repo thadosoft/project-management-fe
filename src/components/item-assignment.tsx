@@ -13,17 +13,26 @@ import React, {useEffect, useMemo, useRef, useState} from "react";
 import {Download, Trash2} from "lucide-react";
 import {DialogTitle} from "@radix-ui/react-dialog";
 import JoditEditor from "jodit-react";
-import {updateAssignment} from "@/services/assignmentService.ts";
+import {deleteAssignment, updateAssignment} from "@/services/assignmentService.ts";
 import {download, getAttachFileNames, getUploadedDate, upload} from "@/services/mediaService.ts";
 import {BASE_API_URL} from "@/utils/api.ts";
 import pdfImg from "@/assets/imgs/pdf.png";
 import xlsxImg from "@/assets/imgs/xlsx.png";
 import otherImg from "@/assets/imgs/other.png";
-import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select.tsx";
-import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar.tsx";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import {AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger} from "@/components/ui/alert-dialog.tsx";
 import {deleteByFileName} from "@/services/mediaService.ts";
 import {MediaRequest} from "@/models/Media.ts";
+import {User} from "@/models/User.ts";
+import {getUsers} from "@/services/userService.ts";
+import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger} from "@/components/ui/dropdown-menu.tsx";
+import {BsThreeDots} from "react-icons/bs";
 
 interface Props {
   assignment: Assignment;
@@ -73,7 +82,7 @@ export function ItemAssignment({assignment, isOverlay}: Props) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [attachFiles, setAttachFiles] = useState<{ url: string; type: string; name: string; uploadedDate: Date }[]>([]);
   const didFetch = useRef(false);
-  const [isOpen, setIsOpen] = useState(true);
+  const [isLeftOpen, setIsLeftOpen] = useState(true);
   const [fileNames, setFileNames] = useState<{ name: string; blob: string }[]>([]);
 
   const handleAddButton = () => {
@@ -130,8 +139,6 @@ export function ItemAssignment({assignment, isOverlay}: Props) {
       }
     });
 
-    console.log(changedContent.body.innerHTML)
-
     const assignmentRequest: AssignmentRequest = {
       title: assignment.title,
       description: changedContent.body.innerHTML,
@@ -149,6 +156,7 @@ export function ItemAssignment({assignment, isOverlay}: Props) {
   const editor = useRef(null);
   const [content, setContent] = useState<string>(assignment.description);
   const [isEditing, setIsEditing] = useState(false);
+  const [users, setUsers] = useState<User[]>([]);
   const editorConfig = useMemo(() => ({
     readonly: false,
     height: 300,
@@ -211,6 +219,14 @@ export function ItemAssignment({assignment, isOverlay}: Props) {
     const parser = new DOMParser();
     const initContent = parser.parseFromString(content, "text/html");
 
+    getUsers()
+    .then(response => {
+      setUsers(response ?? []);
+    })
+    .catch(error => {
+      console.error("Error loading users:", error);
+    });
+
     initContent.querySelectorAll("img").forEach((img) => {
       const mediaRequest: MediaRequest = {
         projectName: assignment.task.project.name,
@@ -248,6 +264,12 @@ export function ItemAssignment({assignment, isOverlay}: Props) {
 
     await deleteByFileName(mediaRequest);
   };
+
+  const handleDeletAssignment = async () => {
+    console.log(123)
+    await deleteAssignment(assignment.id);
+
+  }
 
   useEffect(() => {
     if (didFetch.current) return;
@@ -323,7 +345,6 @@ export function ItemAssignment({assignment, isOverlay}: Props) {
             </CardContent>
           </DialogTrigger>
           <DialogContent
-
               onInteractOutside={(event) => event.preventDefault()}
               className="sm:max-w-max"
           >
@@ -486,8 +507,8 @@ export function ItemAssignment({assignment, isOverlay}: Props) {
               <ResizablePanel defaultSize={40} className="h-[80vh] md:min-w-[15vw]">
                 <ResizablePanelGroup direction="vertical">
                   <ResizablePanel defaultSize={10} className="md:min-h-[8vh] md:max-h-[8vh]">
-                    <ScrollArea className="h-full w-full p-2">
-                      <div className="flex h-full items-center">
+                    <ScrollArea className="h-full w-full py-2 px-4">
+                      <div className="flex h-full items-center justify-between">
                         <Select>
                           <SelectTrigger className="w-[180px] bg-zinc-800">
                             <SelectValue placeholder="Theme"/>
@@ -498,6 +519,19 @@ export function ItemAssignment({assignment, isOverlay}: Props) {
                             <SelectItem value="system">System</SelectItem>
                           </SelectContent>
                         </Select>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="outline">
+                              <BsThreeDots/>
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent className="w-40">
+                            <DropdownMenuItem onClick={handleDeletAssignment}>
+                              <Trash2/>
+                              <span className="cursor-pointer">Delete</span>
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
                     </ScrollArea>
                   </ResizablePanel>
@@ -509,15 +543,15 @@ export function ItemAssignment({assignment, isOverlay}: Props) {
                         <div className="w-full border rounded bg-zinc-950 text-white">
                           <button
                               className="flex justify-between items-center w-full px-4 py-2 text-lg font-bold bg-zinc-950 hover:bg-zinc-800 rounded"
-                              onClick={() => setIsOpen(!isOpen)}
+                              onClick={() => setIsLeftOpen(!isLeftOpen)}
                           >
                             Details
-                            <span className={`transition-transform ${isOpen ? "rotate-180" : ""}`}>▼</span>
+                            <span className={`transition-transform ${isLeftOpen ? "rotate-180" : ""}`}>▼</span>
                           </button>
 
                           <div
                               className={`transition-[max-height] duration-300 ease-in-out overflow-hidden ${
-                                  isOpen ? "max-h-96" : "max-h-0"
+                                  isLeftOpen ? "max-h-96" : "max-h-0"
                               }`}
                           >
                             <div className="p-4 border-t border-gray-700 grid grid-cols-[1fr_2.5fr] grid-rows-6 gap-4">
@@ -525,16 +559,22 @@ export function ItemAssignment({assignment, isOverlay}: Props) {
                                 <p className="flex items-center"><strong>Assignee:</strong></p>
                                 <p className="flex items-center"><strong>Labels:</strong></p>
                                 <p className="flex items-center"><strong>Parent:</strong></p>
-                                <p className="flex items-center row-span-2"><strong>Development:</strong></p> {/* Chiếm 2 hàng */}
+                                <p className="flex items-center row-span-2"><strong>Development:</strong></p>
                                 <p className="flex items-center"><strong>Reporter:</strong></p>
                               </div>
 
                               <div className="grid grid-rows-6 gap-2 text-gray-300">
-                                <p className="flex items-center hover:bg-zinc-800 p-1 rounded-s">
-                                  <Avatar>
-                                    <AvatarImage src="https://github.com/shadcn.png"/>
-                                    <AvatarFallback>CN</AvatarFallback>
-                                  </Avatar>
+                                <p className="flex items-center  p-1 rounded-s">
+                                  <Select>
+                                    <SelectTrigger className="w-[20vw]">
+                                      <SelectValue placeholder="Unassigned"/>
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {users.map(user => (
+                                          <SelectItem value={user.name} key={user.id}>{user.name}({user.username})</SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
                                 </p>
                                 <p className="flex items-center hover:bg-zinc-800 p-1 rounded-s">None</p>
                                 <p className="flex items-center hover:bg-zinc-800 p-1 rounded-s">None</p>

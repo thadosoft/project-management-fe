@@ -162,7 +162,7 @@ export function ItemTask({task, assignments, isOverlay, addNewAssignment}: Props
             <DropdownMenuContent className="w-40">
               <DropdownMenuItem>
                 <Trash2/>
-                <span>Delete</span>
+                <span className="cursor-pointer">Delete</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

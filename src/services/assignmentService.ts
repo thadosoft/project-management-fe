@@ -17,3 +17,7 @@ export const getAssignmentsByProjectId = async (id: string): Promise<Assignment[
 export const updateAssignment = async (id: string, assignmentRequest: AssignmentRequest): Promise<void | null> => {
   return await fetchData<void, AssignmentRequest>(`assignments/${id}`, "PUT", accessToken, assignmentRequest);
 };
+
+export const deleteAssignment = async (id: string): Promise<void | null> => {
+  return await fetchData<void>(`assignments/${id}`, "DELETE", accessToken);
+};
