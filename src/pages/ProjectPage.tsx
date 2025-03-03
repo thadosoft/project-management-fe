@@ -12,18 +12,68 @@ import {
 import {Separator} from "@/components/ui/separator.tsx";
 import {ItemProject} from "@/components/item-project.tsx";
 import {Link} from "react-router";
-
-const data = {
-  user: {
-    name: "Tran Trong",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-}
-
-
+import {useEffect, useState} from "react";
+import {Project, ProjectRequest} from "@/models/Project.ts";
+import {createProject, getProjects} from "@/services/projectService.ts";
+import {Plus} from "lucide-react";
+import {Dialog, DialogContent, DialogTrigger} from "@/components/ui/dialog.tsx";
+import {Button} from "@/components/ui/button.tsx";
+import {Label} from "@/components/ui/label.tsx";
+import {Input} from "@/components/ui/input.tsx";
+import {Card, CardContent, CardFooter, CardHeader, CardTitle} from "@/components/ui/card.tsx";
+import {DialogTitle} from "@radix-ui/react-dialog";
+import {useNavigate} from "react-router-dom";
 
 function ProjectPage() {
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [newProjectName, setNewProjectName] = useState<string>("");
+  const [newProjectDescription, setNewProjectDescription] = useState<string>("");
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+
+        const [projectsData] = await Promise.all([
+          getProjects(),
+        ]);
+        if (projectsData) {
+          setProjects(projectsData);
+        }
+      } catch (err: unknown) {
+        navigate("/login")
+        setError((err as Error).message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const handleCreateProject = async () => {
+    const projectRequest: ProjectRequest = {
+      name: newProjectName,
+      description: newProjectDescription,
+      userId: localStorage.getItem("id")!,
+    }
+
+    const projectCreated: Project | null = await createProject(projectRequest);
+
+    if (projectCreated) {
+      setNewProjectName("")
+      setNewProjectDescription("")
+      setIsDialogOpen(false)
+      setProjects(prev => [...prev, projectCreated]);
+    }
+  }
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error}</p>;
 
   return (
       <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
@@ -50,27 +100,79 @@ function ProjectPage() {
               </div>
             </header>
             <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-              <div className="grid auto-rows-min gap-4 md:grid-cols-4">
-                <div className="aspect-video rounded-xl bg-muted/50 cursor-pointer hover:bg-sidebar-accent duration-500">
-                  <Link to="/task">
-                    <ItemProject user={data.user}/>
-                  </Link>
-                </div>
-                <div className="aspect-video rounded-xl bg-muted/50 cursor-pointer hover:bg-sidebar-accent duration-500">
-                  <Link to="/task">
-                    <ItemProject user={data.user}/>
-                  </Link>
-                </div>
-                <div className="aspect-video rounded-xl bg-muted/50 cursor-pointer hover:bg-sidebar-accent duration-500">
-                  <Link to="/task">
-                    <ItemProject user={data.user}/>
-                  </Link>
-                </div>
-                <div className="aspect-video rounded-xl bg-muted/50 cursor-pointer hover:bg-sidebar-accent duration-500">
-                  <Link to="/task">
-                    <ItemProject user={data.user}/>
-                  </Link>
-                </div>
+              <div className="grid auto-rows-min gap-4 md:grid-cols-4 ">
+                {
+                  projects.map((project: Project) => {
+                    return (
+                        <Link key={project.id} to={`/project/task/${project.id}`}>
+                          <ItemProject
+                              project={project}
+                          />
+                        </Link>
+                    )
+                  })
+                }
+                <Dialog
+                    modal={false}
+                    open={isDialogOpen}
+                    onOpenChange={setIsDialogOpen}
+                >
+                  <DialogTrigger asChild>
+                    <div className="h-[23vh] rounded-xl bg-muted/50 cursor-pointer hover:bg-sidebar-accent duration-500 flex flex-col p-4 items-center justify-center">
+                      <Plus size={100}/>
+                    </div>
+                  </DialogTrigger>
+                  <DialogContent
+                      onInteractOutside={(event) => event.preventDefault()}
+                      className="sm:max-w-[425px] p-0"
+                  >
+                    <Card>
+                      <DialogTitle></DialogTitle>
+                      <CardHeader>
+                        <CardTitle className="pl-6 py-4">Create project</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <form>
+                          <div className="grid w-full items-center gap-4">
+                            <div className="flex flex-col space-y-1.5">
+                              <Label htmlFor="name">Name</Label>
+                              <Input
+                                  id="name"
+                                  placeholder="Name of your project"
+                                  value={newProjectName}
+                                  onChange={(e) => setNewProjectName(e.target.value)}
+                              />
+                            </div>
+                            <div className="flex flex-col space-y-1.5">
+                              <Label htmlFor="description">Description</Label>
+                              <Input
+                                  id="description"
+                                  placeholder="Brief description of your project"
+                                  value={newProjectDescription}
+                                  onChange={(e) => setNewProjectDescription(e.target.value)}
+                              />
+                            </div>
+                          </div>
+                        </form>
+                      </CardContent>
+                      <CardFooter className="flex justify-center">
+                        {
+                          newProjectName !== "" && !projects.some(project => project.name.toLowerCase() === newProjectName.toLowerCase())
+                              ?
+                              <div className="pt-4">
+                                <Button onClick={handleCreateProject}>Create</Button>
+                              </div>
+                              :
+                              <div className="pt-4">
+                                <Button
+                                    className="opacity-50 hover:bg-white cursor-auto"
+                                >Create</Button>
+                              </div>
+                        }
+                      </CardFooter>
+                    </Card>
+                  </DialogContent>
+                </Dialog>
               </div>
             </div>
           </SidebarInset>

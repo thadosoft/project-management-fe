@@ -1,19 +1,13 @@
 import * as React from "react"
 import {
-  AudioWaveform,
-  BookOpen,
-  Bot,
-  Command,
   Frame,
   GalleryVerticalEnd,
   Map,
   PieChart,
-  Settings2,
-  SquareTerminal,
+  Warehouse,
 } from "lucide-react"
 
 import {NavMain} from "@/components/nav-main"
-import {NavProjects} from "@/components/nav-projects"
 import {NavUser} from "@/components/nav-user"
 import {TeamSwitcher} from "@/components/team-switcher"
 import {
@@ -24,7 +18,13 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar"
 import {NavApp} from "@/components/nav-app.tsx";
-import {Calendar, Home, Inbox, Search, Settings} from "lucide-react"
+import {Home} from "lucide-react"
+import {CgProfile} from "react-icons/cg";
+
+import {MdOutlinePrecisionManufacturing} from "react-icons/md";
+import {GiConcentrationOrb} from "react-icons/gi";
+import {SiAudiotechnica} from "react-icons/si";
+import {PiFinnTheHuman} from "react-icons/pi";
 
 const data = {
   user: {
@@ -34,20 +34,20 @@ const data = {
   },
   teams: [
     {
-      name: "Acme Inc",
+      name: "Thadosoft",
       logo: GalleryVerticalEnd,
       plan: "Enterprise",
     },
-    {
-      name: "Acme Corp.",
-      logo: AudioWaveform,
-      plan: "Startup",
-    },
-    {
-      name: "Evil Corp.",
-      logo: Command,
-      plan: "Free",
-    },
+    // {
+    //   name: "Acme Corp.",
+    //   logo: AudioWaveform,
+    //   plan: "Startup",
+    // },
+    // {
+    //   name: "Evil Corp.",
+    //   logo: Command,
+    //   plan: "Free",
+    // },
   ],
   navApp: [
     {
@@ -55,112 +55,148 @@ const data = {
       url: "#",
       icon: Home,
     },
-    {
-      title: "Inbox",
-      url: "#",
-      icon: Inbox,
-    },
-    {
-      title: "Calendar",
-      url: "#",
-      icon: Calendar,
-    },
-    {
-      title: "Search",
-      url: "#",
-      icon: Search,
-    },
-    {
-      title: "Settings",
-      url: "#",
-      icon: Settings,
-    },
+    // {
+    //   title: "Inbox",
+    //   url: "#",
+    //   icon: Inbox,
+    // },
+    // {
+    //   title: "Calendar",
+    //   url: "#",
+    //   icon: Calendar,
+    // },
+    // {
+    //   title: "Search",
+    //   url: "#",
+    //   icon: Search,
+    // },
+    // {
+    //   title: "Settings",
+    //   url: "#",
+    //   icon: Settings,
+    // },
   ],
   navMain: [
     {
-      title: "Playground",
+      title: "HRM(Office & Facility Management)",
       url: "#",
-      icon: SquareTerminal,
+      icon: PiFinnTheHuman,
       isActive: true,
       items: [
         {
-          title: "History",
+          title: "Lịch làm việc",
           url: "#",
         },
         {
-          title: "Starred",
+          title: "Lịch tính lương",
           url: "#",
         },
         {
-          title: "Settings",
+          title: "Thông tin nhân viên",
+          url: "#",
+          items: [
+            {
+              title: "Khởi tạo",
+              url: "#",
+            },
+            {
+              title: "Tìm kiếm",
+              url: "#",
+            },
+          ]
+        },
+        {
+          title: "Hợp đồng lao động",
+          url: "#",
+          items: [
+            {
+              title: "Quy định công ty",
+              url: "#",
+            },
+            {
+              title: "Phụ lục hợp đồng lao động",
+              url: "#",
+            },
+            {
+              title: "Tìm kiếm HĐ / Phụ lục HĐLĐ",
+              url: "#",
+            },
+          ]
+        },
+        {
+          title: "Chấm công",
+          url: "#",
+          items: [
+            {
+              title: "Tạo bảng chấm công",
+              url: "#",
+            },
+            {
+              title: "Tìm bảng chấm công",
+              url: "#",
+            },
+          ]
+        },
+      ],
+    },
+    {
+      title: "Điều vận - Technical",
+      url: "#",
+      icon: SiAudiotechnica,
+      items: [
+        {
+          title: "Quản lý dự án",
+          url: "/project",
+        },
+      ],
+    },
+    {
+      title: "Điều phối - Coordination",
+      url: "#",
+      icon: GiConcentrationOrb,
+      items: [
+        {
+          title: "Hợp đồng bán hàng",
           url: "#",
         },
       ],
     },
     {
-      title: "Models",
+      title: "Manufacturing",
       url: "#",
-      icon: Bot,
+      icon: MdOutlinePrecisionManufacturing,
       items: [
         {
-          title: "Genesis",
+          title: "BOM",
           url: "#",
+          items: [
+            {
+              title: "Khởi tạo",
+              url: "#",
+            },
+            {
+              title: "Tìm kiếm",
+              url: "#",
+            },
+          ],
         },
+      ],
+    },
+    {
+      title: "Warehouse",
+      url: "#",
+      icon: Warehouse,
+      items: [
         {
-          title: "Explorer",
-          url: "#",
-        },
-        {
-          title: "Quantum",
+          title: "Report",
           url: "#",
         },
       ],
     },
     {
-      title: "Documentation",
-      url: "#",
-      icon: BookOpen,
-      items: [
-        {
-          title: "Introduction",
-          url: "#",
-        },
-        {
-          title: "Get Started",
-          url: "#",
-        },
-        {
-          title: "Tutorials",
-          url: "#",
-        },
-        {
-          title: "Changelog",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Settings",
-      url: "#",
-      icon: Settings2,
-      items: [
-        {
-          title: "General",
-          url: "#",
-        },
-        {
-          title: "Team",
-          url: "#",
-        },
-        {
-          title: "Billing",
-          url: "#",
-        },
-        {
-          title: "Limits",
-          url: "#",
-        },
-      ],
+      title: "Reference Profile",
+      url: "/profile",
+      icon: CgProfile,
     },
   ],
   projects: [
@@ -191,7 +227,7 @@ export function AppSidebar({...props}: React.ComponentProps<typeof Sidebar>) {
         <SidebarContent>
           <NavApp items={data.navApp}/>
           <NavMain items={data.navMain}/>
-          <NavProjects projects={data.projects}/>
+          {/*<NavProjects projects={data.projects}/>*/}
         </SidebarContent>
         <SidebarFooter>
           <NavUser user={data.user}/>
