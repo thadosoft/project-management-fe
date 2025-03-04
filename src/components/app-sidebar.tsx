@@ -140,12 +140,21 @@ const data = {
       ],
     },
     {
-      title: "Điều vận - Technical",
-      url: "#",
+      title: "Điều vận",
       icon: SiAudiotechnica,
       items: [
         {
           title: "Quản lý dự án",
+          url: "/project",
+        },
+      ],
+    },
+    {
+      title: "Kỹ thuật",
+      icon: SiAudiotechnica,
+      items: [
+        {
+          title: "Quản lý vật tư",
           url: "/project",
         },
       ],
@@ -194,7 +203,7 @@ const data = {
     //   ],
     // },
     {
-      title: "Reference Profile",
+      title: "Hồ sơ tham khảo",
       url: "/profile",
       icon: CgProfile,
     },

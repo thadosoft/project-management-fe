@@ -58,12 +58,12 @@ function ProjectPage() {
                 <BreadcrumbList>
                   <BreadcrumbItem className="hidden md:block">
                     <BreadcrumbLink href="/">
-                      Project Reference
+                      Hồ sơ tham khảo
                     </BreadcrumbLink>
                   </BreadcrumbItem>
                   <BreadcrumbSeparator className="hidden md:block" />
                   <BreadcrumbItem>
-                    <BreadcrumbPage>Data Fetching</BreadcrumbPage>
+                    <BreadcrumbPage>Upload File</BreadcrumbPage>
                   </BreadcrumbItem>
                 </BreadcrumbList>
               </Breadcrumb>
@@ -94,10 +94,10 @@ function ProjectPage() {
                         </div>
                         <h3
                           className="mt-4 sm:mt-6 text-xl font-semibold leading-tight text-gray-900 dark:text-white md:mt-10">
-                          Choose your module
+                          Choose module
                         </h3>
                         <p className="mt-3 sm:mt-4 text-base text-gray-600 dark:text-gray-400">
-                          Click the button to see the available modules.
+                          Select a module to get started.
                         </p>
                       </div>
                       <div>
@@ -110,7 +110,7 @@ function ProjectPage() {
                           Upload
                         </h3>
                         <p className="mt-3 sm:mt-4 text-base text-gray-600 dark:text-gray-400">
-                          Upload your file.
+                          Upload the selected file for processing.
                         </p>
                       </div>
                       <div>
@@ -120,10 +120,11 @@ function ProjectPage() {
                         </div>
                         <h3
                           className="mt-4 sm:mt-6 text-xl font-semibold leading-tight text-gray-900 dark:text-white md:mt-10">
-                          Review
+                          Review & Submit
+
                         </h3>
                         <p className="mt-3 sm:mt-4 text-base text-gray-600 dark:text-gray-400">
-                          Review your file and submit.
+                          Review your uploaded file and submit it for approval.
                         </p>
                       </div>
                     </div>
