@@ -27,11 +27,6 @@ import {SiAudiotechnica} from "react-icons/si";
 import {PiFinnTheHuman} from "react-icons/pi";
 
 const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
   teams: [
     {
       name: "Thadosoft",
@@ -230,7 +225,7 @@ export function AppSidebar({...props}: React.ComponentProps<typeof Sidebar>) {
           {/*<NavProjects projects={data.projects}/>*/}
         </SidebarContent>
         <SidebarFooter>
-          <NavUser user={data.user}/>
+          <NavUser/>
         </SidebarFooter>
         <SidebarRail/>
       </Sidebar>

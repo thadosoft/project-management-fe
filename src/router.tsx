@@ -8,8 +8,8 @@ import ProfilePage from "@/pages/ProfilePage.tsx";
 export const router = createBrowserRouter([
   // {path: "/", element: <App/>},
   // {path: "/", element: <DashboardPage/>},
-  {path: "/login", element: <LoginPage/>},
-  {path: "/", element: <ProjectPage/>},
+  {path: "/", element: <LoginPage/>},
+  {path: "/project", element: <ProjectPage/>},
   {path: "/profile", element: <ProfilePage/>},
   {path: "/project/task/:projectId", element: <TaskPage/>}
 ]);
