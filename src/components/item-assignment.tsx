@@ -35,8 +35,9 @@ import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger
 import {BsThreeDots} from "react-icons/bs";
 
 interface Props {
-  assignment: Assignment;
-  isOverlay?: boolean;
+  assignment: Assignment,
+  isOverlay?: boolean,
+  removeAssignment: (assignmentId: string) => void
 }
 
 export type AssignmentType = "Assignment";
@@ -46,7 +47,7 @@ export interface AssignmentDragData {
   assignment: Assignment;
 }
 
-export function ItemAssignment({assignment, isOverlay}: Props) {
+export function ItemAssignment({assignment, isOverlay, removeAssignment}: Props) {
   const {
     setNodeRef,
     attributes,
@@ -157,6 +158,7 @@ export function ItemAssignment({assignment, isOverlay}: Props) {
   const [content, setContent] = useState<string>(assignment.description);
   const [isEditing, setIsEditing] = useState(false);
   const [users, setUsers] = useState<User[]>([]);
+  const [isAssignmentOpen, setIsAssignmentOpen] = useState(false);
   const editorConfig = useMemo(() => ({
     readonly: false,
     height: 300,
@@ -265,10 +267,10 @@ export function ItemAssignment({assignment, isOverlay}: Props) {
     await deleteByFileName(mediaRequest);
   };
 
-  const handleDeletAssignment = async () => {
-    console.log(123)
+  const handleDeleteAssignment = async () => {
+    removeAssignment(assignment.id);
     await deleteAssignment(assignment.id);
-
+    setIsAssignmentOpen(false);
   }
 
   useEffect(() => {
@@ -338,7 +340,11 @@ export function ItemAssignment({assignment, isOverlay}: Props) {
           </Badge>
         </CardHeader>
 
-        <Dialog modal={false}>
+        <Dialog
+            modal={false}
+            open={isAssignmentOpen}
+            onOpenChange={setIsAssignmentOpen}
+        >
           <DialogTrigger asChild>
             <CardContent className="px-3 pt-3 pb-6 text-left whitespace-pre-wrap cursor-pointer">
               {assignment.title}
@@ -526,7 +532,7 @@ export function ItemAssignment({assignment, isOverlay}: Props) {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent className="w-40">
-                            <DropdownMenuItem onClick={handleDeletAssignment}>
+                            <DropdownMenuItem onClick={handleDeleteAssignment}>
                               <Trash2/>
                               <span className="cursor-pointer">Delete</span>
                             </DropdownMenuItem>

@@ -10,11 +10,20 @@ import {Check, GripVertical, Trash2, X} from "lucide-react";
 import {ScrollArea} from "./ui/scroll-area";
 import {Task, TaskRequest} from "@/models/Task.ts";
 import {Assignment, AssignmentRequest} from "@/models/Assignment.ts";
-import {updateTask} from "@/services/taskService.ts";
+import {deleteTask, updateTask} from "@/services/taskService.ts";
 import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger} from "@/components/ui/dropdown-menu.tsx";
 import {BsThreeDots} from "react-icons/bs";
 import {Input} from "@/components/ui/input.tsx";
 import {createAssignment} from "@/services/assignmentService.ts";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 
 export type TaskType = "Task";
 
@@ -24,13 +33,15 @@ export interface TaskDragData {
 }
 
 interface Props {
-  task: Task;
-  assignments: Assignment[];
-  isOverlay?: boolean;
-  addNewAssignment: (newAssignment: Assignment) => void;
+  task: Task,
+  assignments: Assignment[],
+  isOverlay?: boolean,
+  removeTask: (taskId: string) => void,
+  addAssignment: (newAssignment: Assignment) => void,
+  removeAssignment: (assignmentId: string) => void,
 }
 
-export function ItemTask({task, assignments, isOverlay, addNewAssignment}: Props) {
+export function ItemTask({task, assignments, isOverlay, addAssignment, removeAssignment, removeTask}: Props) {
   const assignmentsIds = useMemo(() => {
     return assignments.map((assignment) => assignment.id);
   }, [assignments]);
@@ -72,6 +83,7 @@ export function ItemTask({task, assignments, isOverlay, addNewAssignment}: Props
   const [isNewAssignmentEditing, setIsNewAssignmentEditing] = useState(false);
   const [newAssignmentTitle, setNewAssignmentTitle] = useState("");
   const [status, setStatus] = useState(task.status);
+  const [isDeleteTaskOpen, setIsDeleteTaskOpen] = useState(false);
 
   const handleChangeStatus = async (isChanged: boolean) => {
     if (isChanged) {
@@ -105,11 +117,17 @@ export function ItemTask({task, assignments, isOverlay, addNewAssignment}: Props
       const newAssignmentCreated: Assignment | null = await createAssignment(assignmentRequest);
 
       if (newAssignmentCreated) {
-        addNewAssignment(newAssignmentCreated);
+        addAssignment(newAssignmentCreated);
       }
     }
 
     setIsNewAssignmentEditing(false);
+  }
+
+  const handleDeleteTask = async () => {
+    removeTask(task.id)
+    await deleteTask(task.id)
+    setIsDeleteTaskOpen(false)
   }
 
   return (
@@ -159,12 +177,32 @@ export function ItemTask({task, assignments, isOverlay, addNewAssignment}: Props
                 <BsThreeDots/>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-40">
-              <DropdownMenuItem>
-                <Trash2/>
-                <span className="cursor-pointer">Delete</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
+
+            <Dialog
+                open={isDeleteTaskOpen}
+                onOpenChange={setIsDeleteTaskOpen}
+            >
+              <DialogTrigger asChild>
+                <DropdownMenuContent className="w-40">
+                  <DropdownMenuItem>
+                    <Trash2/>
+                    <span className="cursor-pointer">Delete</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>Confirm delete</DialogTitle>
+                  <DialogDescription>
+                    Make sure you want to delete and <span className="text-red-500 font-bold">NOT UNDO</span>.
+                  </DialogDescription>
+                </DialogHeader>
+                <DialogFooter className="flex justify-around">
+                  <Button onClick={() => setIsDeleteTaskOpen(false)}>Cancel</Button>
+                  <Button onClick={handleDeleteTask} className="bg-red-500 hover:bg-red-400">Delete</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </DropdownMenu>
         </CardHeader>
         <ScrollArea>
@@ -172,7 +210,11 @@ export function ItemTask({task, assignments, isOverlay, addNewAssignment}: Props
             <SortableContext items={assignmentsIds}>
               {
                 assignments.map((assignment) => (
-                    <ItemAssignment key={assignment.id} assignment={assignment}/>
+                    <ItemAssignment
+                        key={assignment.id}
+                        assignment={assignment}
+                        removeAssignment={removeAssignment}
+                    />
                 ))
               }
               {

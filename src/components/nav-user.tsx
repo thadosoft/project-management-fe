@@ -29,17 +29,39 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
+import {logout} from "@/services/authService.ts";
+import {useNavigate} from "react-router-dom";
+import {getUserById} from "@/services/userService.ts";
+import {User} from "@/models/User.ts";
+import {useEffect, useState} from "react";
+import logoImg from "@/assets/imgs/logo.png";
 
-export function NavUser({
-                          user,
-                        }: {
-  user: {
-    name: string
-    email: string
-    avatar: string
-  }
-}) {
+export function NavUser() {
   const {isMobile} = useSidebar()
+  const [user, setUser] = useState<User | null>(null);
+  const navigate = useNavigate();
+
+
+  const handleLogout = async () => {
+    await logout();
+    navigate("/");
+  }
+
+  useEffect(() => {
+    const userId = localStorage.getItem("id");
+    if (!userId) {
+      navigate("/");
+      return;
+    }
+
+    getUserById(userId).then((response) => {
+      if (response === null) {
+        navigate("/");
+      } else {
+        setUser(response);
+      }
+    });
+  }, []);
 
   return (
       <SidebarMenu>
@@ -51,12 +73,12 @@ export function NavUser({
                   className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
               >
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage src={user.avatar} alt={user.name}/>
+                  <AvatarImage src={logoImg} alt="Thadosoft.png"/>
                   <AvatarFallback className="rounded-lg">CN</AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">{user.name}</span>
-                  <span className="truncate text-xs">{user.email}</span>
+                  <span className="truncate font-semibold">{user?.name}</span>
+                  <span className="truncate text-xs">{user?.email}</span>
                 </div>
                 <ChevronsUpDown className="ml-auto size-4"/>
               </SidebarMenuButton>
@@ -70,12 +92,12 @@ export function NavUser({
               <DropdownMenuLabel className="p-0 font-normal">
                 <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                   <Avatar className="h-8 w-8 rounded-lg">
-                    <AvatarImage src={user.avatar} alt={user.name}/>
+                    <AvatarImage src={logoImg} alt="Thadosoft.png"/>
                     <AvatarFallback className="rounded-lg">CN</AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-semibold">{user.name}</span>
-                    <span className="truncate text-xs">{user.email}</span>
+                    <span className="truncate font-semibold">{user?.name}</span>
+                    <span className="truncate text-xs">{user?.email}</span>
                   </div>
                 </div>
               </DropdownMenuLabel>
@@ -102,7 +124,7 @@ export function NavUser({
                 </DropdownMenuItem>
               </DropdownMenuGroup>
               <DropdownMenuSeparator/>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
                 <LogOut/>
                 Log out
               </DropdownMenuItem>
