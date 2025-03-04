@@ -87,21 +87,21 @@ const data = {
           title: "Lịch làm việc",
           url: "#",
         },
-        {
-          title: "Lịch tính lương",
-          url: "#",
-        },
+        // {
+        //   title: "Lịch tính lương",
+        //   url: "#",
+        // },
         {
           title: "Thông tin nhân viên",
           url: "#",
           items: [
             {
               title: "Khởi tạo",
-              url: "#",
+              url: "/create-employee",
             },
             {
               title: "Tìm kiếm",
-              url: "#",
+              url: "/search-employee",
             },
           ]
         },
