@@ -1,20 +1,19 @@
 import { fetchData } from "@/utils/api.ts";
 import { accessToken } from "@/utils/token.ts";
-import Module from "module";
-import { UpdateModule } from "@/models/Module";
+import { ReferenceProfileRequest } from "@/models/ProfileReference";
 
 export const getAll = async (): Promise<any[] | null> => {
-  return await fetchData<any[]>("modules", "GET", accessToken);
+  return await fetchData<any[]>("reference-profile", "GET", accessToken);
 };
 
-export const getById = async (moduleId: number): Promise<any[] | null> => {
-  return await fetchData<any[]>(`modules/${moduleId}`, "GET", accessToken);
+export const getById = async (profileReferenceId: number): Promise<any[] | null> => {
+  return await fetchData<any[]>(`reference-profile/${profileReferenceId}`, "GET", accessToken);
 };
 
-export const create = async (module: Module): Promise<any | null> => {
-  return await fetchData<any, Module>(`modules`, "POST", accessToken, module);
+export const getByProfileReferenceId = async (profileReferenceId: number): Promise<any[] | null> => {
+  return await fetchData<any[]>(`reference-profile/module/${profileReferenceId}`, "GET", accessToken);
 };
 
-export const update = async (id: number, module: UpdateModule): Promise<void | null> => {
-  return await fetchData<void, UpdateModule>(`modules/${id}`, "PUT", accessToken, module);
+export const create = async (referenceProfile: ReferenceProfileRequest): Promise<any | null> => {
+  return await fetchData<any, ReferenceProfileRequest>(`reference-profile`, "POST", accessToken, referenceProfile);
 };

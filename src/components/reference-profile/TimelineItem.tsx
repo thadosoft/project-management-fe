@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import ReferenceProfilePopup from "./ReferenceProfilePopup"; // Import popup
 import { useNavigate } from "react-router-dom";
+import { downloadFile, uploadFile } from "@/services/reference-profile/uploadFIleService";
+import { getByProfileReferenceId } from "@/services/reference-profile/profileReferenceService";
 
-interface TimelineItemProps 
-{
+interface TimelineItemProps {
     id: number;
     number: number;
     title: string;
@@ -11,9 +12,65 @@ interface TimelineItemProps
     position: "left" | "right";
 }
 
+
 const TimelineItem: React.FC<TimelineItemProps> = ({ id, number, title, description, position }) => {
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [message, setMessage] = useState("");
+    const [uploading, setUploading] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [profile, setProfile] = useState<any>(null);
+    const [error, setError] = useState<string | null>(null);
+
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        if (event.target.files && event.target.files.length > 0) {
+            setSelectedFile(event.target.files[0]);
+        }
+    };
+
+    const handleUpload = async () => {
+        if (!selectedFile) {
+            setMessage("Vui lòng chọn một file!");
+            return;
+        }
+
+        if (!id) {
+            setMessage("Không tìm thấy ID hồ sơ!");
+            return;
+        }
+
+        setUploading(true);
+        setMessage("");
+
+        try {
+            const response = await uploadFile(Number(id), selectedFile);
+            setMessage("Upload thành công!");
+
+            setSelectedFile(null);
+
+            fetchData();
+        } catch (error) {
+            setMessage("Lỗi khi upload file!");
+        } finally {
+            setUploading(false);
+        }
+    };
+
+    const fetchData = async () => {
+        try {
+            setLoading(true);
+            if (id) {
+                const data = await getByProfileReferenceId(Number(id));
+                setProfile(data);
+            }
+        } catch (err: unknown) {
+            setError((err as Error).message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const [isPopupOpen, setIsPopupOpen] = useState(false);
-    
+
     const navigate = useNavigate();
 
     const handleSave = (data: any) => {
@@ -21,9 +78,9 @@ const TimelineItem: React.FC<TimelineItemProps> = ({ id, number, title, descript
     };
 
     const handleViewDetail = () => {
-        navigate(`/profile/${id}`); 
+        navigate(`/profile/${id}`);
     };
-    
+
 
     return (
         <div className="mb-8 flex justify-between items-center w-full">
@@ -38,12 +95,33 @@ const TimelineItem: React.FC<TimelineItemProps> = ({ id, number, title, descript
                             <h3 className="mb-3 font-bold text-gray-800 text-xl">{title}</h3>
                             <button onClick={handleViewDetail} className="text-indigo-700 border border-indigo-600 hover:bg-indigo-400 hover:text-white py-2 px-3 gap-2 rounded inline-flex items-center">Xem thêm</button>
                         </div>
-                        <button
-                            onClick={() => setIsPopupOpen(true)}
-                            className="text-indigo-700 border border-indigo-600 py-2 px-3 gap-2 rounded inline-flex items-center mb-5"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="40px" height="40px" viewBox="0 0 1024 1024" className="icon" version="1.1"><path d="M242.3 743.4h603.4c27.8 0 50.3-22.5 50.3-50.3V192H192v501.1c0 27.8 22.5 50.3 50.3 50.3z" fill="#FFEA00" /><path d="M178.3 807.4h603.4c27.8 0 50.3-22.5 50.3-50.3V256H128v501.1c0 27.8 22.5 50.3 50.3 50.3z" fill="#FFFF8D" /><path d="M960 515v384c0 35.3-28.7 64-64 64H128c-35.3 0-64-28.7-64-64V383.8c0-35.3 28.7-64 64-64h344.1c24.5 0 46.8 13.9 57.5 35.9l46.5 95.3H896c35.3 0 64 28.7 64 64z" fill="#3D5AFE" /><path d="M704 512c0-20.7-1.4-41.1-4.1-61H576.1l-46.5-95.3c-10.7-22-33.1-35.9-57.5-35.9H128c-35.3 0-64 28.7-64 64V899c0 6.7 1 13.2 3 19.3C124.4 945 188.5 960 256 960c247.4 0 448-200.6 448-448z" fill="#536DFE" /></svg>
-                        </button>
+                        <div className="flex items-center justify-center">
+                            <label>
+                                <input type="file" hidden onChange={handleFileChange} accept=".png,.jpg,.pdf" />
+                                <div className="flex w-28 h-9 px-2 flex-col rounded-full text-xs font-semibold leading-4 items-center justify-center cursor-pointer focus:outline-none">
+                                    Chọn file
+                                    <img src="https://cdn-icons-png.flaticon.com/512/4807/4807934.png" width="60px" className="mx-auto mt-6" alt="" />
+                                </div>
+                            </label>
+                        </div>
+
+                        {selectedFile && (
+                            <p className="text-center text-gray-700 mt-2 text-sm">
+                                <strong>File đã chọn:</strong> {selectedFile.name}
+                            </p>
+                        )}
+                        <div className="mx-auto">
+                            {selectedFile && (
+                                <button
+                                    onClick={handleUpload}
+                                    disabled={uploading}
+                                    className={`py-3 px-4 rounded-md ${uploading ? "bg-gray-400" : "bg-blue-500 hover:bg-blue-600"} text-white mt-2`}
+                                >
+                                    {uploading ? "Đang tải lên..." : "Tải lên"}
+                                </button>
+                            )}
+                        </div>
+
                         <p className="text-gray-700 leading-tight font-semibold text-lg">{description}</p>
                     </div>
                 </>
@@ -54,12 +132,31 @@ const TimelineItem: React.FC<TimelineItemProps> = ({ id, number, title, descript
                             <h3 className="mb-3 font-bold text-gray-800 text-xl">{title}</h3>
                             <button onClick={handleViewDetail} className="text-indigo-700 border border-indigo-600 hover:bg-indigo-400 hover:text-white py-2 px-3 gap-2 rounded inline-flex items-center">Xem thêm</button>
                         </div>
-                        <button
-                            onClick={() => setIsPopupOpen(true)}
-                            className="text-indigo-700 border border-indigo-600 py-2 px-3 gap-2 rounded inline-flex items-center mb-5"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="40px" height="40px" viewBox="0 0 1024 1024" className="icon" version="1.1"><path d="M242.3 743.4h603.4c27.8 0 50.3-22.5 50.3-50.3V192H192v501.1c0 27.8 22.5 50.3 50.3 50.3z" fill="#FFEA00" /><path d="M178.3 807.4h603.4c27.8 0 50.3-22.5 50.3-50.3V256H128v501.1c0 27.8 22.5 50.3 50.3 50.3z" fill="#FFFF8D" /><path d="M960 515v384c0 35.3-28.7 64-64 64H128c-35.3 0-64-28.7-64-64V383.8c0-35.3 28.7-64 64-64h344.1c24.5 0 46.8 13.9 57.5 35.9l46.5 95.3H896c35.3 0 64 28.7 64 64z" fill="#3D5AFE" /><path d="M704 512c0-20.7-1.4-41.1-4.1-61H576.1l-46.5-95.3c-10.7-22-33.1-35.9-57.5-35.9H128c-35.3 0-64 28.7-64 64V899c0 6.7 1 13.2 3 19.3C124.4 945 188.5 960 256 960c247.4 0 448-200.6 448-448z" fill="#536DFE" /></svg>
-                        </button>
+                        <div className="flex items-center justify-center">
+                            <label>
+                                <input type="file" hidden onChange={handleFileChange} accept=".png,.jpg,.pdf" />
+                                <div className="flex w-28 h-9 px-2 flex-col rounded-full text-xs font-semibold leading-4 items-center justify-center cursor-pointer focus:outline-none">
+                                    Chọn file
+                                    <img src="https://cdn-icons-png.flaticon.com/512/4807/4807934.png" width="60px" className="mx-auto mt-6" alt="" />
+                                </div>
+                            </label>
+                        </div>
+                        {selectedFile && (
+                            <p className="text-center text-gray-700 mt-2 text-sm">
+                                <strong>File đã chọn:</strong> {selectedFile.name}
+                            </p>
+                        )}
+                        <div className="mx-auto">
+                            {selectedFile && (
+                                <button
+                                    onClick={handleUpload}
+                                    disabled={uploading}
+                                    className={`py-3 px-4 rounded-md ${uploading ? "bg-gray-400" : "bg-blue-500 hover:bg-blue-600"} text-white mt-2`}
+                                >
+                                    {uploading ? "Đang tải lên..." : "Tải lên"}
+                                </button>
+                            )}
+                        </div>
                         <p className="text-gray-700 leading-tight font-semibold text-lg">{description}</p>
                     </div>
                     <div className="z-20 flex items-center bg-gray-800 shadow-xl w-12 h-12 rounded-full">

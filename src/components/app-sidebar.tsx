@@ -7,9 +7,9 @@ import {
   Warehouse,
 } from "lucide-react"
 
-import {NavMain} from "@/components/nav-main"
-import {NavUser} from "@/components/nav-user"
-import {TeamSwitcher} from "@/components/team-switcher"
+import { NavMain } from "@/components/nav-main"
+import { NavUser } from "@/components/nav-user"
+import { TeamSwitcher } from "@/components/team-switcher"
 import {
   Sidebar,
   SidebarContent,
@@ -17,14 +17,14 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar"
-import {NavApp} from "@/components/nav-app.tsx";
-import {Home} from "lucide-react"
-import {CgProfile} from "react-icons/cg";
+import { NavApp } from "@/components/nav-app.tsx";
+import { Home } from "lucide-react"
+import { CgProfile } from "react-icons/cg";
 
-import {MdOutlinePrecisionManufacturing} from "react-icons/md";
-import {GiConcentrationOrb} from "react-icons/gi";
-import {SiAudiotechnica} from "react-icons/si";
-import {PiFinnTheHuman} from "react-icons/pi";
+import { MdOutlinePrecisionManufacturing } from "react-icons/md";
+import { GiConcentrationOrb } from "react-icons/gi";
+import { SiAudiotechnica } from "react-icons/si";
+import { PiFinnTheHuman } from "react-icons/pi";
 
 const data = {
   user: {
@@ -218,21 +218,21 @@ const data = {
   ],
 }
 
-export function AppSidebar({...props}: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-      <Sidebar collapsible="icon" {...props}>
-        <SidebarHeader>
-          <TeamSwitcher teams={data.teams}/>
-        </SidebarHeader>
-        <SidebarContent>
-          <NavApp items={data.navApp}/>
-          <NavMain items={data.navMain}/>
-          {/*<NavProjects projects={data.projects}/>*/}
-        </SidebarContent>
-        <SidebarFooter>
-          <NavUser user={data.user}/>
-        </SidebarFooter>
-        <SidebarRail/>
-      </Sidebar>
+    <Sidebar collapsible="icon" {...props}>
+      <SidebarHeader>
+        <TeamSwitcher teams={data.teams} />
+      </SidebarHeader>
+      <SidebarContent>
+        <NavApp items={data.navApp} />
+        <NavMain items={data.navMain} />
+        {/*<NavProjects projects={data.projects}/>*/}
+      </SidebarContent>
+      <SidebarFooter>
+        <NavUser user={data.user} />
+      </SidebarFooter>
+      <SidebarRail />
+    </Sidebar>
   )
 }
