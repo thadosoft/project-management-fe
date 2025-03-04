@@ -28,8 +28,8 @@ import { PiFinnTheHuman } from "react-icons/pi";
 
 const data = {
   user: {
-    name: "shadcn",
-    email: "m@example.com",
+    name: "Trung Dũng",
+    email: "dung.nt@thadosoft.com",
     avatar: "/avatars/shadcn.jpg",
   },
   teams: [
@@ -52,7 +52,7 @@ const data = {
   navApp: [
     {
       title: "Home",
-      url: "#",
+      url: "/",
       icon: Home,
     },
     // {

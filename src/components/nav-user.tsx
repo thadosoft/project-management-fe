@@ -81,13 +81,13 @@ export function NavUser({
               </DropdownMenuLabel>
               <DropdownMenuSeparator/>
               <DropdownMenuGroup>
-                <DropdownMenuItem>
+                {/* <DropdownMenuItem>
                   <Sparkles/>
                   Upgrade to Pro
-                </DropdownMenuItem>
+                </DropdownMenuItem> */}
               </DropdownMenuGroup>
               <DropdownMenuSeparator/>
-              <DropdownMenuGroup>
+              {/* <DropdownMenuGroup>
                 <DropdownMenuItem>
                   <BadgeCheck/>
                   Account
@@ -100,7 +100,7 @@ export function NavUser({
                   <Bell/>
                   Notifications
                 </DropdownMenuItem>
-              </DropdownMenuGroup>
+              </DropdownMenuGroup> */}
               <DropdownMenuSeparator/>
               <DropdownMenuItem>
                 <LogOut/>
