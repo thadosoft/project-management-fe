@@ -19,22 +19,20 @@ function DashboardPage() {
                 <Breadcrumb>
                   <BreadcrumbList>
                     <BreadcrumbItem className="hidden md:block">
-                      <BreadcrumbLink href="#">
-                        Building Your Application
+                      <BreadcrumbLink href="/">
+                        Dashboard
                       </BreadcrumbLink>
                     </BreadcrumbItem>
                     <BreadcrumbSeparator className="hidden md:block"/>
                     <BreadcrumbItem>
-                      <BreadcrumbPage>Data Fetching</BreadcrumbPage>
+                      <BreadcrumbPage>Báo cáo tổng quan</BreadcrumbPage>
                     </BreadcrumbItem>
                   </BreadcrumbList>
                 </Breadcrumb>
               </div>
             </header>
             <div className="flex justify-center h-full items-center">
-              <Link to="/project">
-                <Button className="p-32 text-9xl">Project</Button>
-              </Link>
+              Đây là dashboard
             </div>
           </SidebarInset>
         </SidebarProvider>
