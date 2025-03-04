@@ -73,9 +73,17 @@ export default function TaskPage() {
     setIsNewTaskEditing(false);
   }
 
-  const addNewAssignment = (newAssignment: Assignment) => {
+  const handleDeleteTask = async (taskId: string) => {
+    setTasks(tasks.filter((task) => task.id !== taskId));
+  }
+
+  const handleAddNewAssignment = (newAssignment: Assignment) => {
     setAssignments((prev) => [...prev, newAssignment]);
   };
+
+  const handleDeleteAssignment = (assignmentId: string) => {
+    setAssignments(assignments.filter(assignment => assignment.id !== assignmentId))
+  }
 
   useEffect(() => {
     console.log(assignmentUpdated);
@@ -293,7 +301,9 @@ export default function TaskPage() {
                                     assignment.task.id === task.id
                                 )
                               }
-                              addNewAssignment={addNewAssignment}
+                              removeTask={handleDeleteTask}
+                              addAssignment={handleAddNewAssignment}
+                              removeAssignment={handleDeleteAssignment}
                           />
                       ))
                     }
@@ -353,11 +363,13 @@ export default function TaskPage() {
                                             assignment.task.id === activeTask.id
                                         )
                                       }
-                                      addNewAssignment={addNewAssignment}
+                                      removeTask={handleDeleteTask}
+                                      addAssignment={handleAddNewAssignment}
+                                      removeAssignment={handleDeleteAssignment}
                                   />
                               )
                           }
-                          {activeAssignment && <ItemAssignment assignment={activeAssignment} isOverlay/>}
+                          {activeAssignment && <ItemAssignment assignment={activeAssignment} isOverlay removeAssignment={handleDeleteAssignment}/>}
                         </DragOverlay>,
                         document.body
                     )
