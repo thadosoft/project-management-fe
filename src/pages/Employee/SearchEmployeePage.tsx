@@ -33,12 +33,10 @@ function SearchEmployeePage() {
         const fetchData = async () => {
             try {
                 setLoading(true);
-                const employeesData = await searchEmployees(searchParams, currentPage, 10);
-                console.log(employeesData);
+                const result = await searchEmployees(searchParams, page, size);
 
-                if (employeesData) {
-                    setEmployees(employeesData.content);
-                    setTotalPages(employeesData.totalPages); // Assuming totalPages is part of the response
+                if (result) {
+                    setEmployees(result.content);
                 }
             } catch (err: unknown) {
                 setError((err as Error).message);

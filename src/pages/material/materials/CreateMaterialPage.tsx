@@ -4,17 +4,19 @@ import { AppSidebar } from "@/components/app-sidebar.tsx";
 import { Separator } from "@/components/ui/separator.tsx";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb.tsx";
 import { Material } from "@/models/Material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { createMaterial, deleteMaterial, getAllMaterial, updateMaterial } from "@/services/material/materialService";
+import { getAllMaterialCategory } from "@/services/material/materialCategoryService";
+import { MaterialCategory } from "@/models/MaterialCategory";
 
 function CreateMaterialPage() {
 
-    const [material, setMaterial] = useState<Material>({
-        name: '',
-        code: '',
-        description: ''
-    });
+    const [categories, setCategories] = useState<MaterialCategory[]>([]);
+    const [editingMaterialId, setEditingMaterialId] = useState<number | null>(null);
+    const [materials, setMaterials] = useState<Material[]>([]);
+    const [material, setMaterial] = useState<Material>({});
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setMaterial((prevParams) => ({
             ...prevParams,
@@ -22,8 +24,95 @@ function CreateMaterialPage() {
         }));
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleEdit = (mat: Material) => {
+        setMaterial({
+            name: mat.name,
+            sku: mat.sku,
+            inventoryCategoryId: mat.inventoryCategoryId ?? undefined,
+            unit: mat.unit,
+            quantityInStock: mat.quantityInStock,
+            reorderLevel: mat.reorderLevel,
+            location: mat.location,
+            purchasePrice: mat.purchasePrice,
+            sellingPrice: mat.sellingPrice
+        });
+        setEditingMaterialId(mat.id || null);
     };
+
+
+    const handleDelete = async (id: number) => {
+        try {
+            await deleteMaterial(id);
+            alert("Xóa loại vật tư thành công!");
+            const data = await getAllMaterial();
+            setMaterials(data || []);
+        } catch (error) {
+            console.error("Lỗi khi xóa:", error);
+            alert("Xóa thất bại!");
+        }
+    };
+
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        try {
+            if (!material.name) {
+                alert("Vui lòng nhập đầy đủ thông tin!");
+                return;
+            }
+
+            if (editingMaterialId) {
+                await updateMaterial(editingMaterialId, material);
+                alert("Cập nhật loại vật tư thành công!");
+            } else {
+                await createMaterial(material);
+                alert("Thêm loại vật tư thành công!");
+            }
+
+            setMaterial({
+                name: "", sku: "", inventoryCategoryId: undefined, unit: "",
+                quantityInStock: 0, reorderLevel: 0, location: "", purchasePrice: 0, sellingPrice: 0
+            });
+
+            setEditingMaterialId(null);
+
+            const data = await getAllMaterial();
+            setMaterials(data || []);
+        } catch (error) {
+            console.error("Lỗi:", error);
+            alert("Đã xảy ra lỗi!");
+        }
+    };
+
+
+    useEffect(() => {
+
+        const fetchCategories = async () => {
+            const data = await getAllMaterialCategory();
+            if (data) {
+                setCategories(data);
+            }
+        };
+        fetchCategories();
+
+        const fetchmaterials = async () => {
+            try {
+                const data = await getAllMaterial();
+
+                console.log("data", data);
+
+
+                if (data) {
+                    setMaterials(data);
+                }
+            } catch (error) {
+                console.error("Error fetching materials:", error);
+            }
+        };
+
+        fetchmaterials();
+    }, []);
 
 
     const handleSearch = async () => {
@@ -52,22 +141,23 @@ function CreateMaterialPage() {
                                     </BreadcrumbItem>
                                     <BreadcrumbSeparator className="hidden md:block" />
                                     <BreadcrumbItem>
-                                        <BreadcrumbPage>Thêm vật tư</BreadcrumbPage>
+                                        <BreadcrumbPage>Quản lý vật tư</BreadcrumbPage>
                                     </BreadcrumbItem>
                                 </BreadcrumbList>
                             </Breadcrumb>
                         </div>
                     </header>
                     <div className="p-10">
+                        <h3 className="text-3xl mb-8 sm:text-5xl leading-normal font-extrabold tracking-tight text-white">Quản lý <span className="text-indigo-600">vật tư</span></h3>
                         <section className="mx-auto border border-[#4D7C0F] rounded-lg p-8">
                             <form onSubmit={handleSubmit}>
                                 <div className="space-y-6">
-                                    <div className="grid sm:grid-cols-4 grid-cols-1 gap-4">
+                                    <div className="grid sm:grid-cols-3 grid-cols-1 gap-6">
                                         <div>
                                             <label className="text-xs xs:text-sm font-medium mb-1">Tên vật tư</label>
                                             <input
                                                 type="text"
-                                                name="fullName"
+                                                name="name"
                                                 value={material.name}
                                                 onChange={handleInputChange}
                                                 className="h-[50px] rounded-[5px] text-xs xs:text-sm border text-black border-[#D1D5DB] w-full px-2 pl-4 font-light"
@@ -77,17 +167,33 @@ function CreateMaterialPage() {
                                             <label className="text-xs xs:text-sm font-medium mb-1">Mã vật tư</label>
                                             <input
                                                 type="text"
-                                                name="career"
+                                                name="sku"
                                                 value={material.sku}
                                                 onChange={handleInputChange}
                                                 className="h-[50px] rounded-[5px] text-xs xs:text-sm border text-black border-[#D1D5DB] w-full px-2 pl-4 font-light"
                                             />
                                         </div>
                                         <div>
+                                            <label className="text-xs xs:text-sm font-medium mb-1">Mô tả</label>
+                                            <select
+                                                name="inventoryCategoryId"
+                                                value={material.inventoryCategoryId ?? ""}
+                                                onChange={handleInputChange}
+                                                className="h-[50px] rounded-[5px] text-xs xs:text-sm border text-black border-[#D1D5DB] w-full px-2 pl-4 font-light"
+                                            >
+                                                <option value="">Chọn danh mục</option>
+                                                {categories.map((category) => (
+                                                    <option key={category.id} value={category.id}>
+                                                        {category.name}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div>
                                             <label className="text-xs xs:text-sm font-medium mb-1">Đơn vị</label>
                                             <input
                                                 type="text"
-                                                name="career"
+                                                name="unit"
                                                 value={material.unit}
                                                 onChange={handleInputChange}
                                                 className="h-[50px] rounded-[5px] text-xs xs:text-sm border text-black border-[#D1D5DB] w-full px-2 pl-4 font-light"
@@ -96,18 +202,18 @@ function CreateMaterialPage() {
                                         <div>
                                             <label className="text-xs xs:text-sm font-medium mb-1">Số lượng</label>
                                             <input
-                                                type="text"
-                                                name="fullName"
+                                                type="number"
+                                                name="quantityInStock"
                                                 value={material.quantityInStock}
                                                 onChange={handleInputChange}
                                                 className="h-[50px] rounded-[5px] text-xs xs:text-sm border text-black border-[#D1D5DB] w-full px-2 pl-4 font-light"
                                             />
                                         </div>
                                         <div>
-                                            <label className="text-xs xs:text-sm font-medium mb-1">Mức đặt hàng lại</label>
+                                            <label className="text-xs xs:text-sm font-medium mb-1">Số lượng cảnh báo</label>
                                             <input
-                                                type="text"
-                                                name="career"
+                                                type="number"
+                                                name="reorderLevel"
                                                 value={material.reorderLevel}
                                                 onChange={handleInputChange}
                                                 className="h-[50px] rounded-[5px] text-xs xs:text-sm border text-black border-[#D1D5DB] w-full px-2 pl-4 font-light"
@@ -117,7 +223,7 @@ function CreateMaterialPage() {
                                             <label className="text-xs xs:text-sm font-medium mb-1">Vị trí</label>
                                             <input
                                                 type="text"
-                                                name="career"
+                                                name="location"
                                                 value={material.location}
                                                 onChange={handleInputChange}
                                                 className="h-[50px] rounded-[5px] text-xs xs:text-sm border text-black border-[#D1D5DB] w-full px-2 pl-4 font-light"
@@ -126,8 +232,8 @@ function CreateMaterialPage() {
                                         <div>
                                             <label className="text-xs xs:text-sm font-medium mb-1">Giá mua</label>
                                             <input
-                                                type="text"
-                                                name="career"
+                                                type="number"
+                                                name="purchasePrice"
                                                 value={material.purchasePrice}
                                                 onChange={handleInputChange}
                                                 className="h-[50px] rounded-[5px] text-xs xs:text-sm border text-black border-[#D1D5DB] w-full px-2 pl-4 font-light"
@@ -136,8 +242,8 @@ function CreateMaterialPage() {
                                         <div>
                                             <label className="text-xs xs:text-sm font-medium mb-1">Giá bán</label>
                                             <input
-                                                type="text"
-                                                name="career"
+                                                type="number"
+                                                name="sellingPrice"
                                                 value={material.sellingPrice}
                                                 onChange={handleInputChange}
                                                 className="h-[50px] rounded-[5px] text-xs xs:text-sm border text-black border-[#D1D5DB] w-full px-2 pl-4 font-light"
@@ -146,29 +252,48 @@ function CreateMaterialPage() {
                                     </div>
                                 </div>
                                 <div className="mt-8 pt-6 border-t border-gray-200 flex justify-between">
-                                    <button onClick={handleSearch}
-                                        type="submit"
-                                        className="bg-[#4D7C0F] hover:bg-[#79ac37] rounded-[5px] p-[13px_25px] gap-[10px] text-white">
-                                        Thêm
+                                    <button type="submit" className="bg-[#4D7C0F] hover:bg-[#79ac37] rounded-[5px] p-[13px_25px] text-white">
+                                        {editingMaterialId ? "Cập nhật" : "Thêm"}
                                     </button>
                                 </div>
                             </form>
                         </section>
 
-                        <table className="min-w-full divide-y divide-gray-200 overflow-x-auto mt-12 text-center">
+                        <table className="min-w-full divide-y divide-gray-200 overflow-x-auto mt-12 text-center text-black">
                             <thead className="bg-gray-50">
                                 <tr>
                                     <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         STT
                                     </th>
                                     <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Tên vật tư
+                                    </th>
+                                    <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Mã vật tư - SKU
+                                    </th>
+                                    <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Loại vật tư
                                     </th>
                                     <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Mã vật tư
+                                        Đơn vị
                                     </th>
                                     <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Mô tả
+                                        Số lượng
+                                    </th>
+                                    <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Số lượng cảnh báo
+                                    </th>
+                                    <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Vị trí
+                                    </th>
+                                    <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Giá mua
+                                    </th>
+                                    <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Giá bán
+                                    </th>
+                                    <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Trạng thái
                                     </th>
                                     <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         #
@@ -176,23 +301,25 @@ function CreateMaterialPage() {
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
-                                <tr>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="text-sm text-gray-900">1</div>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="text-sm text-gray-900">Camera</div>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="text-sm text-gray-900">CAM</div>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        Mô tả ngắn
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap  text-sm font-medium">
-                                        <a href="#" className="text-red-600 hover:text-red-900">Delete</a>
-                                    </td>
-                                </tr>
+                                {materials.map((material, index) => (
+                                    <tr key={material.id}>
+                                        <td className="px-6 py-4 whitespace-nowrap">{index + 1}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{material.name}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{material.sku}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{material.inventoryCategory.name}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{material.unit}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{material.quantityInStock}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{material.reorderLevel}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{material.location}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{material.purchasePrice}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{material.sellingPrice}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{material.status}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap flex justify-center">
+                                            {/* <button onClick={() => handleEdit(material)} className="text-blue-600 hover:text-blue-900">Edit</button> */}
+                                            <button onClick={() => material.id && handleDelete(material.id)} className="text-red-600 hover:text-red-900 ml-4">Delete</button>
+                                        </td>
+                                    </tr>
+                                ))}
                             </tbody>
                         </table>
                     </div>

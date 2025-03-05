@@ -107,10 +107,10 @@ const data = {
         //   title: "Hợp đồng lao động",
         //   url: "#",
         //   items: [
-        //     {
-        //       title: "Quy định công ty",
-        //       url: "#",
-        //     },
+        //     // {
+        //     //   title: "Quy định công ty",
+        //     //   url: "#",
+        //     // },
         //     {
         //       title: "Phụ lục hợp đồng lao động",
         //       url: "#",
@@ -156,17 +156,17 @@ const data = {
         {
           title: "Quản lý loại vật tư",
           icon: SiAudiotechnica,
-          url: "",
-          items: [
-            {
-              title: "Thêm loại vật tư",
-              url: "/create-material-categories",
-            },
-            {
-              title: "Tìm kiếm loại vật tư",
-              url: "/search-material-categories",
-            },
-          ],
+          url: "/create-material-categories",
+          // items: [
+          //   {
+          //     title: "Thêm loại vật tư",
+          //     url: "/create-material-categories",
+          //   },
+          //   {
+          //     title: "Tìm kiếm loại vật tư",
+          //     url: "/search-material-categories",
+          //   },
+          // ],
         },
         {
           title: "Quản lý vật tư",

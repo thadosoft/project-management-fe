@@ -1,19 +1,51 @@
 export interface Material {
-    name: string;
+    id?: number;
 
-    sku: string;
+    name?: string;
 
-    inventoryCategoryId: number;
+    sku?: string;
 
-    unit: string;
+    inventoryCategory?: any | null;
 
-    quantityInStock: number;
+    inventoryCategoryId?: any | null;
 
-    reorderLevel: number;
+    unit?: string;
 
-    location: string;
+    quantityInStock?: number;
 
-    purchasePrice: number;
+    reorderLevel?: number;
 
-    sellingPrice: number;
+    location?: string;
+
+    purchasePrice?: number;
+
+    sellingPrice?: number;
+
+    status?: string;
+}
+export interface UpdateMaterial {
+    id?: number;
+
+    name?: string;
+
+    sku?: string;
+
+    inventoryCategoryId?: number;
+
+    unit?: string;
+
+    quantityInStock?: number;
+
+    reorderLevel?: number;
+
+    location?: string;
+
+    purchasePrice?: number;
+
+    sellingPrice?: number;
+}
+
+export interface SearchMaterialRequest {
+    name?: string;
+    sku?: string;
 }

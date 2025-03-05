@@ -3,8 +3,78 @@ import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/s
 import { AppSidebar } from "@/components/app-sidebar.tsx";
 import { Separator } from "@/components/ui/separator.tsx";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb.tsx";
+import { useEffect, useState } from "react";
+import { deleteMaterial, getAllMaterial, searchMaterials } from "@/services/material/materialService";
+import { Material } from "@/models/Material";
 
 function SearchMaterialPage() {
+
+    const [page, setPage] = useState(0);
+    const [size, setSize] = useState(10);
+    const [materials, setMaterials] = useState<Material[]>([]);
+    const [searchRequest, setSearchRequest] = useState({
+        name: "",
+        sku: ""
+    });
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setSearchRequest((prev) => ({
+            ...prev,
+            [name]: value,
+        }));
+    };
+
+    const handleSearch = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            const result = await searchMaterials(searchRequest, page, size);
+            if (result) {
+                setMaterials(result.content);
+            }
+        } catch (error) {
+            console.error("Error searching materials:", error);
+        }
+    };
+
+    const handleDelete = async (id: number) => {
+        try {
+            await deleteMaterial(id);
+            alert("Xóa loại vật tư thành công!");
+            const data = await searchMaterials(searchRequest, page, size);
+            setMaterials(data.content);
+        } catch (error) {
+            console.error("Lỗi khi xóa:", error);
+            alert("Xóa thất bại!");
+        }
+    };
+
+    useEffect(() => {
+
+        const fetchCategories = async () => {
+            const data = await searchMaterials(searchRequest, page, size);
+            setMaterials(data.content);
+        };
+        fetchCategories();
+
+        const fetchmaterials = async () => {
+            try {
+                const data = await getAllMaterial();
+
+                console.log("data", data);
+
+
+                if (data) {
+                    setMaterials(data);
+                }
+            } catch (error) {
+                console.error("Error fetching materials:", error);
+            }
+        };
+
+        fetchmaterials();
+    }, []);
+
     return (
         <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
             <SidebarProvider>
@@ -30,7 +100,104 @@ function SearchMaterialPage() {
                         </div>
                     </header>
                     <div className="p-10">
+                        <h3 className="text-3xl mb-8 sm:text-5xl leading-normal font-extrabold tracking-tight text-white">Tìm kiếm <span className="text-indigo-600">vật tư</span></h3>
+                        <section className="mx-auto border border-[#4D7C0F] rounded-lg p-8">
+                            <form onSubmit={handleSearch}>
+                                <div className="space-y-6">
+                                    <div className="grid sm:grid-cols-3 grid-cols-1 gap-6">
+                                        <div>
+                                            <label className="text-xs xs:text-sm font-medium mb-1">Tên vật tư</label>
+                                            <input
+                                                type="text"
+                                                name="name"
+                                                value={searchRequest.name}
+                                                onChange={handleInputChange}
+                                                className="h-[50px] rounded-[5px] text-xs xs:text-sm border text-black border-[#D1D5DB] w-full px-2 pl-4 font-light"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="text-xs xs:text-sm font-medium mb-1">Mã vật tư</label>
+                                            <input
+                                                type="text"
+                                                name="sku"
+                                                value={searchRequest.sku}
+                                                onChange={handleInputChange}
+                                                className="h-[50px] rounded-[5px] text-xs xs:text-sm border text-black border-[#D1D5DB] w-full px-2 pl-4 font-light"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="mt-8 pt-6 border-t border-gray-200 flex justify-between">
+                                    <button type="submit" className="bg-[#4D7C0F] hover:bg-[#79ac37] rounded-[5px] p-[13px_25px] text-white">
+                                        Tìm kiếm
+                                    </button>
+                                </div>
+                            </form>
+                        </section>
 
+                        <table className="min-w-full divide-y divide-gray-200 overflow-x-auto mt-12 text-center text-black">
+                            <thead className="bg-gray-50">
+                                <tr>
+                                    <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        STT
+                                    </th>
+                                    <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Tên vật tư
+                                    </th>
+                                    <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Mã vật tư - SKU
+                                    </th>
+                                    <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Loại vật tư
+                                    </th>
+                                    <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Đơn vị
+                                    </th>
+                                    <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Số lượng
+                                    </th>
+                                    <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Số lượng cảnh báo
+                                    </th>
+                                    <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Vị trí
+                                    </th>
+                                    <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Giá mua
+                                    </th>
+                                    <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Giá bán
+                                    </th>
+                                    <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Trạng thái
+                                    </th>
+                                    <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        #
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-200">
+                                {materials.map((material, index) => (
+                                    <tr key={material.id}>
+                                        <td className="px-6 py-4 whitespace-nowrap">{index + 1}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{material?.name}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{material?.sku}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{material?.inventoryCategory.name}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{material?.unit}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{material?.quantityInStock}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{material?.reorderLevel}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{material?.location}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{material?.purchasePrice}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{material?.sellingPrice}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{material?.status}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap flex justify-center">
+                                            {/* <button onClick={() => handleEdit(material)} className="text-blue-600 hover:text-blue-900">Edit</button> */}
+                                            <button onClick={() => material?.id && handleDelete(material.id)} className="text-red-600 hover:text-red-900 ml-4">Delete</button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
                     </div>
                 </SidebarInset>
             </SidebarProvider>

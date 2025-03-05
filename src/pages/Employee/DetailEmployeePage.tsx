@@ -103,11 +103,12 @@ function DetailEmployeePage() {
                                         </div>
                                     </div>
                                     <div className="col-span-4 sm:col-span-9">
-                                        <div className="shadow rounded-lg p-6">
+                                        <button className="bg-[#4D7C0F] hover:bg-[#79ac37] rounded-[5px] p-[13px_25px] gap-[10px] text-white">In hợp đồng lao động</button>
+                                        <div className="shadow rounded-lg p-6 border my-4">
                                             <h2 className="text-xl font-bold mb-4">About Me</h2>
-                                            <p className="">{employee.description}
-                                            </p>
+                                            <p className="">{employee.description}</p>
                                         </div>
+
 
                                         <div className="w-full my-auto py-6 flex flex-col justify-center gap-2">
                                             <div className="w-full flex sm:flex-row flex-col gap-2 justify-center">
