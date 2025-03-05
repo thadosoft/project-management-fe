@@ -9,6 +9,7 @@ import { Material } from "@/models/Material";
 
 function SearchMaterialPage() {
 
+    const [totalPages, setTotalPages] = useState(0);
     const [page, setPage] = useState(0);
     const [size, setSize] = useState(10);
     const [materials, setMaterials] = useState<Material[]>([]);
@@ -31,11 +32,28 @@ function SearchMaterialPage() {
             const result = await searchMaterials(searchRequest, page, size);
             if (result) {
                 setMaterials(result.content);
+                setTotalPages(result.totalPages);
             }
         } catch (error) {
             console.error("Error searching materials:", error);
         }
     };
+
+    useEffect(() => {
+        const fetchMaterials = async () => {
+            try {
+                const data = await searchMaterials(searchRequest, page, size);
+                if (data) {
+                    setMaterials(data.content);
+                    setTotalPages(data.totalPages);
+                }
+            } catch (error) {
+                console.error("Error fetching materials:", error);
+            }
+        };
+        fetchMaterials();
+    }, [page, size]);
+
 
     const handleDelete = async (id: number) => {
         try {
@@ -48,32 +66,6 @@ function SearchMaterialPage() {
             alert("Xóa thất bại!");
         }
     };
-
-    useEffect(() => {
-
-        const fetchCategories = async () => {
-            const data = await searchMaterials(searchRequest, page, size);
-            setMaterials(data.content);
-        };
-        fetchCategories();
-
-        const fetchmaterials = async () => {
-            try {
-                const data = await getAllMaterial();
-
-                console.log("data", data);
-
-
-                if (data) {
-                    setMaterials(data);
-                }
-            } catch (error) {
-                console.error("Error fetching materials:", error);
-            }
-        };
-
-        fetchmaterials();
-    }, []);
 
     return (
         <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
@@ -179,7 +171,7 @@ function SearchMaterialPage() {
                             <tbody className="bg-white divide-y divide-gray-200">
                                 {materials.map((material, index) => (
                                     <tr key={material.id}>
-                                        <td className="px-6 py-4 whitespace-nowrap">{index + 1}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{page * size + index + 1}</td>
                                         <td className="px-6 py-4 whitespace-nowrap">{material?.name}</td>
                                         <td className="px-6 py-4 whitespace-nowrap">{material?.sku}</td>
                                         <td className="px-6 py-4 whitespace-nowrap">{material?.inventoryCategory.name}</td>
@@ -198,6 +190,24 @@ function SearchMaterialPage() {
                                 ))}
                             </tbody>
                         </table>
+                        <div className="flex justify-center mt-4">
+                            <button
+                                onClick={() => setPage((prev) => Math.max(prev - 1, 0))}
+                                disabled={page === 0}
+                                className="px-4 py-2 mx-1 bg-gray-500 text-white rounded disabled:opacity-50"
+                            >
+                                Trước
+                            </button>
+                            <span className="px-4 py-2">{page + 1} / {totalPages}</span>
+                            <button
+                                onClick={() => setPage((prev) => Math.min(prev + 1, totalPages - 1))}
+                                disabled={page >= totalPages - 1}
+                                className="px-4 py-2 mx-1 bg-gray-500 text-white rounded disabled:opacity-50"
+                            >
+                                Sau
+                            </button>
+                        </div>
+
                     </div>
                 </SidebarInset>
             </SidebarProvider>
