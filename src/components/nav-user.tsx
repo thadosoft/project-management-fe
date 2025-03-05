@@ -42,7 +42,6 @@ export function NavUser() {
   const [user, setUser] = useState<User | null>(null);
   const navigate = useNavigate();
 
-
   const handleLogout = async () => {
     await logout();
     tokenService.accessToken = null;
