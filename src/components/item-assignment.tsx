@@ -146,7 +146,7 @@ export function ItemAssignment({assignment, isOverlay, removeAssignment}: Props)
       assignmentOrder: assignment.assignmentOrder,
       taskId: assignment.task.id,
       assignerId: assignment.assigner.id,
-      receiverId: assignment.receiver.id,
+      receiverId: assignment.receiver?.id ?? "",
     };
 
     updateAssignment(assignment.id, assignmentRequest)

@@ -6,7 +6,8 @@ import {Button} from "@/components/ui/button.tsx";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs.tsx";
 import {useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
-import {login, register} from "@/services/authService.ts";
+import {isTokenValid, login, register} from "@/services/authService.ts";
+import tokenService from "@/services/tokenService.ts";
 
 export default function LoginPage() {
   const [name, setName] = useState("");
@@ -63,13 +64,14 @@ export default function LoginPage() {
       const errorMessage = (err as Error).message || "Something went wrong. Please try again.";
       console.error("Login error:", errorMessage);
     }
+    console.log(tokenService.accessToken);
   };
 
   useEffect(() => {
-    if (localStorage.getItem("accessToken")) {
-      navigate("/project")
+    if (tokenService.accessToken) {
+      tokenService.accessToken = null;
     }
-  }, [localStorage.getItem("accessToken")])
+  }, [tokenService.accessToken])
 
   return (
       <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
