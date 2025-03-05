@@ -6,7 +6,7 @@ import {Button} from "@/components/ui/button.tsx";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs.tsx";
 import {useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
-import {isTokenValid, login, register} from "@/services/authService.ts";
+import {login, register} from "@/services/authService.ts";
 import tokenService from "@/services/tokenService.ts";
 
 export default function LoginPage() {
@@ -64,12 +64,11 @@ export default function LoginPage() {
       const errorMessage = (err as Error).message || "Something went wrong. Please try again.";
       console.error("Login error:", errorMessage);
     }
-    console.log(tokenService.accessToken);
   };
 
   useEffect(() => {
     if (tokenService.accessToken) {
-      tokenService.accessToken = null;
+      navigate("/project")
     }
   }, [tokenService.accessToken])
 

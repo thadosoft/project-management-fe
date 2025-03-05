@@ -35,6 +35,7 @@ import {getUserById} from "@/services/userService.ts";
 import {User} from "@/models/User.ts";
 import {useEffect, useState} from "react";
 import logoImg from "@/assets/imgs/logo.png";
+import tokenService from "@/services/tokenService.ts";
 
 export function NavUser() {
   const {isMobile} = useSidebar()
@@ -44,6 +45,7 @@ export function NavUser() {
 
   const handleLogout = async () => {
     await logout();
+    tokenService.accessToken = null;
     navigate("/");
   }
 
