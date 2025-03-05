@@ -1,22 +1,22 @@
 import { ReferenceFile } from "@/models/ReferenceFile";
 import { fetchData } from "@/utils/api.ts";
-import { accessToken } from "@/utils/token.ts";
+import tokenService from "@/services/tokenService.ts";
 
 export const uploadFile = async (referenceProfileId: number, file: File): Promise<string | null> => {
   const formData = new FormData();
   formData.append("referenceProfileId", referenceProfileId.toString());
   formData.append("file", file);
 
-  return await fetchData<string, FormData>("reference-files/upload", "POST", accessToken, formData);
+  return await fetchData<string, FormData>("reference-files/upload", "POST", tokenService.accessToken, formData);
 };
 
 export const getFilesByProfile = async (referenceProfileId: number): Promise<ReferenceFile[] | null> => {
-  return await fetchData<ReferenceFile[]>(`reference-files/profile/${referenceProfileId}`, "GET", accessToken);
+  return await fetchData<ReferenceFile[]>(`reference-files/profile/${referenceProfileId}`, "GET", tokenService.accessToken);
 };
 
 export const downloadFile = async (fileId: number, fileName: string): Promise<void> => {
   try {
-    const response = await fetchData<Blob>(`reference-files/download/${fileId}`, "GET", accessToken, null);
+    const response = await fetchData<Blob>(`reference-files/download/${fileId}`, "GET", tokenService.accessToken, null);
 
     if (!response) {
       console.error("Download failed: No response");

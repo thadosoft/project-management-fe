@@ -21,8 +21,6 @@ import { NavApp } from "@/components/nav-app.tsx";
 import { Home } from "lucide-react"
 import { CgProfile } from "react-icons/cg";
 
-import { MdOutlinePrecisionManufacturing } from "react-icons/md";
-import { GiConcentrationOrb } from "react-icons/gi";
 import { SiAudiotechnica } from "react-icons/si";
 import { PiFinnTheHuman } from "react-icons/pi";
 
@@ -142,6 +140,7 @@ const data = {
     {
       title: "Điều vận",
       icon: SiAudiotechnica,
+      url: "#",
       items: [
         {
           title: "Quản lý dự án",
@@ -152,10 +151,37 @@ const data = {
     {
       title: "Kỹ thuật",
       icon: SiAudiotechnica,
+      url: "",
       items: [
         {
+          title: "Quản lý loại vật tư",
+          icon: SiAudiotechnica,
+          url: "",
+          items: [
+            {
+              title: "Thêm loại vật tư",
+              url: "/create-material-categories",
+            },
+            {
+              title: "Tìm kiếm loại vật tư",
+              url: "/search-material-categories",
+            },
+          ],
+        },
+        {
           title: "Quản lý vật tư",
-          url: "/project",
+          icon: SiAudiotechnica,
+          url: "",
+          items: [
+            {
+              title: "Thêm vật tư",
+              url: "/create-material",
+            },
+            {
+              title: "Tìm kiếm vật tư",
+              url: "/search-material",
+            },
+          ],
         },
       ],
     },
@@ -239,7 +265,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         {/*<NavProjects projects={data.projects}/>*/}
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
