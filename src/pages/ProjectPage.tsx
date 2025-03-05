@@ -16,43 +16,32 @@ import {useEffect, useState} from "react";
 import {Project, ProjectRequest} from "@/models/Project.ts";
 import {createProject, getProjects} from "@/services/projectService.ts";
 import {Plus} from "lucide-react";
-import {Dialog, DialogContent, DialogTrigger} from "@/components/ui/dialog.tsx";
+import {Dialog, DialogContent, DialogDescription, DialogTrigger} from "@/components/ui/dialog.tsx";
 import {Button} from "@/components/ui/button.tsx";
 import {Label} from "@/components/ui/label.tsx";
 import {Input} from "@/components/ui/input.tsx";
 import {Card, CardContent, CardFooter, CardHeader, CardTitle} from "@/components/ui/card.tsx";
 import {DialogTitle} from "@radix-ui/react-dialog";
 import {useNavigate} from "react-router-dom";
+import tokenService from "@/services/tokenService.ts";
 
 function ProjectPage() {
   const [projects, setProjects] = useState<Project[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [newProjectName, setNewProjectName] = useState<string>("");
   const [newProjectDescription, setNewProjectDescription] = useState<string>("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-
-        const [projectsData] = await Promise.all([
-          getProjects(),
-        ]);
-        if (projectsData) {
-          setProjects(projectsData);
-        }
-      } catch (err: unknown) {
-        navigate("/login")
-        setError((err as Error).message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      navigate("/");
+    } else {
+      tokenService.accessToken = token;
+      getProjects().then(response => {
+        setProjects(response ?? []);
+      });
+    }
   }, []);
 
   const handleCreateProject = async () => {
@@ -72,8 +61,9 @@ function ProjectPage() {
     }
   }
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error}</p>;
+  const handleDeleteProject = (projectId: string) => {
+    setProjects(projects.filter(project => project.id !== projectId))
+  }
 
   return (
       <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
@@ -107,6 +97,7 @@ function ProjectPage() {
                         <Link key={project.id} to={`/project/task/${project.id}`}>
                           <ItemProject
                               project={project}
+                              removeProject={handleDeleteProject}
                           />
                         </Link>
                     )
@@ -128,6 +119,7 @@ function ProjectPage() {
                   >
                     <Card>
                       <DialogTitle></DialogTitle>
+                      <DialogDescription></DialogDescription>
                       <CardHeader>
                         <CardTitle className="pl-6 py-4">Create project</CardTitle>
                       </CardHeader>

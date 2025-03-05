@@ -4,7 +4,7 @@ import {Label} from "@/components/ui/label.tsx";
 import {Input} from "@/components/ui/input.tsx";
 import {Button} from "@/components/ui/button.tsx";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs.tsx";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
 import {login, register} from "@/services/authService.ts";
 
@@ -64,6 +64,12 @@ export default function LoginPage() {
       console.error("Login error:", errorMessage);
     }
   };
+
+  useEffect(() => {
+    if (localStorage.getItem("accessToken")) {
+      navigate("/project")
+    }
+  }, [localStorage.getItem("accessToken")])
 
   return (
       <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
