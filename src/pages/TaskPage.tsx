@@ -489,11 +489,10 @@ export default function TaskPage() {
             activeAssignment.task.id !== overAssignment.task.id
         ) {
           activeAssignment.task.id = overAssignment.task.id;
-
           return arrayMove(assignments, activeIndex, overIndex - 1);
         }
 
-        return arrayMove(assignments, activeIndex, overIndex - 1);
+        return arrayMove(assignments, activeIndex, overIndex);
       });
     }
 
