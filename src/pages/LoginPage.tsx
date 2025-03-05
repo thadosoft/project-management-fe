@@ -7,6 +7,7 @@ import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs.tsx
 import {useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
 import {login, register} from "@/services/authService.ts";
+import tokenService from "@/services/tokenService.ts";
 
 export default function LoginPage() {
   const [name, setName] = useState("");
@@ -66,10 +67,10 @@ export default function LoginPage() {
   };
 
   useEffect(() => {
-    if (localStorage.getItem("accessToken")) {
+    if (tokenService.accessToken) {
       navigate("/project")
     }
-  }, [localStorage.getItem("accessToken")])
+  }, [tokenService.accessToken])
 
   return (
       <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">

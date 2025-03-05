@@ -146,7 +146,21 @@ export function ItemAssignment({assignment, isOverlay, removeAssignment}: Props)
       assignmentOrder: assignment.assignmentOrder,
       taskId: assignment.task.id,
       assignerId: assignment.assigner.id,
-      receiverId: assignment.receiver.id,
+      receiverId: assignment.receiver?.id ?? "",
+    };
+
+    updateAssignment(assignment.id, assignmentRequest)
+    .then(() => console.log("Assignment updated successfully"))
+    .catch((error) => console.error("Error in update assignment:", error));
+  }
+
+  const handleAssign = (selectedUserId: string) => {
+    const assignmentRequest: AssignmentRequest = {
+      title: assignment.title,
+      assignmentOrder: assignment.assignmentOrder,
+      taskId: assignment.task.id,
+      assignerId: assignment.assigner.id,
+      receiverId: selectedUserId,
     };
 
     updateAssignment(assignment.id, assignmentRequest)
@@ -571,13 +585,16 @@ export function ItemAssignment({assignment, isOverlay, removeAssignment}: Props)
 
                               <div className="grid grid-rows-6 gap-2 text-gray-300">
                                 <p className="flex items-center  p-1 rounded-s">
-                                  <Select>
+                                  <Select onValueChange={handleAssign}>
                                     <SelectTrigger className="w-[20vw]">
-                                      <SelectValue placeholder="Unassigned"/>
+                                      <SelectValue placeholder={assignment.receiver ? `${assignment.receiver.name}(${assignment.receiver.username})` : "Unassigned"}/>
                                     </SelectTrigger>
                                     <SelectContent>
                                       {users.map(user => (
-                                          <SelectItem value={user.name} key={user.id}>{user.name}({user.username})</SelectItem>
+                                          <SelectItem
+                                              value={user.id}
+                                              key={user.id}
+                                          >{user.name}({user.username})</SelectItem>
                                       ))}
                                     </SelectContent>
                                   </Select>
