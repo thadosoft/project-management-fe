@@ -163,8 +163,6 @@ export function ItemAssignment({assignment, isOverlay, removeAssignment}: Props)
       receiverId: selectedUserId,
     };
 
-    console.log(assignmentRequest)
-
     updateAssignment(assignment.id, assignmentRequest)
     .then(() => console.log("Assignment updated successfully"))
     .catch((error) => console.error("Error in update assignment:", error));
