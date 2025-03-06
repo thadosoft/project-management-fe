@@ -68,3 +68,24 @@ export const searchEmployees = async (
     return null;
   }
 };
+
+export const printPDF = async (id: number, name: string): Promise<void> => {
+  try {
+    const response = await fetchData<Blob>(`employees/printPDF/${id}`, "GET", tokenService.accessToken, undefined);
+
+    if (!response) {
+      console.error("Failed to fetch PDF.");
+      return;
+    }
+
+    const url = window.URL.createObjectURL(new Blob([response], { type: "application/pdf" }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `Hợp đồng lao động ${name}.pdf`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  } catch (error) {
+    console.error("Error downloading PDF:", error);
+  }
+};

@@ -18,6 +18,7 @@ import { useNavigate } from "react-router";
 function CreateEmployeePage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [errors, setErrors] = useState<{ [key: string]: string }>({});
     const navigate = useNavigate();
     const [image, setImage] = useState<string>("https://randomuser.me/api/portraits/women/21.jpg");
 
@@ -41,6 +42,26 @@ function CreateEmployeePage() {
         }
     };
 
+    const validateForm = () => {
+        let newErrors: { [key: string]: string } = {};
+
+        if (!employee.fullName.trim()) newErrors.fullName = "Họ và tên không được để trống";
+        if (!employee.username.trim()) newErrors.username = "Username không được để trống";
+        if (!employee.email.trim()) newErrors.email = "Email không được để trống";
+        if (!employee.gender.trim()) newErrors.gender = "Giới tính không được để trống";
+        if (!employee.career.trim()) newErrors.career = "Phân hệ không được để trống";
+        if (!employee.placeOfBirth.trim()) newErrors.placeOfBirth = "Ngày sinh không được để trống";
+        if (!employee.nation.trim()) newErrors.nation = "Quốc gia không được để trống";
+        if (!employee.companyEmail.trim()) newErrors.companyEmail = "Email công ty không được để trống";
+        if (!employee.tax.trim()) newErrors.tax = "Mã số thuế không được để trống";
+        if (!employee.houseHoldAddress.trim()) newErrors.houseHoldAddress = "Địa chỉ thường trú không được để trống";
+        if (!employee.currentAddress.trim()) newErrors.currentAddress = "Địa chỉ tạm trú không được để trống";
+
+        setErrors(newErrors);
+
+        return Object.keys(newErrors).length === 0; // Trả về true nếu không có lỗi
+    };
+
 
     const [employee, setEmployee] = useState<EmployeeRequest>({
         username: "",
@@ -60,20 +81,29 @@ function CreateEmployeePage() {
         description: ""
     });
 
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+        console.log("Change detected:", event.target.name, event.target.value);
         setEmployee({ ...employee, [event.target.name]: event.target.value });
     };
 
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log("Employee Data:", employee);
+
+        if (!validateForm()) {
+            console.warn("Có lỗi nhập liệu");
+            return;
+        }
+
         try {
             await addEmployee(employee);
             navigate("/search-employee");
         } catch (error) {
-            console.error("Error adding employee:", error);
+            console.error("Lỗi khi thêm nhân viên:", error);
         }
     };
+
+
 
     useEffect(() => {
         const fetchData = async () => {
@@ -151,18 +181,22 @@ function CreateEmployeePage() {
                                         <div className="col-span-6 sm:col-span-3">
                                             <label className="text-sm font-medium  block mb-2">Họ và tên</label>
                                             <input type="text" name="fullName" value={employee.fullName} onChange={handleChange} className="shadow-sm border-gray-300 text-black sm:text-sm rounded-lg focus:ring-cyan-600 focus:border-cyan-600 block w-full p-2.5" placeholder="Nguyễn Trung Dũng" />
+                                            {errors.fullName && <p className="text-red-500 text-sm">{errors.fullName}</p>}
                                         </div>
                                         <div className="col-span-6 sm:col-span-3">
                                             <label className="text-sm font-medium  block mb-2">Username</label>
                                             <input type="text" name="username" value={employee.username} onChange={handleChange} className="shadow-sm border-gray-300 text-black sm:text-sm rounded-lg focus:ring-cyan-600 focus:border-cyan-600 block w-full p-2.5" placeholder="dungnt" />
+                                            {errors.username && <p className="text-red-500 text-sm">{errors.username}</p>}
                                         </div>
                                         <div className="col-span-6 sm:col-span-3">
                                             <label className="text-sm font-medium  block mb-2">Phân hệ</label>
                                             <input type="text" name="career" value={employee.career} onChange={handleChange} className="shadow-sm border-gray-300 text-black sm:text-sm rounded-lg focus:ring-cyan-600 focus:border-cyan-600 block w-full p-2.5" placeholder="Kỹ thuật" />
+                                            {errors.career && <p className="text-red-500 text-sm">{errors.career}</p>}
                                         </div>
                                         <div className="col-span-6 sm:col-span-3">
                                             <label className="text-sm font-medium  block mb-2">Ngày sinh</label>
-                                            <input type="text" name="placeOfBirth" value={employee.placeOfBirth} onChange={handleChange} className="shadow-sm border-gray-300 text-black sm:text-sm rounded-lg focus:ring-cyan-600 focus:border-cyan-600 block w-full p-2.5" placeholder="09/11/2001" />
+                                            <input type="date" name="placeOfBirth" value={employee.placeOfBirth} onChange={handleChange} className="shadow-sm border-gray-300 text-black sm:text-sm rounded-lg focus:ring-cyan-600 focus:border-cyan-600 block w-full p-2.5" placeholder="09/11/2001" />
+                                            {errors.placeOfBirth && <p className="text-red-500 text-sm">{errors.placeOfBirth}</p>}
                                         </div>
 
                                         <div className="col-span-6 sm:col-span-3">
@@ -173,26 +207,32 @@ function CreateEmployeePage() {
                                                 onChange={handleChange}
                                                 className="shadow-sm border-gray-300 text-black sm:text-sm rounded-lg focus:ring-cyan-600 focus:border-cyan-600 block w-full p-2.5"
                                             >
-                                                <option value="Male">Nam</option>
-                                                <option value="Female">Nữ</option>
+                                                <option value="">Chọn giới tính</option>
+                                                <option value="Nam">Nam</option>
+                                                <option value="Nữ">Nữ</option>
                                             </select>
+                                            {errors.gender && <p className="text-red-500 text-sm">{errors.gender}</p>}
                                         </div>
 
                                         <div className="col-span-6 sm:col-span-3">
                                             <label className="text-sm font-medium  block mb-2">Email</label>
                                             <input type="email" name="email" value={employee.email} onChange={handleChange} className="shadow-sm border-gray-300 text-black sm:text-sm rounded-lg focus:ring-cyan-600 focus:border-cyan-600 block w-full p-2.5" placeholder="dung.nt@thadosoft.com" />
+                                            {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
                                         </div>
                                         <div className="col-span-6 sm:col-span-3">
                                             <label className="text-sm font-medium  block mb-2">Quốc gia</label>
                                             <input type="text" name="nation" value={employee.nation} onChange={handleChange} className="shadow-sm border-gray-300 text-black sm:text-sm rounded-lg focus:ring-cyan-600 focus:border-cyan-600 block w-full p-2.5" placeholder="Việt Nam" />
+                                            {errors.nation && <p className="text-red-500 text-sm">{errors.nation}</p>}
                                         </div>
                                         <div className="col-span-6 sm:col-span-3">
                                             <label className="text-sm font-medium  block mb-2">Email Công ty</label>
                                             <input type="text" name="companyEmail" value={employee.companyEmail} onChange={handleChange} className="shadow-sm border-gray-300 text-black sm:text-sm rounded-lg focus:ring-cyan-600 focus:border-cyan-600 block w-full p-2.5" placeholder="dung.nt@thadosoft.com" />
+                                            {errors.companyEmail && <p className="text-red-500 text-sm">{errors.companyEmail}</p>}
                                         </div>
                                         <div className="col-span-6 sm:col-span-3">
                                             <label className="text-sm font-medium  block mb-2">Mã số thuế</label>
                                             <input type="text" name="tax" value={employee.tax} onChange={handleChange} className="shadow-sm border-gray-300 text-black sm:text-sm rounded-lg focus:ring-cyan-600 focus:border-cyan-600 block w-full p-2.5" placeholder="123" />
+                                            {errors.tax && <p className="text-red-500 text-sm">{errors.tax}</p>}
                                         </div>
                                         <div className="col-span-6 sm:col-span-3">
                                             <label className="text-sm font-medium  block mb-2">Liên hệ khẩn cấp</label>
@@ -202,10 +242,12 @@ function CreateEmployeePage() {
                                         <div className="col-span-6 sm:col-span-3">
                                             <label className="text-sm font-medium  block mb-2">Địa chỉ thường trú</label>
                                             <input type="text" name="houseHoldAddress" value={employee.houseHoldAddress} onChange={handleChange} className="shadow-sm border-gray-300 text-black sm:text-sm rounded-lg focus:ring-cyan-600 focus:border-cyan-600 block w-full p-2.5" placeholder="Tầng 2, Nhà Số 30 Đường Số 1, Khu Nhà Ở Hưng Phú, Khu Phố 1, Phường Tam Phú, Thành Phố Thủ Đức, Tp Hồ Chí Minh" />
+                                            {errors.houseHoldAddress && <p className="text-red-500 text-sm">{errors.houseHoldAddress}</p>}
                                         </div>
                                         <div className="col-span-6 sm:col-span-3">
                                             <label className="text-sm font-medium  block mb-2">Địa chỉ tạm trú</label>
                                             <input type="text" name="currentAddress" value={employee.currentAddress} onChange={handleChange} className="shadow-sm border-gray-300 text-black sm:text-sm rounded-lg focus:ring-cyan-600 focus:border-cyan-600 block w-full p-2.5" placeholder="Tầng 2, Nhà Số 30 Đường Số 1, Khu Nhà Ở Hưng Phú, Khu Phố 1, Phường Tam Phú, Thành Phố Thủ Đức, Tp Hồ Chí Minh" />
+                                            {errors.currentAddress && <p className="text-red-500 text-sm">{errors.currentAddress}</p>}
                                         </div>
                                         <div className="col-span-full">
                                             <label className="text-sm font-medium  block mb-2">Mô tả</label>

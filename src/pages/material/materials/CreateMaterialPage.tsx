@@ -316,7 +316,7 @@ function CreateMaterialPage() {
                                         <td className="px-6 py-4 whitespace-nowrap">{material.status}</td>
                                         <td className="px-6 py-4 whitespace-nowrap flex justify-center">
                                             {/* <button onClick={() => handleEdit(material)} className="text-blue-600 hover:text-blue-900">Edit</button> */}
-                                            <button onClick={() => material.id && handleDelete(material.id)} className="text-red-600 hover:text-red-900 ml-4">Delete</button>
+                                            <button onClick={() => material.id && handleDelete(material.id)} className="text-red-600 hover:text-red-900 ml-4">Xoá</button>
                                         </td>
                                     </tr>
                                 ))}

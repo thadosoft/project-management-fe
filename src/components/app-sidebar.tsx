@@ -92,6 +92,7 @@ const data = {
         {
           title: "Thông tin nhân viên",
           url: "#",
+          isActive: true,
           items: [
             {
               title: "Khởi tạo người dùng",
@@ -141,6 +142,7 @@ const data = {
       title: "Điều vận",
       icon: SiAudiotechnica,
       url: "#",
+      isActive: true,
       items: [
         {
           title: "Quản lý dự án",
@@ -152,6 +154,7 @@ const data = {
       title: "Kỹ thuật",
       icon: SiAudiotechnica,
       url: "",
+      isActive: true,
       items: [
         {
           title: "Quản lý loại vật tư",
@@ -172,6 +175,7 @@ const data = {
           title: "Quản lý vật tư",
           icon: SiAudiotechnica,
           url: "",
+          isActive: true,
           items: [
             {
               title: "Thêm vật tư",

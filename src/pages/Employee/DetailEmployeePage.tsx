@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router";
-import { getEmployeeById } from "@/services/employee/EmployeeService";
-import { EmployeeRequest } from "@/models/EmployeeRequest";
+import { getEmployeeById, printPDF } from "@/services/employee/EmployeeService";
+import { Employee, EmployeeRequest } from "@/models/EmployeeRequest";
 import { ThemeProvider } from "@/components/theme-provider";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
@@ -26,11 +26,12 @@ function DetailEmployeePage() {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [employee, setEmployee] = useState<EmployeeRequest | null>(null);
+    const [employee, setEmployee] = useState<Employee | null>(null);
     const [image, setImage] = useState<string>("https://randomuser.me/api/portraits/women/21.jpg");
     const [isModalOpen, setIsModalOpen] = useState(false);
     const openModal = () => setIsModalOpen(true);
     const closeModal = () => setIsModalOpen(false);
+
     // Fetch employee data by ID
     useEffect(() => {
         const fetchEmployee = async () => {
@@ -69,7 +70,7 @@ function DetailEmployeePage() {
                                 <BreadcrumbList>
                                     <BreadcrumbItem className="hidden md:block">
                                         <BreadcrumbLink href="/search-employee">
-                                            Tìm kiếm thông tin nhân viên
+                                            Danh sách thông tin nhân viên
                                         </BreadcrumbLink>
                                     </BreadcrumbItem>
                                     <BreadcrumbSeparator className="hidden md:block" />
@@ -103,7 +104,7 @@ function DetailEmployeePage() {
                                         </div>
                                     </div>
                                     <div className="col-span-4 sm:col-span-9">
-                                        <button className="bg-[#4D7C0F] hover:bg-[#79ac37] rounded-[5px] p-[13px_25px] gap-[10px] text-white">In hợp đồng lao động</button>
+                                        <button onClick={() => printPDF(employee.id, employee.fullName)} className="bg-[#4D7C0F] hover:bg-[#79ac37] rounded-[5px] p-[13px_25px] gap-[10px] text-white">In hợp đồng lao động</button>
                                         <div className="shadow rounded-lg p-6 border my-4">
                                             <h2 className="text-xl font-bold mb-4">About Me</h2>
                                             <p className="">{employee.description}</p>

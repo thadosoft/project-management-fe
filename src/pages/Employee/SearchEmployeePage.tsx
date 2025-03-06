@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator.tsx";
 import { useEffect, useState } from "react";
-import { searchEmployees } from "@/services/employee/EmployeeService";
+import { removeEmployee, searchEmployees } from "@/services/employee/EmployeeService";
 import { Employee, SearchEmployeeRequest } from "@/models/EmployeeRequest";
 import { useNavigate } from "react-router";
 
@@ -66,7 +66,7 @@ function SearchEmployeePage() {
         }
     };
 
-    const handleViewDetail = (employeeId: string) => {
+    const handleViewDetail = (employeeId: number) => {
         navigate(`/detail-employee/${employeeId}`);
     };
 
@@ -74,6 +74,21 @@ function SearchEmployeePage() {
         e.preventDefault();
         setCurrentPage(1);
     };
+
+
+    const handleDeleteEmployee = async (employeeId: number) => {
+        if (!window.confirm("Bạn có chắc chắn muốn xoá nhân viên này?")) return;
+
+        try {
+            await removeEmployee(employeeId);
+            setEmployees((prevEmployees) => prevEmployees.filter(emp => emp.id !== employeeId));
+            alert("Xoá nhân viên thành công!");
+        } catch (error) {
+            console.error("Lỗi khi xoá nhân viên:", error);
+            alert("Xoá nhân viên thất bại!");
+        }
+    };
+
 
 
     if (loading) return <p>Loading...</p>;
@@ -131,26 +146,6 @@ function SearchEmployeePage() {
                                                 placeholder="Phòng Kỹ Thuật"
                                             />
                                         </div>
-                                        {/* <div>
-                                            <label className="text-xs xs:text-sm font-medium mb-1">Ngày bắt đầu</label>
-                                            <input
-                                                type="date"
-                                                name="startDate"
-                                                value={searchParams.startDate}
-                                                onChange={handleSearchChange}
-                                                className="h-[50px] rounded-[5px] text-xs xs:text-sm border text-black border-[#D1D5DB] w-full px-2 pl-4 font-light"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="text-xs xs:text-sm font-medium mb-1">Ngày kết thúc</label>
-                                            <input
-                                                type="date"
-                                                name="endDate"
-                                                value={searchParams.endDate}
-                                                onChange={handleSearchChange}
-                                                className="h-[50px] rounded-[5px] text-xs xs:text-sm border text-black border-[#D1D5DB] w-full px-2 pl-4 font-light"
-                                            />
-                                        </div> */}
                                     </div>
                                 </div>
                                 <div className="mt-8 pt-6 border-t border-gray-200 flex justify-between">
@@ -207,6 +202,7 @@ function SearchEmployeePage() {
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                             <a onClick={() => handleViewDetail(employee.id)} className="text-indigo-600 hover:text-indigo-900 cursor-pointer">Xem chi tiết</a>
+                                            <a onClick={() => handleDeleteEmployee(employee.id)} className="text-red-600 hover:text-red-900 ml-4 cursor-pointer">Xoá</a>
                                         </td>
                                     </tr>
                                 ))}
