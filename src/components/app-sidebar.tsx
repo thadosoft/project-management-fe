@@ -7,9 +7,9 @@ import {
   Warehouse,
 } from "lucide-react"
 
-import {NavMain} from "@/components/nav-main"
-import {NavUser} from "@/components/nav-user"
-import {TeamSwitcher} from "@/components/team-switcher"
+import { NavMain } from "@/components/nav-main"
+import { NavUser } from "@/components/nav-user"
+import { TeamSwitcher } from "@/components/team-switcher"
 import {
   Sidebar,
   SidebarContent,
@@ -17,16 +17,19 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar"
-import {NavApp} from "@/components/nav-app.tsx";
-import {Home} from "lucide-react"
-import {CgProfile} from "react-icons/cg";
+import { NavApp } from "@/components/nav-app.tsx";
+import { Home } from "lucide-react"
+import { CgProfile } from "react-icons/cg";
 
-import {MdOutlinePrecisionManufacturing} from "react-icons/md";
-import {GiConcentrationOrb} from "react-icons/gi";
-import {SiAudiotechnica} from "react-icons/si";
-import {PiFinnTheHuman} from "react-icons/pi";
+import { SiAudiotechnica } from "react-icons/si";
+import { PiFinnTheHuman } from "react-icons/pi";
 
 const data = {
+  user: {
+    name: "Trung Dũng",
+    email: "dung.nt@thadosoft.com",
+    avatar: "/avatars/shadcn.jpg",
+  },
   teams: [
     {
       name: "Thadosoft",
@@ -47,7 +50,7 @@ const data = {
   navApp: [
     {
       title: "Home",
-      url: "#",
+      url: "/home",
       icon: Home,
     },
     // {
@@ -78,66 +81,68 @@ const data = {
       icon: PiFinnTheHuman,
       isActive: true,
       items: [
-        {
-          title: "Lịch làm việc",
-          url: "#",
-        },
-        {
-          title: "Lịch tính lương",
-          url: "#",
-        },
+        // {
+        //   title: "Lịch làm việc",
+        //   url: "#",
+        // },
+        // {
+        //   title: "Lịch tính lương",
+        //   url: "#",
+        // },
         {
           title: "Thông tin nhân viên",
           url: "#",
+          isActive: true,
           items: [
             {
-              title: "Khởi tạo",
-              url: "#",
+              title: "Khởi tạo người dùng",
+              url: "/create-employee",
             },
             {
-              title: "Tìm kiếm",
-              url: "#",
+              title: "Tìm kiếm người dùng",
+              url: "/search-employee",
             },
           ]
         },
-        {
-          title: "Hợp đồng lao động",
-          url: "#",
-          items: [
-            {
-              title: "Quy định công ty",
-              url: "#",
-            },
-            {
-              title: "Phụ lục hợp đồng lao động",
-              url: "#",
-            },
-            {
-              title: "Tìm kiếm HĐ / Phụ lục HĐLĐ",
-              url: "#",
-            },
-          ]
-        },
-        {
-          title: "Chấm công",
-          url: "#",
-          items: [
-            {
-              title: "Tạo bảng chấm công",
-              url: "#",
-            },
-            {
-              title: "Tìm bảng chấm công",
-              url: "#",
-            },
-          ]
-        },
+        // {
+        //   title: "Hợp đồng lao động",
+        //   url: "#",
+        //   items: [
+        //     // {
+        //     //   title: "Quy định công ty",
+        //     //   url: "#",
+        //     // },
+        //     {
+        //       title: "Phụ lục hợp đồng lao động",
+        //       url: "#",
+        //     },
+        //     {
+        //       title: "Tìm kiếm HĐ / Phụ lục HĐLĐ",
+        //       url: "#",
+        //     },
+        //   ]
+        // },
+        // {
+        //   title: "Chấm công",
+        //   url: "#",
+        //   items: [
+        //     {
+        //       title: "Tạo bảng chấm công",
+        //       url: "#",
+        //     },
+        //     {
+        //       title: "Tìm bảng chấm công",
+        //       url: "#",
+        //     },
+        //   ]
+        // },
       ],
     },
     {
-      title: "Điều vận - Technical",
-      url: "#",
+      title: "Điều vận",
       icon: SiAudiotechnica,
+      url: "#",
+      isActive: true,
       items: [
         {
           title: "Quản lý dự án",
@@ -146,50 +151,89 @@ const data = {
       ],
     },
     {
-      title: "Điều phối - Coordination",
-      url: "#",
-      icon: GiConcentrationOrb,
+      title: "Kỹ thuật",
+      icon: SiAudiotechnica,
+      url: "",
+      isActive: true,
       items: [
         {
-          title: "Hợp đồng bán hàng",
-          url: "#",
+          title: "Quản lý loại vật tư",
+          icon: SiAudiotechnica,
+          url: "/create-material-categories",
+          // items: [
+          //   {
+          //     title: "Thêm loại vật tư",
+          //     url: "/create-material-categories",
+          //   },
+          //   {
+          //     title: "Tìm kiếm loại vật tư",
+          //     url: "/search-material-categories",
+          //   },
+          // ],
         },
-      ],
-    },
-    {
-      title: "Manufacturing",
-      url: "#",
-      icon: MdOutlinePrecisionManufacturing,
-      items: [
         {
-          title: "BOM",
-          url: "#",
+          title: "Quản lý vật tư",
+          icon: SiAudiotechnica,
+          url: "",
+          isActive: true,
           items: [
             {
-              title: "Khởi tạo",
-              url: "#",
+              title: "Thêm vật tư",
+              url: "/create-material",
             },
             {
-              title: "Tìm kiếm",
-              url: "#",
+              title: "Tìm kiếm vật tư",
+              url: "/search-material",
             },
           ],
         },
       ],
     },
+    // {
+    //   title: "Điều phối - Coordination",
+    //   url: "#",
+    //   icon: GiConcentrationOrb,
+    //   items: [
+    //     {
+    //       title: "Hợp đồng bán hàng",
+    //       url: "#",
+    //     },
+    //   ],
+    // },
+    // {
+    //   title: "Manufacturing",
+    //   url: "#",
+    //   icon: MdOutlinePrecisionManufacturing,
+    //   items: [
+    //     {
+    //       title: "BOM",
+    //       url: "#",
+    //       items: [
+    //         {
+    //           title: "Khởi tạo",
+    //           url: "#",
+    //         },
+    //         {
+    //           title: "Tìm kiếm",
+    //           url: "#",
+    //         },
+    //       ],
+    //     },
+    //   ],
+    // },
+    // {
+    //   title: "Warehouse",
+    //   url: "#",
+    //   icon: Warehouse,
+    //   items: [
+    //     {
+    //       title: "Report",
+    //       url: "#",
+    //     },
+    //   ],
+    // },
     {
-      title: "Warehouse",
-      url: "#",
-      icon: Warehouse,
-      items: [
-        {
-          title: "Report",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Reference Profile",
+      title: "Hồ sơ tham khảo",
       url: "/profile",
       icon: CgProfile,
     },
@@ -213,21 +257,21 @@ const data = {
   ],
 }
 
-export function AppSidebar({...props}: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-      <Sidebar collapsible="icon" {...props}>
-        <SidebarHeader>
-          <TeamSwitcher teams={data.teams}/>
-        </SidebarHeader>
-        <SidebarContent>
-          <NavApp items={data.navApp}/>
-          <NavMain items={data.navMain}/>
-          {/*<NavProjects projects={data.projects}/>*/}
-        </SidebarContent>
-        <SidebarFooter>
-          <NavUser/>
-        </SidebarFooter>
-        <SidebarRail/>
-      </Sidebar>
+    <Sidebar collapsible="icon" {...props}>
+      <SidebarHeader>
+        <TeamSwitcher teams={data.teams} />
+      </SidebarHeader>
+      <SidebarContent>
+        <NavApp items={data.navApp} />
+        <NavMain items={data.navMain} />
+        {/*<NavProjects projects={data.projects}/>*/}
+      </SidebarContent>
+      <SidebarFooter>
+        <NavUser />
+      </SidebarFooter>
+      <SidebarRail />
+    </Sidebar>
   )
 }

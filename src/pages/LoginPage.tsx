@@ -7,6 +7,7 @@ import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs.tsx
 import {useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
 import {login, register} from "@/services/authService.ts";
+import tokenService from "@/services/tokenService.ts";
 
 export default function LoginPage() {
   const [name, setName] = useState("");
@@ -57,7 +58,7 @@ export default function LoginPage() {
       localStorage.setItem("refreshToken", refreshToken);
       localStorage.setItem("id", id);
 
-      navigate("/project")
+      navigate("/home")
     } catch (err: unknown) {
       setLoginStatus("Wrong username or password");
       const errorMessage = (err as Error).message || "Something went wrong. Please try again.";
@@ -66,10 +67,10 @@ export default function LoginPage() {
   };
 
   useEffect(() => {
-    if (localStorage.getItem("accessToken")) {
-      navigate("/project")
+    if (tokenService.accessToken) {
+      navigate("/home")
     }
-  }, [localStorage.getItem("accessToken")])
+  }, [tokenService.accessToken])
 
   return (
       <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">

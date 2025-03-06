@@ -1,4 +1,5 @@
-export interface Module {
+export interface ModuleModel {
+  id: number;
   title: string;
   description: string;
 }

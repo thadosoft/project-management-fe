@@ -1,18 +1,35 @@
 export const BASE_API_URL = "http://localhost:8080/api/v1/";
 
+export const fetchBlobData = async (url: string, method: string, token?: string | null): Promise<Blob> => {
+  const headers: HeadersInit = token ? { Authorization: `Bearer ${token ?? ""}` } : {};
+
+  const response = await fetch(`${BASE_API_URL}${url}`, {
+    method,
+    headers,
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch: ${response.statusText}`);
+  }
+
+  return await response.blob();
+};
+
+
+
 export const fetchData = async <T, B = unknown>(
-    url: string,
-    method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE" = "GET",
-    token: string | null = null,
-    body?: B,
+  url: string,
+  method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE" = "GET",
+  token: string | null = null,
+  body?: B,
 ): Promise<T | null> => {
   try {
     const isFormData = body instanceof FormData;
     const response = await fetch(BASE_API_URL + url, {
       method: method,
       headers: {
-        ...(token ? {Authorization: `Bearer ${token}`} : {}),
-        ...(!isFormData ? {"Content-Type": "application/json"} : {}),
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(!isFormData ? { "Content-Type": "application/json" } : {}),
       },
       body: isFormData ? (body as FormData) : body ? JSON.stringify(body) : undefined,
     });
