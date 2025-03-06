@@ -15,7 +15,8 @@ import SearchMaterialPage from "./pages/material/materials/SearchMaterialPage";
 
 export const router = createBrowserRouter([
   // {path: "/", element: <App/>},
-  { path: "/", element: <DashboardPage /> },
+  { path: "/", element: <LoginPage /> },
+  { path: "/home", element: <DashboardPage /> },
   { path: "/login", element: <LoginPage /> },
 
   // hrm

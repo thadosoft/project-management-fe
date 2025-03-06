@@ -83,7 +83,7 @@ function ProjectPage() {
                     </BreadcrumbItem>
                     <BreadcrumbSeparator className="hidden md:block"/>
                     <BreadcrumbItem>
-                      <BreadcrumbPage>Data Fetching</BreadcrumbPage>
+                      <BreadcrumbPage>Quản lý dự án</BreadcrumbPage>
                     </BreadcrumbItem>
                   </BreadcrumbList>
                 </Breadcrumb>

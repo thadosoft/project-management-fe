@@ -267,13 +267,13 @@ export default function TaskPage() {
                 <Breadcrumb>
                   <BreadcrumbList>
                     <BreadcrumbItem className="hidden md:block">
-                      <BreadcrumbLink href="#">
-                        Building Your Application
+                      <BreadcrumbLink href="/project">
+                        Quản lý dự án
                       </BreadcrumbLink>
                     </BreadcrumbItem>
                     <BreadcrumbSeparator className="hidden md:block"/>
                     <BreadcrumbItem>
-                      <BreadcrumbPage>Data Fetching</BreadcrumbPage>
+                      <BreadcrumbPage>Quản lý dự án</BreadcrumbPage>
                     </BreadcrumbItem>
                   </BreadcrumbList>
                 </Breadcrumb>

@@ -106,7 +106,7 @@ function SearchEmployeePage() {
                             <Breadcrumb>
                                 <BreadcrumbList>
                                     <BreadcrumbItem className="hidden md:block">
-                                        <BreadcrumbLink href="/">
+                                        <BreadcrumbLink href="/home">
                                             Thông tin nhân viên
                                         </BreadcrumbLink>
                                     </BreadcrumbItem>

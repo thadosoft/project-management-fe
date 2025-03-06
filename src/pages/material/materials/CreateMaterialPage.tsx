@@ -135,7 +135,7 @@ function CreateMaterialPage() {
                             <Breadcrumb>
                                 <BreadcrumbList>
                                     <BreadcrumbItem className="hidden md:block">
-                                        <BreadcrumbLink href="/">
+                                        <BreadcrumbLink href="/home">
                                             Home
                                         </BreadcrumbLink>
                                     </BreadcrumbItem>

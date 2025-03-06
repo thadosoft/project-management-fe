@@ -50,7 +50,7 @@ const data = {
   navApp: [
     {
       title: "Home",
-      url: "/",
+      url: "/home",
       icon: Home,
     },
     // {

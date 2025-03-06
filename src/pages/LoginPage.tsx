@@ -58,7 +58,7 @@ export default function LoginPage() {
       localStorage.setItem("refreshToken", refreshToken);
       localStorage.setItem("id", id);
 
-      navigate("/project")
+      navigate("/home")
     } catch (err: unknown) {
       setLoginStatus("Wrong username or password");
       const errorMessage = (err as Error).message || "Something went wrong. Please try again.";
@@ -68,7 +68,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (tokenService.accessToken) {
-      navigate("/project")
+      navigate("/home")
     }
   }, [tokenService.accessToken])
 
