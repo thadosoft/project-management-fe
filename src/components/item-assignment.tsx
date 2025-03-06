@@ -33,6 +33,7 @@ import {User} from "@/models/User.ts";
 import {getUsers} from "@/services/userService.ts";
 import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger} from "@/components/ui/dropdown-menu.tsx";
 import {BsThreeDots} from "react-icons/bs";
+import tokenService from "@/services/tokenService.ts";
 
 interface Props {
   assignment: Assignment,
@@ -185,6 +186,9 @@ export function ItemAssignment({assignment, isOverlay, removeAssignment}: Props)
     theme: "dark",
     enableDragAndDropFileToEditor: true,
     uploader: {
+      headers: {
+        Authorization: `Bearer ${tokenService.accessToken}`,
+      },
       url: `${BASE_API_URL}medias`,
 
       prepareData: function (formData: FormData) {

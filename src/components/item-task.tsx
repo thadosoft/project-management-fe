@@ -138,7 +138,7 @@ export function ItemTask({task, assignments, isOverlay, addAssignment, removeAss
             dragging: isOverlay ? "overlay" : isDragging ? "over" : undefined,
           }) + " relative group"}
       >
-        <CardHeader className="p-2 font-semibold border-b-2 text-left flex flex-row space-between items-center">
+        <CardHeader className="p-2 font-semibold border-b-2 text-left flex flex-row space-between gap-2 items-center">
           <Button
               variant={"ghost"}
               {...attributes}
@@ -150,11 +150,11 @@ export function ItemTask({task, assignments, isOverlay, addAssignment, removeAss
           </Button>
           {isTaskEditing ? (
               <div className="flex items-center gap-1">
-                <input
+                <Input
                     type="text"
                     value={status}
                     onChange={(e) => setStatus(e.target.value)}
-                    className="py-1 rounded-md text-black"
+                    className="py-1 rounded-md"
                 />
                 <button onClick={() => handleChangeStatus(true)} className="hover:bg-zinc-700 p-1 duration-200 rounded">
                   <Check size={20}/>
@@ -166,7 +166,7 @@ export function ItemTask({task, assignments, isOverlay, addAssignment, removeAss
           ) : (
               <span
                   onClick={() => setIsTaskEditing(true)}
-                  className="hover:bg-zinc-700 px-2 py-1 rounded duration-200 cursor-pointer flex-1 min-h-8"
+                  className="hover:bg-zinc-700 px-4 py-1 rounded duration-200 cursor-pointer flex-1 min-h-8"
               >
           {status}
         </span>

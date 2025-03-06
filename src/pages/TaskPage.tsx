@@ -179,7 +179,7 @@ export default function TaskPage() {
               ...prev,
               taskId: active.data.current?.assignment.task.id,
               oldAssignmentOrder: active.data.current?.assignment.assignmentOrder,
-              assignmentOrder: over.data.current?.sortable.index + 1
+              assignmentOrder: over.data.current?.sortable.index
             }));
         const {assignmentsInTask, assignmentPosition, task} = getDraggingAssignmentData(
             over.id as string,
@@ -474,7 +474,7 @@ export default function TaskPage() {
             ...prev,
             taskId: active.data.current?.assignment.task.id,
             oldAssignmentOrder: active.data.current?.assignment.assignmentOrder,
-            assignmentOrder: over.data.current?.sortable.index + 1
+            assignmentOrder: over.data.current?.sortable.index
           }));
 
       setAssignments((assignments) => {
@@ -489,11 +489,10 @@ export default function TaskPage() {
             activeAssignment.task.id !== overAssignment.task.id
         ) {
           activeAssignment.task.id = overAssignment.task.id;
-
           return arrayMove(assignments, activeIndex, overIndex - 1);
         }
 
-        return arrayMove(assignments, activeIndex, overIndex - 1);
+        return arrayMove(assignments, activeIndex, overIndex);
       });
     }
 
@@ -506,14 +505,12 @@ export default function TaskPage() {
             ...prev,
             taskId: over.data.current?.task.id,
             oldAssignmentOrder: active.data.current?.assignment.assignmentOrder,
-            assignmentOrder: over.data.current?.sortable.index + 1
+            assignmentOrder: over.data.current?.sortable.index - 1
           }));
 
       setAssignments((assignments) => {
         const activeIndex = assignments.findIndex((t) => t.id === activeId);
         const activeAssignment = assignments[activeIndex];
-
-        console.log(activeIndex)
 
         if (activeAssignment) {
           activeAssignment.task.id = overId as string;
