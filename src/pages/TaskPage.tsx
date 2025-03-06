@@ -179,7 +179,7 @@ export default function TaskPage() {
               ...prev,
               taskId: active.data.current?.assignment.task.id,
               oldAssignmentOrder: active.data.current?.assignment.assignmentOrder,
-              assignmentOrder: over.data.current?.sortable.index
+              assignmentOrder: over.data.current?.sortable.index + 1
             }));
         const {assignmentsInTask, assignmentPosition, task} = getDraggingAssignmentData(
             over.id as string,
@@ -474,7 +474,7 @@ export default function TaskPage() {
             ...prev,
             taskId: active.data.current?.assignment.task.id,
             oldAssignmentOrder: active.data.current?.assignment.assignmentOrder,
-            assignmentOrder: over.data.current?.sortable.index
+            assignmentOrder: over.data.current?.sortable.index + 1
           }));
 
       setAssignments((assignments) => {
