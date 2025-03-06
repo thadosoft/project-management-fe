@@ -535,12 +535,12 @@ export function ItemAssignment({assignment, isOverlay, removeAssignment}: Props)
                       <div className="flex h-full items-center justify-between">
                         <Select>
                           <SelectTrigger className="w-[180px] bg-zinc-800">
-                            <SelectValue placeholder="Theme"/>
+                            <SelectValue placeholder="Select"/>
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="light">Light</SelectItem>
-                            <SelectItem value="dark">Dark</SelectItem>
-                            <SelectItem value="system">System</SelectItem>
+                            {/*<SelectItem value="light">Light</SelectItem>*/}
+                            {/*<SelectItem value="dark">Dark</SelectItem>*/}
+                            {/*<SelectItem value="system">System</SelectItem>*/}
                           </SelectContent>
                         </Select>
                         <DropdownMenu>
