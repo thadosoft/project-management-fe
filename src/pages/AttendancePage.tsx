@@ -15,11 +15,9 @@ import { searchAttendances } from "@/services/attendanceService";
 import { CaptureDatumResponse } from "@/models/Attendance";
 
 function AttendancePage() {
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
     const [totalPages, setTotalPages] = useState(0);
     const [page, setPage] = useState(0);
-    const [size, setSize] = useState(25);
+    const [size, setSize] = useState(20);
     const [attendances, setAttendance] = useState<CaptureDatumResponse[]>([]);
 
 
