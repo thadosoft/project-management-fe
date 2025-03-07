@@ -81,10 +81,10 @@ const data = {
       icon: PiFinnTheHuman,
       isActive: true,
       items: [
-        // {
-        //   title: "Lịch làm việc",
-        //   url: "#",
-        // },
+        {
+          title: "Bảng chấm công",
+          url: "/attendance-sheet",
+        },
         // {
         //   title: "Lịch tính lương",
         //   url: "#",

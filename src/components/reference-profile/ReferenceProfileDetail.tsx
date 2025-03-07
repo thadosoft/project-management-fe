@@ -16,6 +16,7 @@ import { getByProfileReferenceId } from "@/services/reference-profile/profileRef
 import { downloadFile, uploadFile } from "@/services/reference-profile/uploadFIleService";
 import { createReferenceProfileLink } from "@/services/reference-profile/profileReferenceLinkService";
 import { ReferenceLinkRequest } from "@/models/ReferenceLinkRequest";
+import other from "@/assets/imgs/other.png";
 
 function ReferenceProfileDetail() {
     const [loading, setLoading] = useState(true);
@@ -250,6 +251,7 @@ function ReferenceProfileDetail() {
                                                     onClick={() => handleDownload(file.id, file.fileName)}
                                                     className="text-blue-600 hover:underline"
                                                 >
+                                                    <img src={other} alt="" className="w-24 h-24 mx-auto"/>
                                                     {file.fileName}
                                                 </button>
                                             </li>

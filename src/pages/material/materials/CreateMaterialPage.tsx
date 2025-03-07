@@ -15,6 +15,18 @@ function CreateMaterialPage() {
     const [editingMaterialId, setEditingMaterialId] = useState<number | null>(null);
     const [materials, setMaterials] = useState<Material[]>([]);
     const [material, setMaterial] = useState<Material>({});
+    const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
+    const validateForm = () => {
+        let newErrors: { [key: string]: string } = {};
+
+        if (!material.inventoryCategoryId) newErrors.category = "Loại không được để trống";
+
+        setErrors(newErrors);
+
+        return Object.keys(newErrors).length === 0; // Trả về true nếu không có lỗi
+    };
+
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
@@ -56,12 +68,12 @@ function CreateMaterialPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        try {
-            if (!material.name) {
-                alert("Vui lòng nhập đầy đủ thông tin!");
-                return;
-            }
+        if (!validateForm()) {
+            console.warn("Có lỗi nhập liệu");
+            return;
+        }
 
+        try {
             if (editingMaterialId) {
                 await updateMaterial(editingMaterialId, material);
                 alert("Cập nhật loại vật tư thành công!");
@@ -100,9 +112,6 @@ function CreateMaterialPage() {
             try {
                 const data = await getAllMaterial();
 
-                console.log("data", data);
-
-
                 if (data) {
                     setMaterials(data);
                 }
@@ -114,14 +123,6 @@ function CreateMaterialPage() {
         fetchmaterials();
     }, []);
 
-
-    const handleSearch = async () => {
-        try {
-
-        } catch (error) {
-            console.error("Error during search:", error);
-        }
-    };
 
     return (
         <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
@@ -174,7 +175,7 @@ function CreateMaterialPage() {
                                             />
                                         </div>
                                         <div>
-                                            <label className="text-xs xs:text-sm font-medium mb-1">Mô tả</label>
+                                            <label className="text-xs xs:text-sm font-medium mb-1">Loại vật tư</label>
                                             <select
                                                 name="inventoryCategoryId"
                                                 value={material.inventoryCategoryId ?? ""}
@@ -188,6 +189,7 @@ function CreateMaterialPage() {
                                                     </option>
                                                 ))}
                                             </select>
+                                            {errors.category && <p className="text-red-500 text-sm">{errors.category}</p>}
                                         </div>
                                         <div>
                                             <label className="text-xs xs:text-sm font-medium mb-1">Đơn vị</label>

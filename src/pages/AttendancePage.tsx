@@ -1,50 +1,71 @@
 import { ThemeProvider } from "@/components/theme-provider.tsx";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar.tsx";
 import { AppSidebar } from "@/components/app-sidebar.tsx";
+import {
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList,
+    BreadcrumbPage,
+    BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
 import { Separator } from "@/components/ui/separator.tsx";
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb.tsx";
 import { useEffect, useState } from "react";
-import { deleteMaterial, searchMaterials } from "@/services/material/materialService";
-import { Material } from "@/models/Material";
+import { searchAttendances } from "@/services/attendanceService";
+import { CaptureDatumResponse } from "@/models/Attendance";
 
-function SearchMaterialPage() {
-
+function AttendancePage() {
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const [totalPages, setTotalPages] = useState(0);
     const [page, setPage] = useState(0);
-    const [size, setSize] = useState(10);
-    const [materials, setMaterials] = useState<Material[]>([]);
-    const [searchRequest, setSearchRequest] = useState({
-        name: "",
-        sku: ""
-    });
+    const [size, setSize] = useState(25);
+    const [attendances, setAttendance] = useState<CaptureDatumResponse[]>([]);
 
+
+    const today = new Date();
+    const endOfDay = new Date(today);
+    endOfDay.setHours(23, 59, 59, 999); 
+
+    const [searchAttendanceRequest, setSearchAttendanceRequest] = useState({
+        personName: "",
+        startDate: today.toISOString().split("T")[0],
+        endDate: endOfDay.toISOString().split("T")[0]
+    });
+    
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
-        setSearchRequest((prev) => ({
+        setSearchAttendanceRequest((prev) => ({
             ...prev,
-            [name]: value,
+            [name]: value ? value : '',
         }));
     };
+
+
 
     const handleSearch = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const result = await searchMaterials(searchRequest, page, size);
+            const result = await searchAttendances(searchAttendanceRequest, page, size);
             if (result) {
-                setMaterials(result.content);
+                setAttendance(result.content);
                 setTotalPages(result.totalPages);
             }
         } catch (error) {
-            console.error("Error searching materials:", error);
+            console.error("Error searching attendances:", error);
+            if (error instanceof Response) {
+                const errorMessage = await error.text();
+                console.error("Error details:", errorMessage);
+            }
         }
     };
 
     useEffect(() => {
         const fetchMaterials = async () => {
             try {
-                const data = await searchMaterials(searchRequest, page, size);
+                const data = await searchAttendances(searchAttendanceRequest, page, size);
                 if (data) {
-                    setMaterials(data.content);
+                    setAttendance(data.content);
                     setTotalPages(data.totalPages);
                 }
             } catch (error) {
@@ -54,65 +75,62 @@ function SearchMaterialPage() {
         fetchMaterials();
     }, [page, size]);
 
-
-    const handleDelete = async (id: number) => {
-        try {
-            await deleteMaterial(id);
-            alert("Xóa loại vật tư thành công!");
-            const data = await searchMaterials(searchRequest, page, size);
-            setMaterials(data.content);
-        } catch (error) {
-            console.error("Lỗi khi xóa:", error);
-            alert("Xóa thất bại!");
-        }
-    };
-
     return (
         <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
             <SidebarProvider>
                 <AppSidebar />
                 <SidebarInset>
-                    <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrProjectPageer:h-12">
+                    <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrAttendancePageer:h-12">
                         <div className="flex items-center gap-2 px-4">
                             <SidebarTrigger className="-ml-1" />
                             <Separator orientation="vertical" className="mr-2 h-4" />
                             <Breadcrumb>
                                 <BreadcrumbList>
                                     <BreadcrumbItem className="hidden md:block">
-                                        <BreadcrumbLink href="/home">
+                                        <BreadcrumbLink href="/">
                                             Home
                                         </BreadcrumbLink>
                                     </BreadcrumbItem>
                                     <BreadcrumbSeparator className="hidden md:block" />
                                     <BreadcrumbItem>
-                                        <BreadcrumbPage>Tìm kiếm vật tư</BreadcrumbPage>
+                                        <BreadcrumbPage>Bảng chấm công</BreadcrumbPage>
                                     </BreadcrumbItem>
                                 </BreadcrumbList>
                             </Breadcrumb>
                         </div>
                     </header>
                     <div className="p-10">
-                        <h3 className="text-3xl mb-8 sm:text-5xl leading-normal font-extrabold tracking-tight text-white">Tìm kiếm <span className="text-indigo-600">vật tư</span></h3>
+                        <h3 className="text-3xl mb-8 sm:text-5xl leading-normal font-extrabold tracking-tight text-white">Bảng <span className="text-indigo-600">chấm công</span></h3>
                         <section className="mx-auto border border-[#4D7C0F] rounded-lg p-8">
                             <form onSubmit={handleSearch}>
                                 <div className="space-y-6">
                                     <div className="grid sm:grid-cols-3 grid-cols-1 gap-6">
                                         <div>
-                                            <label className="text-xs xs:text-sm font-medium mb-1">Tên vật tư</label>
+                                            <label className="text-xs xs:text-sm font-medium mb-1">Tên nhân viên</label>
                                             <input
                                                 type="text"
-                                                name="name"
-                                                value={searchRequest.name}
+                                                name="personName"
+                                                value={searchAttendanceRequest.personName}
                                                 onChange={handleInputChange}
                                                 className="h-[50px] rounded-[5px] text-xs xs:text-sm border text-black border-[#D1D5DB] w-full px-2 pl-4 font-light"
                                             />
                                         </div>
                                         <div>
-                                            <label className="text-xs xs:text-sm font-medium mb-1">Mã vật tư</label>
+                                            <label className="text-xs xs:text-sm font-medium mb-1">Chấm công từ ngày</label>
                                             <input
-                                                type="text"
-                                                name="sku"
-                                                value={searchRequest.sku}
+                                                type="date"
+                                                name="startDate"
+                                                value={searchAttendanceRequest.startDate}
+                                                onChange={handleInputChange}
+                                                className="h-[50px] rounded-[5px] text-xs xs:text-sm border text-black border-[#D1D5DB] w-full px-2 pl-4 font-light"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="text-xs xs:text-sm font-medium mb-1">Chấm công đến ngày</label>
+                                            <input
+                                                type="date"
+                                                name="endDate"
+                                                value={searchAttendanceRequest.endDate}
                                                 onChange={handleInputChange}
                                                 className="h-[50px] rounded-[5px] text-xs xs:text-sm border text-black border-[#D1D5DB] w-full px-2 pl-4 font-light"
                                             />
@@ -134,57 +152,27 @@ function SearchMaterialPage() {
                                         STT
                                     </th>
                                     <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Tên vật tư
+                                        Tên nhân viên
                                     </th>
                                     <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Mã vật tư - SKU
+                                        Mã nhân viên
                                     </th>
                                     <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Loại vật tư
+                                        Hình ảnh
                                     </th>
                                     <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Đơn vị
-                                    </th>
-                                    <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Số lượng
-                                    </th>
-                                    <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Số lượng cảnh báo
-                                    </th>
-                                    <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Vị trí
-                                    </th>
-                                    <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Giá mua
-                                    </th>
-                                    <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Giá bán
-                                    </th>
-                                    <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Trạng thái
-                                    </th>
-                                    <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        #
+                                        Ngày chấm công
                                     </th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
-                                {materials.map((material, index) => (
-                                    <tr key={material.id}>
+                                {attendances.map((attend, index) => (
+                                    <tr key={attend.captureId}>
                                         <td className="px-6 py-4 whitespace-nowrap">{page * size + index + 1}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap">{material?.name}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap">{material?.sku}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap">{material?.inventoryCategory.name}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap">{material?.unit}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap">{material?.quantityInStock}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap">{material?.reorderLevel}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap">{material?.location}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap">{material?.purchasePrice}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap">{material?.sellingPrice}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap">{material?.status}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap flex justify-center">
-                                            <button onClick={() => material?.id && handleDelete(material.id)} className="text-red-600 hover:text-red-900 ml-4">Xoá</button>
-                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{attend.personName}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{attend.personId}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{attend.personId}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{new Date(attend.createdAt).toLocaleString('en-GB')}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -210,7 +198,7 @@ function SearchMaterialPage() {
                 </SidebarInset>
             </SidebarProvider>
         </ThemeProvider>
-    );
+    )
 }
 
-export default SearchMaterialPage;
+export default AttendancePage

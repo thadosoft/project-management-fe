@@ -12,6 +12,7 @@ import CreateMaterialCategoryPage from "./pages/material/catergories/CreateMater
 import SearchMaterialCategoryPage from "./pages/material/catergories/SearchMaterialCategoryPage";
 import CreateMaterialPage from "./pages/material/materials/CreateMaterialPage";
 import SearchMaterialPage from "./pages/material/materials/SearchMaterialPage";
+import AttendancePage from "./pages/AttendancePage";
 
 export const router = createBrowserRouter([
   // {path: "/", element: <App/>},
@@ -23,7 +24,8 @@ export const router = createBrowserRouter([
   { path: "/create-employee", element: <CreateEmployeePage /> },
   { path: "/detail-employee/:id", element: <DetailEmployeePage /> },
   { path: "/search-employee", element: <SearchEmployeePage /> },
-
+  { path: "/attendance-sheet", element: <AttendancePage /> },
+  
   // coordinate
   { path: "/project", element: <ProjectPage /> },
   { path: "/project/task/:projectId", element: <TaskPage /> },
