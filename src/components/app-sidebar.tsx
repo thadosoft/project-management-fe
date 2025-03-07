@@ -85,10 +85,6 @@ const data = {
           title: "Bảng chấm công",
           url: "/attendance-sheet",
         },
-        // {
-        //   title: "Lịch tính lương",
-        //   url: "#",
-        // },
         {
           title: "Thông tin nhân viên",
           url: "#",
@@ -104,38 +100,22 @@ const data = {
             },
           ]
         },
-        // {
-        //   title: "Hợp đồng lao động",
-        //   url: "#",
-        //   items: [
-        //     // {
-        //     //   title: "Quy định công ty",
-        //     //   url: "#",
-        //     // },
-        //     {
-        //       title: "Phụ lục hợp đồng lao động",
-        //       url: "#",
-        //     },
-        //     {
-        //       title: "Tìm kiếm HĐ / Phụ lục HĐLĐ",
-        //       url: "#",
-        //     },
-        //   ]
-        // },
-        // {
-        //   title: "Chấm công",
-        //   url: "#",
-        //   items: [
-        //     {
-        //       title: "Tạo bảng chấm công",
-        //       url: "#",
-        //     },
-        //     {
-        //       title: "Tìm bảng chấm công",
-        //       url: "#",
-        //     },
-        //   ]
-        // },
+      ],
+    },
+    {
+      title: "Kinh doanh",
+      icon: SiAudiotechnica,
+      url: "#",
+      isActive: true,
+      items: [
+        {
+          title: "Phiếu báo giá",
+          url: "/project",
+        },
+        {
+          title: "Tìm kiếm báo giá",
+          url: "/project",
+        },
       ],
     },
     {
