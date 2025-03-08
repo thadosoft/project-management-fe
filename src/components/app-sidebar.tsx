@@ -114,7 +114,7 @@ const data = {
         },
         {
           title: "Tìm kiếm báo giá",
-          url: "/project",
+          url: "/search-bom",
         },
       ],
     },

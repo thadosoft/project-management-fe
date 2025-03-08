@@ -39,7 +39,7 @@ export const deleteBom = async (id: number): Promise<boolean> => {
     }
 };
 
-export const searchBom = async (searchParams: SearchQuotationRequest, page: number, size: number): Promise<QuotationResponse | null> => {
+export const searchBom = async (searchParams: SearchQuotationRequest, page: number, size: number): Promise<any | null> => {
     try {
         return await fetchData<QuotationResponse, SearchQuotationRequest>(
             `quotations/search?page=${page}&size=${size}`,
@@ -53,7 +53,7 @@ export const searchBom = async (searchParams: SearchQuotationRequest, page: numb
     }
 };
 
-export const printPDF = async (id: number, name: string): Promise<void> => {
+export const printBOMPDF = async (id: number, name: string): Promise<void> => {
     try {
         const response = await fetchData<Blob>(
             `quotations/printPDF/${id}`,

@@ -14,6 +14,7 @@ import CreateMaterialPage from "./pages/material/materials/CreateMaterialPage";
 import SearchMaterialPage from "./pages/material/materials/SearchMaterialPage";
 import AttendancePage from "./pages/AttendancePage";
 import CreateBOMPage from "./pages/ecommerce/CreateBOMPage";
+import SearchBOMPage from "./pages/ecommerce/SearchBOMPage";
 
 export const router = createBrowserRouter([
   // {path: "/", element: <App/>},
@@ -42,6 +43,8 @@ export const router = createBrowserRouter([
   { path: "/search-material", element: <SearchMaterialPage /> },
 
   // business
-  { path: "/create-bom", element: < CreateBOMPage /> }
+  { path: "/create-bom", element: < CreateBOMPage /> },
+  { path: "/update-bom/:id", element: < CreateBOMPage /> },
+  { path: "/search-bom", element: < SearchBOMPage /> },
 
 ]);

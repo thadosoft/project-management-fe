@@ -1,113 +1,121 @@
 export interface CreateBOM {
     id?: number;
 
-    requesterName?: string;
+    title: string;
 
-    requesterEmail?: string;
+    requesterName: string;
 
-    requesterTel?: string;
+    requesterEmail: string;
 
-    requesterAddress?: string;
+    requesterTel: string;
 
-    requesterWebsite?: string;
+    requesterAddress: string;
 
-    receiverName?: string;
+    requesterWebsite: string;
 
-    receiverEmail?: string;
+    receiverName: string;
 
-    receiverTel?: string;
+    receiverEmail: string;
 
-    receiverAddress?: string;
+    receiverTel: string;
 
-    receiverWebsite?: string;
+    receiverAddress: string;
+
+    receiverWebsite: string;
 
     materialQuotations: MaterialQuotationRequest[];
 }
 
 export interface MaterialQuotationRequest {
-    code?: string;
+    code: string;
 
-    description?: string;
+    description: string;
 
-    unit?: string;
+    unit: string;
 
-    quantity?: string;
+    quantity: string;
 
-    deliveryDate?: string;
+    deliveryDate: string;
 
-    price?: string;
+    price: string;
 
-    tax?: string;
+    tax: string;
 
-    priceNoTax?: string;
+    priceNoTax: string;
 
-    priceTax?: string;
+    priceTax: string;
 
-    totalPrice?: string;
+    totalPrice: string;
 
     isSaved: boolean;
 }
 
 
 export interface SearchQuotationRequest {
-    requesterName?: string;
+    title: string;
 
-    receiverName?: string;
+    requesterName: string;
 
-    startDate?: string;
+    receiverName: string;
 
-    endDate?: string;
+    startDate: string;
+
+    endDate: string;
 }
 
 
 export interface QuotationResponse {
-    id?: string;
+    id: number;
 
-    requesterName?: string;
+    title: string;
 
-    requesterEmail?: string;
+    requesterName: string;
 
-    requesterTel?: string;
+    requesterEmail: string;
 
-    requesterAddress?: string;
+    requesterTel: string;
 
-    requesterWebsite?: string;
+    requesterAddress: string;
 
-    receiverName?: string;
+    requesterWebsite: string;
 
-    receiverEmail?: string;
+    receiverName: string;
 
-    receiverTel?: string;
+    receiverEmail: string;
 
-    receiverAddress?: string;
+    receiverTel: string;
 
-    receiverWebsite?: string;
+    receiverAddress: string;
+
+    receiverWebsite: string;
+
+    createdAt: string;
 
     materialQuotations: MaterialQuotationResponse[];
 }
 
 export interface MaterialQuotationResponse {
-    id?: string;
+    id: number;
 
-    quotationRequest?: string;
+    quotationRequest: string;
 
-    code?: string;
+    code: string;
 
-    description?: string;
+    description: string;
 
-    unit?: string;
+    unit: string;
 
-    quantity?: string;
+    quantity: string;
 
-    deliveryDate?: string;
+    deliveryDate: string;
 
-    price?: string;
+    price: string;
 
-    tax?: string;
+    tax: string;
 
-    priceNoTax?: string;
+    priceNoTax: string;
 
-    priceTax?: string;
+    priceTax: string;
 
-    totalPrice?: string;
+    totalPrice: string;
 }
