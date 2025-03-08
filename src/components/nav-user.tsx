@@ -55,12 +55,19 @@ export function NavUser() {
       return;
     }
 
-    getUserById(userId).then((response) => {
+    getUserById(userId)
+    .then((response) => {
       if (response === null) {
         navigate("/");
       } else {
         setUser(response);
       }
+    })
+    .catch((error) => {
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      localStorage.removeItem("id");
+      navigate("/");
     });
   }, []);
 
