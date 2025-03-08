@@ -110,7 +110,7 @@ const data = {
       items: [
         {
           title: "Phiếu báo giá",
-          url: "/project",
+          url: "/create-bom",
         },
         {
           title: "Tìm kiếm báo giá",

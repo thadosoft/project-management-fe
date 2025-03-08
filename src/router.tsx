@@ -13,6 +13,7 @@ import SearchMaterialCategoryPage from "./pages/material/catergories/SearchMater
 import CreateMaterialPage from "./pages/material/materials/CreateMaterialPage";
 import SearchMaterialPage from "./pages/material/materials/SearchMaterialPage";
 import AttendancePage from "./pages/AttendancePage";
+import CreateBOMPage from "./pages/ecommerce/CreateBOMPage";
 
 export const router = createBrowserRouter([
   // {path: "/", element: <App/>},
@@ -25,7 +26,7 @@ export const router = createBrowserRouter([
   { path: "/detail-employee/:id", element: <DetailEmployeePage /> },
   { path: "/search-employee", element: <SearchEmployeePage /> },
   { path: "/attendance-sheet", element: <AttendancePage /> },
-  
+
   // coordinate
   { path: "/project", element: <ProjectPage /> },
   { path: "/project/task/:projectId", element: <TaskPage /> },
@@ -39,5 +40,8 @@ export const router = createBrowserRouter([
   { path: "/search-material-categories", element: <SearchMaterialCategoryPage /> },
   { path: "/create-material", element: <CreateMaterialPage /> },
   { path: "/search-material", element: <SearchMaterialPage /> },
+
+  // business
+  { path: "/create-bom", element: < CreateBOMPage /> }
 
 ]);
