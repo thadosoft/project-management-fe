@@ -6,7 +6,7 @@ import {Button} from "@/components/ui/button.tsx";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs.tsx";
 import {useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
-import {login, register} from "@/services/authService.ts";
+import {isTokenValidate, login, register} from "@/services/authService.ts";
 import tokenService from "@/services/tokenService.ts";
 
 export default function LoginPage() {
@@ -68,7 +68,12 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (tokenService.accessToken) {
-      navigate("/home")
+      isTokenValidate(tokenService.accessToken)
+      .then(response => {
+        if (response) {
+          navigate("/home")
+        }
+      })
     }
   }, [tokenService.accessToken])
 
