@@ -14,7 +14,6 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { deleteBom, searchBom } from "@/services/ecommerce/bomService";
 import { QuotationResponse, SearchQuotationRequest } from "@/models/Bom";
-import { log } from "console";
 
 function SearchBOMPage() {
     const [quotations, setQuotation] = useState<QuotationResponse[]>([]);
@@ -45,6 +44,7 @@ function SearchBOMPage() {
                 const result = await searchBom(searchParams, page, size);
                 if (result) {
                     setQuotation(result.content);
+                    setTotalPages(result.totalPages);
                 }
             } catch (err: unknown) {
                 setError((err as Error).message);
@@ -53,7 +53,7 @@ function SearchBOMPage() {
             }
         };
         fetchData();
-    }, [searchParams, currentPage]);
+    }, [searchParams, page]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;

@@ -357,7 +357,7 @@ function CreateBOMPage() {
                                 </div>
                             )}
 
-                            <div className="w-full overflow-scroll">
+                            <div className="w-full overflow-hidden">
                                 <table className="min-w-full divide-y divide-gray-200 overflow-x-auto mt-12 text-center text-black">
                                     <thead className="bg-gray-50">
                                         <tr>

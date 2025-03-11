@@ -170,7 +170,7 @@ function AttendancePage() {
                                         <td className="px-6 py-4 whitespace-nowrap">{attend.personName}</td>
                                         <td className="px-6 py-4 whitespace-nowrap">{attend.personId}</td>
                                         <td className="px-6 py-4 whitespace-nowrap">{attend.personId}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap">{new Date(attend.createdAt).toLocaleString('en-GB')}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{new Date(attend.time).toLocaleString('en-GB')}</td>
                                     </tr>
                                 ))}
                             </tbody>
