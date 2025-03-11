@@ -34,9 +34,9 @@ function SearchEmployeePage() {
             try {
                 setLoading(true);
                 const result = await searchEmployees(searchParams, page, size);
-
                 if (result) {
                     setEmployees(result.content);
+                    setTotalPages(result.totalPages);
                 }
             } catch (err: unknown) {
                 setError((err as Error).message);
@@ -44,8 +44,10 @@ function SearchEmployeePage() {
                 setLoading(false);
             }
         };
+    
         fetchData();
-    }, [searchParams, currentPage]);
+    }, [searchParams, page]); 
+
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -208,6 +210,23 @@ function SearchEmployeePage() {
                                 ))}
                             </tbody>
                         </table>
+                        <div className="flex justify-center mt-4">
+                            <button type="button"
+                                onClick={() => setPage((prev) => Math.max(prev - 1, 0))}
+                                disabled={page === 0}
+                                className="px-4 py-2 mx-1 bg-gray-500 text-white rounded disabled:opacity-50"
+                            >
+                                Trước
+                            </button>
+                            <span className="px-4 py-2">{page + 1} / {totalPages}</span>
+                            <button type="button"
+                                onClick={() => setPage((prev) => Math.min(prev + 1, totalPages - 1))}
+                                disabled={page >= totalPages - 1}
+                                className="px-4 py-2 mx-1 bg-gray-500 text-white rounded disabled:opacity-50"
+                            >
+                                Sau
+                            </button>
+                        </div>
                     </div>
                 </SidebarInset>
             </SidebarProvider>

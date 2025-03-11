@@ -86,7 +86,7 @@ export default function LoginPage() {
 
   return (
       <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-        <div className="flex min-h-svh w-full justify-center items-start p-1">
+        <div className="flex min-h-svh w-full justify-center items-center p-1">
           <div className="w-full max-w-sm">
             <Tabs defaultValue="login">
               <TabsList className="grid w-full grid-cols-2">

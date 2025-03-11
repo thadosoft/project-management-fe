@@ -68,7 +68,7 @@ function CreateEmployeePage() {
         avatar: "",
         fullName: "",
         career: "",
-        placeOfBirth: "",
+        placeOfBirth: new Date().toISOString().split("T")[0],
         nation: "",
         gender: "",
         tax: "",
