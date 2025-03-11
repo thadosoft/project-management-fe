@@ -63,7 +63,7 @@ export function NavUser() {
         setUser(response);
       }
     })
-    .catch((error) => {
+    .catch(async (error) => {
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
       localStorage.removeItem("id");

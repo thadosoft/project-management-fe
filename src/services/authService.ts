@@ -21,5 +21,10 @@ export const logout = async (): Promise<void | null> => {
   localStorage.removeItem("accessToken");
   localStorage.removeItem("refreshToken");
   localStorage.removeItem("id");
-  return await fetchData<void> (`auth/logout`, "POST", tokenService.accessToken);
+  return await fetchData<void>(`auth/logout`, "POST", tokenService.accessToken);
+};
+
+
+export const isTokenValidate = async (token: string): Promise<boolean | null> => {
+  return await fetchData<boolean>(`auth/validate-token?token=${token}`, "POST", undefined);
 };
