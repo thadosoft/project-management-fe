@@ -67,6 +67,13 @@ export default function LoginPage() {
   };
 
   useEffect(() => {
+    const userId = localStorage.getItem("id");
+
+    if (!userId) {
+      navigate("/");
+      return;
+    }
+
     if (tokenService.accessToken) {
       isTokenValidate(tokenService.accessToken)
       .then(response => {
