@@ -69,7 +69,6 @@ function SearchEmployeePage() {
     setCurrentPage(1);
   };
 
-
   const handleDeleteEmployee = async (employeeId: number) => {
     if (!window.confirm("Bạn có chắc chắn muốn xoá nhân viên này?")) return;
 
