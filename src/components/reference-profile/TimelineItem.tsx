@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import ReferenceProfilePopup from "./ReferenceProfilePopup"; // Import popup
 import { useNavigate } from "react-router-dom";
-import { downloadFile, uploadFile } from "@/services/reference-profile/uploadFIleService";
+import { uploadFile } from "@/services/reference-profile/uploadFIleService";
 import { getByProfileReferenceId } from "@/services/reference-profile/profileReferenceService";
 
 interface TimelineItemProps {
@@ -15,11 +15,11 @@ interface TimelineItemProps {
 
 const TimelineItem: React.FC<TimelineItemProps> = ({ id, number, title, description, position }) => {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
-    const [message, setMessage] = useState("");
+    const [, setMessage] = useState("");
     const [uploading, setUploading] = useState(false);
-    const [loading, setLoading] = useState(true);
-    const [profile, setProfile] = useState<any>(null);
-    const [error, setError] = useState<string | null>(null);
+    const [, setLoading] = useState(true);
+    const [, setProfile] = useState<any>(null);
+    const [, setError] = useState<string | null>(null);
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files && event.target.files.length > 0) {
@@ -42,7 +42,7 @@ const TimelineItem: React.FC<TimelineItemProps> = ({ id, number, title, descript
         setMessage("");
 
         try {
-            const response = await uploadFile(Number(id), selectedFile);
+            await uploadFile(Number(id), selectedFile);
             setMessage("Upload thành công!");
 
             setSelectedFile(null);

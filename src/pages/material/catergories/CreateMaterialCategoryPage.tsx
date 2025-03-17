@@ -91,15 +91,6 @@ function CreateMaterialCategoryPage() {
         fetchCategories();
     }, []);
 
-
-    const handleSearch = async () => {
-        try {
-
-        } catch (error) {
-            console.error("Error during search:", error);
-        }
-    };
-
     return (
         <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
             <SidebarProvider>

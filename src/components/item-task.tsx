@@ -1,5 +1,4 @@
 import {SortableContext, useSortable} from "@dnd-kit/sortable";
-import {useDndContext} from "@dnd-kit/core";
 import {CSS} from "@dnd-kit/utilities";
 import React, {useMemo, useState} from "react";
 import {ItemAssignment} from "./item-assignment.tsx";
@@ -269,16 +268,16 @@ export function ItemTask({task, assignments, isOverlay, addAssignment, removeAss
 }
 
 export function BoardContainer({children}: { children: React.ReactNode }) {
-  const dndContext = useDndContext();
+  // const dndContext = useDndContext();
 
-  const variations = cva("px-2 md:px-0 flex lg:justify-center pb-4", {
-    variants: {
-      dragging: {
-        default: "snap-x snap-mandatory",
-        active: "snap-none",
-      },
-    },
-  });
+  // const variations = cva("px-2 md:px-0 flex lg:justify-center pb-4", {
+  //   variants: {
+  //     dragging: {
+  //       default: "snap-x snap-mandatory",
+  //       active: "snap-none",
+  //     },
+  //   },
+  // });
 
   return (
       //<ScrollArea

@@ -3,34 +3,14 @@ import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/s
 import { AppSidebar } from "@/components/app-sidebar.tsx";
 import { Separator } from "@/components/ui/separator.tsx";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb.tsx";
-import React from "react";
-import {
-  Typography,
-  Card,
-  CardHeader,
-  CardBody,
-  IconButton,
-  Menu,
-  MenuHandler,
-  MenuList,
-  MenuItem,
-  Avatar,
-  Tooltip,
-  Progress,
-} from "@material-tailwind/react";
-import {
-  EllipsisVerticalIcon,
-  ArrowUpIcon,
-} from "@heroicons/react/24/outline";
-import { CheckCircleIcon, ClockIcon } from "@heroicons/react/24/solid";
-import { StatisticsCard } from "../components/widgets/cards";
-import { StatisticsChart } from "../components/widgets/charts";
-import {
-  statisticsCardsData,
-  statisticsChartsData,
-  projectsTableData,
-  ordersOverviewData,
-} from "@/components/data";
+// import { StatisticsCard } from "../components/widgets/cards";
+// import { StatisticsChart } from "../components/widgets/charts";
+// import {
+//   statisticsCardsData,
+//   statisticsChartsData,
+//   projectsTableData,
+//   ordersOverviewData,
+// } from "@/components/data";
 
 
 function DashboardPage() {
@@ -58,7 +38,7 @@ function DashboardPage() {
               </Breadcrumb>
             </div>
           </header>
-          <div className="p-10">
+          {/* <div className="p-10">
             <div className="">
               <div className="mb-6 grid gap-y-10 gap-x-6 md:grid-cols-2 xl:grid-cols-4">
                 {statisticsCardsData.map(({ icon, title, footer, ...rest }) => (
@@ -279,7 +259,7 @@ function DashboardPage() {
                 </Card>
               </div>
             </div>
-          </div>
+          </div> */}
         </SidebarInset>
       </SidebarProvider>
     </ThemeProvider>

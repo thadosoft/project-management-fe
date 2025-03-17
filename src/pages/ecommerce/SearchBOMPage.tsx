@@ -19,7 +19,7 @@ function SearchBOMPage() {
     const [quotations, setQuotation] = useState<QuotationResponse[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [currentPage, setCurrentPage] = useState(1);
+    const [_, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
     const [page, setPage] = useState<number>(0);
     const [size] = useState<number>(10);

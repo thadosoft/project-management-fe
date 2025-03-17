@@ -16,7 +16,7 @@ import { getProjects } from "@/services/projectService.ts";
 import Timeline from "@/components/reference-profile/Timeline.tsx";
 
 function ProjectPage() {
-  const [projects, setProjects] = useState<Project[]>([]);
+  const [_, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

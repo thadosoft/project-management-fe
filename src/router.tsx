@@ -9,7 +9,6 @@ import CreateEmployeePage from "./pages/Employee/CreateEmployeePage";
 import SearchEmployeePage from "./pages/Employee/SearchEmployeePage";
 import DetailEmployeePage from "./pages/Employee/DetailEmployeePage";
 import CreateMaterialCategoryPage from "./pages/material/catergories/CreateMaterialCategoryPage";
-import SearchMaterialCategoryPage from "./pages/material/catergories/SearchMaterialCategoryPage";
 import CreateMaterialPage from "./pages/material/materials/CreateMaterialPage";
 import SearchMaterialPage from "./pages/material/materials/SearchMaterialPage";
 import AttendancePage from "./pages/AttendancePage";
@@ -38,7 +37,6 @@ export const router = createBrowserRouter([
 
   // material
   { path: "/create-material-categories", element: <CreateMaterialCategoryPage /> },
-  { path: "/search-material-categories", element: <SearchMaterialCategoryPage /> },
   { path: "/create-material", element: <CreateMaterialPage /> },
   { path: "/search-material", element: <SearchMaterialPage /> },
 

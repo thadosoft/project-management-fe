@@ -13,7 +13,7 @@ import {
 import { Separator } from "@/components/ui/separator.tsx";
 import { useEffect, useState } from "react";
 import { getByProfileReferenceId } from "@/services/reference-profile/profileReferenceService";
-import { downloadFile, uploadFile } from "@/services/reference-profile/uploadFIleService";
+import { downloadFile } from "@/services/reference-profile/uploadFIleService";
 import { createReferenceProfileLink } from "@/services/reference-profile/profileReferenceLinkService";
 import { ReferenceLinkRequest } from "@/models/ReferenceLinkRequest";
 import other from "@/assets/imgs/other.png";
@@ -25,7 +25,7 @@ function ReferenceProfileDetail() {
     const { id } = useParams();
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [uploading, setUploading] = useState(false);
-    const [message, setMessage] = useState("");
+    const [_, setMessage] = useState("");
     const [newLink, setNewLink] = useState<string>("");
     const [newDescription, setNewDescription] = useState<string>("");
 
@@ -50,7 +50,7 @@ function ReferenceProfileDetail() {
         setMessage("");
 
         try {
-            const response = await uploadFile(Number(id), selectedFile);
+            // const response = await uploadFile(Number(id), selectedFile);
             setMessage("Upload thành công!");
 
             setSelectedFile(null);

@@ -11,7 +11,7 @@ function SearchMaterialPage() {
 
     const [totalPages, setTotalPages] = useState(0);
     const [page, setPage] = useState(0);
-    const [size, setSize] = useState(10);
+    const [size, _] = useState(10);
     const [materials, setMaterials] = useState<Material[]>([]);
     const [searchRequest, setSearchRequest] = useState({
         name: "",

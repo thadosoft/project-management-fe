@@ -4,7 +4,6 @@ import {
   GalleryVerticalEnd,
   Map,
   PieChart,
-  Warehouse,
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"

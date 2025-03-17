@@ -3,7 +3,7 @@ import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/s
 import { AppSidebar } from "@/components/app-sidebar.tsx";
 import { Separator } from "@/components/ui/separator.tsx";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb.tsx";
-import { CreateBOM, MaterialQuotationRequest, QuotationResponse, SearchQuotationRequest } from "@/models/Bom";
+import { CreateBOM, MaterialQuotationRequest } from "@/models/Bom";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { addBom, getBomById, printBOMPDF, updateBom } from "@/services/ecommerce/bomService";
@@ -13,7 +13,7 @@ function CreateBOMPage() {
     const navigate = useNavigate();
     const { id } = useParams();
     const isUpdate = !!id;
-    const [errors, setErrors] = useState<{ [key: string]: string }>({});
+    const [errors, _] = useState<{ [key: string]: string }>({});
     const [isEditing, setIsEditing] = useState(!isUpdate);
     const [loading, setLoading] = useState(false);
     const [existingData, setExistingData] = useState<CreateBOM | null>(null);
@@ -69,6 +69,8 @@ function CreateBOMPage() {
                     setExistingData(data);
                     setBom(data);
                     setOriginalBom(data);
+                    console.log(loading);
+
                 }
             });
         }

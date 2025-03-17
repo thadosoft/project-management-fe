@@ -36,22 +36,6 @@ function CreateMaterialPage() {
         }));
     };
 
-    const handleEdit = (mat: Material) => {
-        setMaterial({
-            name: mat.name,
-            sku: mat.sku,
-            inventoryCategoryId: mat.inventoryCategoryId ?? undefined,
-            unit: mat.unit,
-            quantityInStock: mat.quantityInStock,
-            reorderLevel: mat.reorderLevel,
-            location: mat.location,
-            purchasePrice: mat.purchasePrice,
-            sellingPrice: mat.sellingPrice
-        });
-        setEditingMaterialId(mat.id || null);
-    };
-
-
     const handleDelete = async (id: number) => {
         try {
             await deleteMaterial(id);

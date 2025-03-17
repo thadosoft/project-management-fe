@@ -11,7 +11,7 @@ const ReferenceProfilePopup: React.FC<ReferenceProfilePopupProps> = ({ isOpen, o
     const [module, setModule] = useState("");
     const [description, setDescription] = useState("");
     const [referenceFiles, setReferenceFiles] = useState<File[]>([]);
-    const [referenceLinks, setReferenceLinks] = useState<string[]>([]);
+    const [referenceLinks, _] = useState<string[]>([]);
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files) {

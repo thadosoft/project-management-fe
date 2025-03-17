@@ -18,7 +18,7 @@ import tokenService from "@/services/tokenService.ts";
 
 function SearchEmployeePage() {
   const [employees, setEmployees] = useState<Employee[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [_, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [page, setPage] = useState<number>(0);
   const [size] = useState<number>(10);
@@ -35,6 +35,7 @@ function SearchEmployeePage() {
       searchEmployees(searchParams, page, size)
       .then(response => {
         setEmployees(response.content);
+        setTotalPages(response.totalPages);
       })
     }
   }, []);

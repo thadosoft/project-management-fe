@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router";
+import { useParams } from "react-router";
 import { getEmployeeById, printPDF, updateEmployee } from "@/services/employee/EmployeeService";
-import { Employee, EmployeeRequest } from "@/models/EmployeeRequest";
+import { Employee } from "@/models/EmployeeRequest";
 import { ThemeProvider } from "@/components/theme-provider";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
@@ -24,7 +24,6 @@ const ZoomModal = ({ imageUrl, closeModal }: { imageUrl: string; closeModal: () 
 function DetailEmployeePage() {
     const { id } = useParams();
     const isUpdate = !!id;
-    const navigate = useNavigate();
     const [isEditing, setIsEditing] = useState(!isUpdate);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
