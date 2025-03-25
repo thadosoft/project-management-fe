@@ -3,9 +3,9 @@ import tokenService from "@/services/tokenService.ts";
 import { EmployeeRequest, SearchEmployeeRequest } from "@/models/EmployeeRequest";
 
 // Fetch all employees with pagination and sorting
-export const getAllEmployees = async (page: number, size: number): Promise<any | null> => {
+export const getAllEmployees = async (): Promise<any | null> => {
   try {
-    return await fetchData<any>(`employees?page=${page}&size=${size}&sort=createdAt,desc`, "GET", tokenService.accessToken);
+    return await fetchData<any>(`employees`, "GET", tokenService.accessToken);
   } catch (error) {
     console.error("Error fetching employees:", error);
     return null;

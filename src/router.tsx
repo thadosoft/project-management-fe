@@ -14,6 +14,7 @@ import SearchMaterialPage from "./pages/material/materials/SearchMaterialPage";
 import AttendancePage from "./pages/AttendancePage";
 import CreateBOMPage from "./pages/ecommerce/CreateBOMPage";
 import SearchBOMPage from "./pages/ecommerce/SearchBOMPage";
+import AttendancePageMonth from "./pages/AttendancePageMonth";
 
 export const router = createBrowserRouter([
   // {path: "/", element: <App/>},
@@ -26,6 +27,7 @@ export const router = createBrowserRouter([
   { path: "/detail-employee/:id", element: <DetailEmployeePage /> },
   { path: "/search-employee", element: <SearchEmployeePage /> },
   { path: "/attendance-sheet", element: <AttendancePage /> },
+  { path: "/attendance-sheet-month", element: <AttendancePageMonth /> },
 
   // coordinate
   { path: "/project", element: <ProjectPage /> },

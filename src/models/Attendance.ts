@@ -50,3 +50,21 @@ export interface CaptureDatumResponse {
 
     createdAt: string
 }
+
+export interface AttendanceByDayRequest {
+
+    date: string;
+
+    empCode: string;
+}
+
+export interface AttendanceByDayResponse {
+    
+    employeeCode: string;
+
+    fullName: string;
+
+    workDate: string;
+
+    totalShifts: number;
+}

@@ -31,6 +31,10 @@ export interface Employee {
     currentAddress: string;
 
     description: string;
+
+    employeeCode: string;
+
+    totalLeave: number;
 }
 
 export interface EmployeeRequest {
@@ -63,6 +67,10 @@ export interface EmployeeRequest {
     currentAddress: string;
 
     description: string;
+
+    employeeCode: string;
+
+    totalLeave: number;
 }
 
 export interface SearchEmployeeRequest {

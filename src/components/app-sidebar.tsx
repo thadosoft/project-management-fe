@@ -22,6 +22,7 @@ import { CgProfile } from "react-icons/cg";
 
 import { SiAudiotechnica } from "react-icons/si";
 import { PiFinnTheHuman } from "react-icons/pi";
+import { url } from "inspector"
 
 const data = {
   user: {
@@ -83,6 +84,21 @@ const data = {
         {
           title: "Bảng chấm công",
           url: "/attendance-sheet",
+        },
+        {
+          title: "Lịch tính lương",
+          url: "#",
+          isActive: true,
+          items: [
+            {
+              title: "Bảng chấm công tháng",
+              url: "/attendance-sheet-month",
+            },
+            {
+              title: "Tìm kiếm bảng chấm công",
+              url: "/attendance-sheet",
+            },
+          ]
         },
         {
           title: "Thông tin nhân viên",
