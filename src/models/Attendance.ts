@@ -59,7 +59,7 @@ export interface AttendanceByDayRequest {
 }
 
 export interface AttendanceByDayResponse {
-    
+
     employeeCode: string;
 
     fullName: string;
@@ -67,4 +67,88 @@ export interface AttendanceByDayResponse {
     workDate: string;
 
     totalShifts: number;
+}
+
+export interface CreateAttendanceResponse {
+    employeeCode: string;
+
+    fullName: string;
+
+    month: number;
+
+    year: number;
+
+    startDate: string;
+
+    endDate: string;
+
+    dailyAttendance: DailyAttendance[];
+}
+
+export interface DailyAttendance {
+    workDate: string;
+
+    shiftName: string;
+
+    totalShift: number;
+
+    checkInTime: string;
+
+    checkOutTime: string;
+
+    otherCheckins: string;
+}
+
+export interface AttendanceByPeriodResponse {
+
+    id: number;
+
+    employeeCode: string;
+
+    fullName: string;
+
+    month: number;
+
+    year: number;
+
+    startDate: string;
+
+    endDate: string;
+
+    dailyAttendance: DailyAttendanceResponse[];
+}
+
+export interface DailyAttendanceResponse {
+
+    id: number;
+
+    workDate: string;
+
+    shiftName: string;
+
+    totalShift: number;
+
+    checkInTime: string;
+
+    checkOutTime: string;
+
+    otherCheckins: string;
+}
+
+export interface UpdateDailyAttendance {
+    employeeCode: string;
+
+    fullName: string;
+
+    workDate: string;
+
+    shiftName: string;
+
+    totalShifts: string;
+
+    morningCheckin: string;
+
+    afternoonCheckout: string;
+
+    otherCheckins: string;
 }

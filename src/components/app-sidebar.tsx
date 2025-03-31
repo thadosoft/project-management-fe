@@ -91,12 +91,12 @@ const data = {
           isActive: true,
           items: [
             {
-              title: "Bảng chấm công tháng",
-              url: "/attendance-sheet-month",
+              title: "Tạo bảng chấm công tháng",
+              url: "/create-attendance-sheet",
             },
             {
               title: "Tìm kiếm bảng chấm công",
-              url: "/attendance-sheet",
+              url: "/search-attendance-sheet",
             },
           ]
         },

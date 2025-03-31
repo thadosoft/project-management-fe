@@ -1,6 +1,6 @@
 import { fetchData } from "@/utils/api.ts";
 import tokenService from "@/services/tokenService.ts";
-import { Attendance, AttendanceByDayRequest, AttendanceByDayResponse } from "@/models/Attendance";
+import { Attendance, AttendanceByDayRequest, AttendanceByDayResponse, CreateAttendanceResponse, UpdateDailyAttendance } from "@/models/Attendance";
 
 // Search employees by parameters (full name, career)
 export const searchAttendances = async (
@@ -21,21 +21,54 @@ export const searchAttendances = async (
     }
 };
 
-
 export const getAttendance = async (
     request: AttendanceByDayRequest
-): Promise<number | null> => {  // Change the return type to number
+): Promise<number | null> => {
     try {
-        // Fetch attendance data, expecting a BigDecimal in response
         const attendanceData: number = (await fetchData<number | null, AttendanceByDayRequest>(
             "attendances",
             "POST",
             tokenService.accessToken,
             request
-        )) ?? 0; // Provide a default value of 0 if null is returned
-        return attendanceData;  // Return the BigDecimal value
+        )) ?? 0;
+        return attendanceData;
     } catch (error) {
         console.error("Error fetching attendance data:", error);
-        return null;  // Return null if there is an error
+        return null;
     }
 };
+
+export const getMonthlyAttendance = async (
+    year: number,
+    month: number
+): Promise<CreateAttendanceResponse[] | null> => {
+    try {
+        return await fetchData<CreateAttendanceResponse[] | null>(
+            `attendances/monthly?year=${year}&month=${month}`,
+            "GET",
+            tokenService.accessToken
+        );
+    } catch (error) {
+        console.error("Error fetching monthly attendance:", error);
+        return null;
+    }
+};
+
+export const CreateMonthlyAttendance = async (year: number, month: number): Promise<any> => {
+    try {
+        return await fetchData<any>(`attendances/create/monthly?year=${year}&month=${month}`, "POST", tokenService.accessToken);
+    }
+    catch (error) {
+        return null;
+    }
+};
+
+
+export const updateAttendance = async (id: number, attendance: UpdateDailyAttendance): Promise<void | null> => {
+    try {
+      await fetchData<void, UpdateDailyAttendance>(`attendances/${id}`, "PUT", tokenService.accessToken, attendance);
+    } catch (error) {
+      console.error("Error updating attendance:", error);
+    }
+  };
+  

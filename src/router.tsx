@@ -11,10 +11,12 @@ import DetailEmployeePage from "./pages/Employee/DetailEmployeePage";
 import CreateMaterialCategoryPage from "./pages/material/catergories/CreateMaterialCategoryPage";
 import CreateMaterialPage from "./pages/material/materials/CreateMaterialPage";
 import SearchMaterialPage from "./pages/material/materials/SearchMaterialPage";
-import AttendancePage from "./pages/AttendancePage";
+import AttendancePage from "./pages/attendance/AttendancePage";
 import CreateBOMPage from "./pages/ecommerce/CreateBOMPage";
 import SearchBOMPage from "./pages/ecommerce/SearchBOMPage";
-import AttendancePageMonth from "./pages/AttendancePageMonth";
+import CreateAttendancePage from "./pages/attendance/CreateAttendancePage";
+import SearchAttandancePage from "./pages/attendance/SearchAttandancePage";
+import AttendancePageMonthDetail from "./pages/attendance/AttendancePageMonthDetail";
 
 export const router = createBrowserRouter([
   // {path: "/", element: <App/>},
@@ -27,8 +29,10 @@ export const router = createBrowserRouter([
   { path: "/detail-employee/:id", element: <DetailEmployeePage /> },
   { path: "/search-employee", element: <SearchEmployeePage /> },
   { path: "/attendance-sheet", element: <AttendancePage /> },
-  { path: "/attendance-sheet-month", element: <AttendancePageMonth /> },
-
+  { path: "/create-attendance-sheet", element: <CreateAttendancePage /> },
+  { path: "/search-attendance-sheet", element: <SearchAttandancePage /> },
+  { path: "/attandance-month-detail/:id", element: <AttendancePageMonthDetail /> },
+  
   // coordinate
   { path: "/project", element: <ProjectPage /> },
   { path: "/project/task/:projectId", element: <TaskPage /> },
