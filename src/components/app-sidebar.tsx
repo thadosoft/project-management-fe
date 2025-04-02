@@ -22,7 +22,6 @@ import { CgProfile } from "react-icons/cg";
 
 import { SiAudiotechnica } from "react-icons/si";
 import { PiFinnTheHuman } from "react-icons/pi";
-import { url } from "inspector"
 
 const data = {
   user: {
@@ -36,16 +35,6 @@ const data = {
       logo: GalleryVerticalEnd,
       plan: "Enterprise",
     },
-    // {
-    //   name: "Acme Corp.",
-    //   logo: AudioWaveform,
-    //   plan: "Startup",
-    // },
-    // {
-    //   name: "Evil Corp.",
-    //   logo: Command,
-    //   plan: "Free",
-    // },
   ],
   navApp: [
     {
@@ -53,26 +42,6 @@ const data = {
       url: "/home",
       icon: Home,
     },
-    // {
-    //   title: "Inbox",
-    //   url: "#",
-    //   icon: Inbox,
-    // },
-    // {
-    //   title: "Calendar",
-    //   url: "#",
-    //   icon: Calendar,
-    // },
-    // {
-    //   title: "Search",
-    //   url: "#",
-    //   icon: Search,
-    // },
-    // {
-    //   title: "Settings",
-    //   url: "#",
-    //   icon: Settings,
-    // },
   ],
   navMain: [
     {
@@ -155,16 +124,6 @@ const data = {
           title: "Quản lý loại vật tư",
           icon: SiAudiotechnica,
           url: "/create-material-categories",
-          // items: [
-          //   {
-          //     title: "Thêm loại vật tư",
-          //     url: "/create-material-categories",
-          //   },
-          //   {
-          //     title: "Tìm kiếm loại vật tư",
-          //     url: "/search-material-categories",
-          //   },
-          // ],
         },
         {
           title: "Quản lý vật tư",
@@ -181,6 +140,22 @@ const data = {
               url: "/search-material",
             },
           ],
+        },
+      ],
+    },
+    {
+      title: "Kho",
+      icon: SiAudiotechnica,
+      url: "#",
+      isActive: true,
+      items: [
+        {
+          title: "Nhập/Xuất kho",
+          url: "/warehouse-entry",
+        },
+        {
+          title: "Tìm kiếm nhập / kho kho",
+          url: "/search-warehouse",
         },
       ],
     },

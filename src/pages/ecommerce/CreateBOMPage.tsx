@@ -218,7 +218,7 @@ function CreateBOMPage() {
                                             )}
                                         </div>
                                         <div>
-                                            <label className="text-xs xs:text-sm font-medium mb-1">Người báo giá</label>
+                                            <label className="text-xs xs:text-sm font-medium mb-1">Người nhận báo giá</label>
 
                                             {isEditing ? (
                                                 <input
@@ -249,7 +249,7 @@ function CreateBOMPage() {
                                             {errors.category && <p className="text-red-500 text-sm">{errors.category}</p>}
                                         </div>
                                         <div>
-                                            <label className="text-xs xs:text-sm font-medium mb-1">Email</label>
+                                            <label className="text-xs xs:text-sm font-medium mb-1">Email nhận báo giá</label>
                                             {isEditing ? (
                                                 <input
                                                     type="email"
@@ -263,7 +263,7 @@ function CreateBOMPage() {
                                             )}
                                         </div>
                                         <div>
-                                            <label className="text-xs xs:text-sm font-medium mb-1">Tel</label>
+                                            <label className="text-xs xs:text-sm font-medium mb-1">SĐT</label>
 
                                             {isEditing ? (
                                                 <input
@@ -278,7 +278,7 @@ function CreateBOMPage() {
                                             )}
                                         </div>
                                         <div>
-                                            <label className="text-xs xs:text-sm font-medium mb-1">Tel</label>
+                                            <label className="text-xs xs:text-sm font-medium mb-1">SĐT nhận báo giá</label>
                                             {isEditing ? (
                                                 <input
                                                     type="text"
@@ -306,7 +306,7 @@ function CreateBOMPage() {
                                             )}
                                         </div>
                                         <div>
-                                            <label className="text-xs xs:text-sm font-medium mb-1">Địa chỉ(Address)</label>
+                                            <label className="text-xs xs:text-sm font-medium mb-1">Địa chỉ nhận báo giá(Address)</label>
                                             {isEditing ? (
                                                 <input
                                                     type="text"
@@ -334,7 +334,7 @@ function CreateBOMPage() {
                                             )}
                                         </div>
                                         <div>
-                                            <label className="text-xs xs:text-sm font-medium mb-1">Website</label>
+                                            <label className="text-xs xs:text-sm font-medium mb-1">Website nhận báo giá</label>
                                             {isEditing ? (
                                                 <input
                                                     type="text"

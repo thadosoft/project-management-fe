@@ -75,7 +75,9 @@ function CreateEmployeePage() {
         emergencyContact: "",
         houseHoldAddress: "",
         currentAddress: "",
-        description: ""
+        description: "",
+        employeeCode: "",
+        totalLeave: 0
     });
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {

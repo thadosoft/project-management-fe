@@ -15,8 +15,6 @@ export const fetchBlobData = async (url: string, method: string, token?: string 
   return await response.blob();
 };
 
-
-
 export const fetchData = async <T, B = unknown>(
   url: string,
   method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE" = "GET",
@@ -35,7 +33,7 @@ export const fetchData = async <T, B = unknown>(
     });
 
     if (!response.ok) {
-      let errorMessage = `Failed to fetch: ${response.status}`;
+      let errorMessage = `Error ${response.status}: ${response.statusText}`;
       try {
         const errorResponse = await response.json();
         errorMessage += ` - ${errorResponse.message || "Unknown error"}`;

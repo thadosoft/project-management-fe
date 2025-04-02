@@ -4,32 +4,35 @@ import { AppSidebar } from "@/components/app-sidebar.tsx";
 import { Separator } from "@/components/ui/separator.tsx";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb.tsx";
 import { useEffect, useState } from "react";
-import { deleteMaterial, searchMaterials } from "@/services/material/materialService";
-import { Material } from "@/models/Material";
-
-function SearchMaterialPage() {
+import { deletInventoryTransaction, searchInventoryTransactions } from "@/services/warehouse/warehouseEntryService";
+import { InventoryTransactionResponse, SearchInventoryTransactionRequest } from "@/models/Warehouse";
+import { useNavigate } from "react-router";
+function SearchWarehousePage() {
 
     const [totalPages, setTotalPages] = useState(0);
     const [page, setPage] = useState(0);
     const [size, _] = useState(10);
-    const [materials, setMaterials] = useState<Material[]>([]);
-    const [searchRequest, setSearchRequest] = useState({
-        name: "",
-        sku: ""
+    const [materials, setMaterials] = useState<InventoryTransactionResponse[]>([]);
+    const navigate = useNavigate();
+    const [searchRequest, setSearchRequest] = useState<SearchInventoryTransactionRequest>({
+        transactionType: "",
+        processedBy: "",
+        receiver: "",
     });
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-        setSearchRequest((prev) => ({
-            ...prev,
-            [name]: value,
+        setSearchRequest((prevParams) => ({
+            ...prevParams,
+            [name]: value === "" ? null : value,
         }));
     };
+
 
     const handleSearch = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const result = await searchMaterials(searchRequest, page, size);
+            const result = await searchInventoryTransactions(searchRequest, page, size);
             if (result) {
                 setMaterials(result.content);
                 setTotalPages(result.totalPages);
@@ -42,7 +45,7 @@ function SearchMaterialPage() {
     useEffect(() => {
         const fetchMaterials = async () => {
             try {
-                const data = await searchMaterials(searchRequest, page, size);
+                const data = await searchInventoryTransactions(searchRequest, page, size);
                 if (data) {
                     setMaterials(data.content);
                     setTotalPages(data.totalPages);
@@ -56,15 +59,22 @@ function SearchMaterialPage() {
 
 
     const handleDelete = async (id: number) => {
+        const confirmDelete = window.confirm("Bạn có chắc chắn muốn xóa phiếu nhập / xuất kho này không?");
+        if (!confirmDelete) return;
+
         try {
-            await deleteMaterial(id);
-            alert("Xóa loại vật tư thành công!");
-            const data = await searchMaterials(searchRequest, page, size);
+            await deletInventoryTransaction(id);
+            alert("Xóa phiếu nhập / xuất kho thành công!");
+            const data = await searchInventoryTransactions(searchRequest, page, size);
             setMaterials(data.content);
         } catch (error) {
             console.error("Lỗi khi xóa:", error);
             alert("Xóa thất bại!");
         }
+    };
+
+    const handleViewDetail = (employeeId: number) => {
+        navigate(`/warehouse-update/${employeeId}`);
     };
 
     return (
@@ -85,34 +95,44 @@ function SearchMaterialPage() {
                                     </BreadcrumbItem>
                                     <BreadcrumbSeparator className="hidden md:block" />
                                     <BreadcrumbItem>
-                                        <BreadcrumbPage>Tìm kiếm vật tư</BreadcrumbPage>
+                                        <BreadcrumbPage>Tìm kiếm phiéu nhập/xuất kho</BreadcrumbPage>
                                     </BreadcrumbItem>
                                 </BreadcrumbList>
                             </Breadcrumb>
                         </div>
                     </header>
                     <div className="p-10">
-                        <h3 className="text-3xl mb-8 sm:text-5xl leading-normal font-extrabold tracking-tight text-white">Tìm kiếm <span className="text-indigo-600">vật tư</span></h3>
+                        <h3 className="text-3xl mb-8 sm:text-5xl leading-normal font-extrabold tracking-tight text-white">Tìm kiếm phiếu <span className="text-indigo-600">nhập / xuất kho</span></h3>
                         <section className="mx-auto border border-[#4D7C0F] rounded-lg p-8">
                             <form onSubmit={handleSearch}>
                                 <div className="space-y-6">
                                     <div className="grid sm:grid-cols-3 grid-cols-1 gap-6">
                                         <div>
                                             <label className="text-xs xs:text-sm font-medium mb-1">Tên vật tư</label>
+                                            <select name="transactionType" value={searchRequest.transactionType}
+                                                onChange={handleInputChange}
+                                                className="h-[50px] rounded-[5px] text-xs xs:text-sm border text-black border-[#D1D5DB] w-full px-2 pl-4 font-light">
+                                                <option value="">Tất cả</option>
+                                                <option value="NK">Nhập kho</option>
+                                                <option value="XK">Xuất kho</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="text-xs xs:text-sm font-medium mb-1">Người gửi</label>
                                             <input
                                                 type="text"
-                                                name="name"
-                                                value={searchRequest.name}
+                                                name="processedBy"
+                                                value={searchRequest.processedBy}
                                                 onChange={handleInputChange}
                                                 className="h-[50px] rounded-[5px] text-xs xs:text-sm border text-black border-[#D1D5DB] w-full px-2 pl-4 font-light"
                                             />
                                         </div>
                                         <div>
-                                            <label className="text-xs xs:text-sm font-medium mb-1">Mã vật tư</label>
+                                            <label className="text-xs xs:text-sm font-medium mb-1">Người nhận</label>
                                             <input
                                                 type="text"
-                                                name="sku"
-                                                value={searchRequest.sku}
+                                                name="receiver"
+                                                value={searchRequest.receiver}
                                                 onChange={handleInputChange}
                                                 className="h-[50px] rounded-[5px] text-xs xs:text-sm border text-black border-[#D1D5DB] w-full px-2 pl-4 font-light"
                                             />
@@ -137,31 +157,13 @@ function SearchMaterialPage() {
                                         Tên vật tư
                                     </th>
                                     <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Mã vật tư - SKU
-                                    </th>
-                                    <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Loại vật tư
-                                    </th>
-                                    <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Đơn vị
-                                    </th>
-                                    <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Số lượng
                                     </th>
-                                    {/* <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Số lượng cảnh báo
-                                    </th> */}
                                     <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Vị trí
+                                        Người gửi
                                     </th>
                                     <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Giá mua
-                                    </th>
-                                    <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Giá bán
-                                    </th>
-                                    <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Trạng thái
+                                        Người nhận
                                     </th>
                                     <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         #
@@ -169,21 +171,16 @@ function SearchMaterialPage() {
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
-                                {materials.map((material, index) => (
-                                    <tr key={material.id}>
+                                {materials.map((inventoryTrans, index) => (
+                                    <tr key={inventoryTrans.id}>
                                         <td className="px-6 py-4 whitespace-nowrap">{page * size + index + 1}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap">{material?.name}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap">{material?.sku}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap">{material?.inventoryCategory.name}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap">{material?.unit}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap">{material?.quantityInStock}</td>
-                                        {/* <td className="px-6 py-4 whitespace-nowrap">{material?.reorderLevel}</td> */}
-                                        <td className="px-6 py-4 whitespace-nowrap">{material?.location}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap">{material?.purchasePrice}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap">{material?.sellingPrice}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap">{material?.status}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{inventoryTrans?.itemName}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{inventoryTrans?.quantity}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{inventoryTrans?.processedBy}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{inventoryTrans?.receiver}</td>
                                         <td className="px-6 py-4 whitespace-nowrap flex justify-center">
-                                            <button onClick={() => material?.id && handleDelete(material.id)} className="text-red-600 hover:text-red-900 ml-4">Xoá</button>
+                                            <a onClick={() => handleViewDetail(inventoryTrans.id)} className="text-indigo-600 hover:text-indigo-900 cursor-pointer">Xem chi tiết</a>
+                                            <button onClick={() => inventoryTrans?.id && handleDelete(inventoryTrans.id)} className="text-red-600 hover:text-red-900 ml-4">Xoá</button>
                                         </td>
                                     </tr>
                                 ))}
@@ -213,4 +210,4 @@ function SearchMaterialPage() {
     );
 }
 
-export default SearchMaterialPage;
+export default SearchWarehousePage;

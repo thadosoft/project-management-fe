@@ -11,11 +11,11 @@ import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbP
 const ZoomModal = ({ imageUrl, closeModal }: { imageUrl: string; closeModal: () => void }) => {
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-            <div className="relative">
+            <div className="relative w-1/2">
                 <button onClick={closeModal} className="absolute top-0 right-0 text-white px-2 m-2">
                     X
                 </button>
-                <img src={imageUrl} className="max-w-full max-h-full object-contain" />
+                <img src={imageUrl} className="mx-auto w-auto object-contain" />
             </div>
         </div>
     );

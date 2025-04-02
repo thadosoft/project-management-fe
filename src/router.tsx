@@ -17,6 +17,8 @@ import SearchBOMPage from "./pages/ecommerce/SearchBOMPage";
 import CreateAttendancePage from "./pages/attendance/CreateAttendancePage";
 import SearchAttandancePage from "./pages/attendance/SearchAttandancePage";
 import AttendancePageMonthDetail from "./pages/attendance/AttendancePageMonthDetail";
+import WarehouseEntryPage from "./pages/warehouse/WarehouseEntryPage";
+import SearchWarehousePage from "./pages/warehouse/SearchWarehousePage";
 
 export const router = createBrowserRouter([
   // {path: "/", element: <App/>},
@@ -50,5 +52,12 @@ export const router = createBrowserRouter([
   { path: "/create-bom", element: < CreateBOMPage /> },
   { path: "/update-bom/:id", element: < CreateBOMPage /> },
   { path: "/search-bom", element: < SearchBOMPage /> },
+
+  // kho
+  { path: "/warehouse-entry", element: < WarehouseEntryPage /> },
+  { path: "/search-warehouse", element: < SearchWarehousePage /> },
+  { path: "/warehouse-update/:id", element: < WarehouseEntryPage /> },
+  
+
 
 ]);
