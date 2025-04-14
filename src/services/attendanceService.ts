@@ -1,6 +1,6 @@
 import { fetchData } from "@/utils/api.ts";
 import tokenService from "@/services/tokenService.ts";
-import { Attendance, AttendanceByDayRequest, AttendanceByDayResponse, CreateAttendanceResponse, UpdateDailyAttendance } from "@/models/Attendance";
+import { Attendance, AttendanceByDayRequest, CreateAttendanceResponse, UpdateDailyAttendance } from "@/models/Attendance";
 
 // Search employees by parameters (full name, career)
 export const searchAttendances = async (

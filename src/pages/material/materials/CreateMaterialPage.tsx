@@ -5,41 +5,51 @@ import { Separator } from "@/components/ui/separator.tsx";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb.tsx";
 import { Material } from "@/models/Material";
 import { useEffect, useState } from "react";
-import { createMaterial, deleteMaterial, getAllMaterial, updateMaterial } from "@/services/material/materialService";
+import { createMaterial, deleteMaterial, getAllMaterial, getMaterialById, updateMaterial } from "@/services/material/materialService";
 import { getAllMaterialCategory } from "@/services/material/materialCategoryService";
 import { MaterialCategory } from "@/models/MaterialCategory";
 
 function CreateMaterialPage() {
-
     const [categories, setCategories] = useState<MaterialCategory[]>([]);
     const [editingMaterialId, setEditingMaterialId] = useState<number | null>(null);
     const [materials, setMaterials] = useState<Material[]>([]);
-    const [material, setMaterial] = useState<Material>({});
+    const [material, setMaterial] = useState<Material>({
+        name: "",
+        sku: "",
+        inventoryCategoryId: undefined,
+        unit: "",
+        quantityInStock: 0,
+        reorderLevel: 0,
+        location: "",
+        purchasePrice: 0,
+        sellingPrice: 0,
+    });
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
     const validateForm = () => {
         let newErrors: { [key: string]: string } = {};
 
-        if (!material.inventoryCategoryId) newErrors.category = "Loại không được để trống";
+        if (!material.name) newErrors.name = "Tên vật tư không được để trống";
+        if (!material.sku) newErrors.sku = "Mã vật tư không được để trống";
+        if (!material.inventoryCategoryId) newErrors.category = "Loại vật tư không được để trống";
+        if (!material.unit) newErrors.unit = "Đơn vị không được để trống";
 
         setErrors(newErrors);
-
-        return Object.keys(newErrors).length === 0; // Trả về true nếu không có lỗi
+        return Object.keys(newErrors).length === 0;
     };
-
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-        setMaterial((prevParams) => ({
-            ...prevParams,
-            [name]: value,
+        setMaterial((prev) => ({
+            ...prev,
+            [name]: name === "inventoryCategoryId" ? Number(value) : value,
         }));
     };
 
     const handleDelete = async (id: number) => {
         try {
             await deleteMaterial(id);
-            alert("Xóa loại vật tư thành công!");
+            alert("Xóa vật tư thành công!");
             const data = await getAllMaterial();
             setMaterials(data || []);
         } catch (error) {
@@ -48,6 +58,30 @@ function CreateMaterialPage() {
         }
     };
 
+    const handleEdit = async (material: Material) => {
+        if (material.id) {
+            try {
+                const data = await getMaterialById(material.id);
+                if (data) {
+                    setMaterial({
+                        name: data.name || "",
+                        sku: data.sku || "",
+                        inventoryCategoryId: data.inventoryCategory?.id || undefined,
+                        unit: data.unit || "",
+                        quantityInStock: data.quantityInStock || 0,
+                        reorderLevel: data.reorderLevel || 0,
+                        location: data.location || "",
+                        purchasePrice: data.purchasePrice || 0,
+                        sellingPrice: data.sellingPrice || 0,
+                    });
+                    setEditingMaterialId(material.id);
+                }
+            } catch (error) {
+                console.error("Lỗi khi lấy vật tư:", error);
+                alert("Không thể lấy thông tin vật tư!");
+            }
+        }
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -57,45 +91,65 @@ function CreateMaterialPage() {
             return;
         }
 
+        const payload = {
+            name: material.name,
+            sku: material.sku,
+            inventoryCategoryId: material.inventoryCategoryId,
+            unit: material.unit,
+            quantityInStock: material.quantityInStock,
+            reorderLevel: material.reorderLevel,
+            location: material.location,
+            purchasePrice: material.purchasePrice,
+            sellingPrice: material.sellingPrice,
+        };
+
+        console.log("Payload gửi lên:", payload);
+
         try {
             if (editingMaterialId) {
-                await updateMaterial(editingMaterialId, material);
-                alert("Cập nhật loại vật tư thành công!");
+                await updateMaterial(editingMaterialId, payload);
+                alert("Cập nhật vật tư thành công!");
             } else {
                 await createMaterial(material);
-                alert("Thêm loại vật tư thành công!");
+                alert("Thêm vật tư thành công!");
             }
 
+            // Reset form
             setMaterial({
-                name: "", sku: "", inventoryCategoryId: undefined, unit: "",
-                quantityInStock: 0, reorderLevel: 0, location: "", purchasePrice: 0, sellingPrice: 0
+                name: "",
+                sku: "",
+                inventoryCategoryId: undefined,
+                unit: "",
+                quantityInStock: 0,
+                reorderLevel: 0,
+                location: "",
+                purchasePrice: 0,
+                sellingPrice: 0,
             });
-
             setEditingMaterialId(null);
+            setErrors({});
 
+            // Làm mới danh sách vật tư
             const data = await getAllMaterial();
+            console.log("Dữ liệu sau khi làm mới:", data);
             setMaterials(data || []);
         } catch (error) {
-            console.error("Lỗi:", error);
+            console.error("Lỗi khi cập nhật/thêm vật tư:", error);
             alert("Đã xảy ra lỗi!");
         }
     };
 
-
     useEffect(() => {
-
         const fetchCategories = async () => {
             const data = await getAllMaterialCategory();
             if (data) {
                 setCategories(data);
             }
         };
-        fetchCategories();
 
-        const fetchmaterials = async () => {
+        const fetchMaterials = async () => {
             try {
                 const data = await getAllMaterial();
-
                 if (data) {
                     setMaterials(data);
                 }
@@ -104,11 +158,12 @@ function CreateMaterialPage() {
             }
         };
 
-        fetchmaterials();
+        fetchCategories();
+        fetchMaterials();
     }, []);
 
-
     return (
+        // ... Phần JSX không thay đổi, giữ nguyên như mã bạn đã cung cấp
         <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
             <SidebarProvider>
                 <AppSidebar />
@@ -120,9 +175,7 @@ function CreateMaterialPage() {
                             <Breadcrumb>
                                 <BreadcrumbList>
                                     <BreadcrumbItem className="hidden md:block">
-                                        <BreadcrumbLink href="/home">
-                                            Home
-                                        </BreadcrumbLink>
+                                        <BreadcrumbLink href="/home">Home</BreadcrumbLink>
                                     </BreadcrumbItem>
                                     <BreadcrumbSeparator className="hidden md:block" />
                                     <BreadcrumbItem>
@@ -133,7 +186,9 @@ function CreateMaterialPage() {
                         </div>
                     </header>
                     <div className="p-10">
-                        <h3 className="text-3xl mb-8 sm:text-5xl leading-normal font-extrabold tracking-tight text-white">Quản lý <span className="text-indigo-600">vật tư</span></h3>
+                        <h3 className="text-3xl mb-8 sm:text-5xl leading-normal font-extrabold tracking-tight text-white">
+                            Quản lý <span className="text-indigo-600">vật tư</span>
+                        </h3>
                         <section className="mx-auto border border-[#4D7C0F] rounded-lg p-8">
                             <form onSubmit={handleSubmit}>
                                 <div className="space-y-6">
@@ -143,20 +198,22 @@ function CreateMaterialPage() {
                                             <input
                                                 type="text"
                                                 name="name"
-                                                value={material.name}
+                                                value={material.name || ""}
                                                 onChange={handleInputChange}
                                                 className="h-[50px] rounded-[5px] text-xs xs:text-sm border text-black border-[#D1D5DB] w-full px-2 pl-4 font-light"
                                             />
+                                            {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
                                         </div>
                                         <div>
                                             <label className="text-xs xs:text-sm font-medium mb-1">Mã vật tư</label>
                                             <input
                                                 type="text"
                                                 name="sku"
-                                                value={material.sku}
+                                                value={material.sku || ""}
                                                 onChange={handleInputChange}
                                                 className="h-[50px] rounded-[5px] text-xs xs:text-sm border text-black border-[#D1D5DB] w-full px-2 pl-4 font-light"
                                             />
+                                            {errors.sku && <p className="text-red-500 text-sm">{errors.sku}</p>}
                                         </div>
                                         <div>
                                             <label className="text-xs xs:text-sm font-medium mb-1">Loại vật tư</label>
@@ -180,17 +237,18 @@ function CreateMaterialPage() {
                                             <input
                                                 type="text"
                                                 name="unit"
-                                                value={material.unit}
+                                                value={material.unit || ""}
                                                 onChange={handleInputChange}
                                                 className="h-[50px] rounded-[5px] text-xs xs:text-sm border text-black border-[#D1D5DB] w-full px-2 pl-4 font-light"
                                             />
+                                            {errors.unit && <p className="text-red-500 text-sm">{errors.unit}</p>}
                                         </div>
                                         <div>
                                             <label className="text-xs xs:text-sm font-medium mb-1">Số lượng</label>
                                             <input
                                                 type="number"
                                                 name="quantityInStock"
-                                                value={material.quantityInStock}
+                                                value={material.quantityInStock || 0}
                                                 onChange={handleInputChange}
                                                 className="h-[50px] rounded-[5px] text-xs xs:text-sm border text-black border-[#D1D5DB] w-full px-2 pl-4 font-light"
                                             />
@@ -200,7 +258,7 @@ function CreateMaterialPage() {
                                             <input
                                                 type="number"
                                                 name="reorderLevel"
-                                                value={material.reorderLevel}
+                                                value={material.reorderLevel || 0}
                                                 onChange={handleInputChange}
                                                 className="h-[50px] rounded-[5px] text-xs xs:text-sm border text-black border-[#D1D5DB] w-full px-2 pl-4 font-light"
                                             />
@@ -210,7 +268,7 @@ function CreateMaterialPage() {
                                             <input
                                                 type="text"
                                                 name="location"
-                                                value={material.location}
+                                                value={material.location || ""}
                                                 onChange={handleInputChange}
                                                 className="h-[50px] rounded-[5px] text-xs xs:text-sm border text-black border-[#D1D5DB] w-full px-2 pl-4 font-light"
                                             />
@@ -220,7 +278,7 @@ function CreateMaterialPage() {
                                             <input
                                                 type="number"
                                                 name="purchasePrice"
-                                                value={material.purchasePrice}
+                                                value={material.purchasePrice || 0}
                                                 onChange={handleInputChange}
                                                 className="h-[50px] rounded-[5px] text-xs xs:text-sm border text-black border-[#D1D5DB] w-full px-2 pl-4 font-light"
                                             />
@@ -230,7 +288,7 @@ function CreateMaterialPage() {
                                             <input
                                                 type="number"
                                                 name="sellingPrice"
-                                                value={material.sellingPrice}
+                                                value={material.sellingPrice || 0}
                                                 onChange={handleInputChange}
                                                 className="h-[50px] rounded-[5px] text-xs xs:text-sm border text-black border-[#D1D5DB] w-full px-2 pl-4 font-light"
                                             />
@@ -238,7 +296,10 @@ function CreateMaterialPage() {
                                     </div>
                                 </div>
                                 <div className="mt-8 pt-6 border-t border-gray-200 flex justify-between">
-                                    <button type="submit" className="bg-[#4D7C0F] hover:bg-[#79ac37] rounded-[5px] p-[13px_25px] text-white">
+                                    <button
+                                        type="submit"
+                                        className="bg-[#4D7C0F] hover:bg-[#79ac37] rounded-[5px] p-[13px_25px] text-white"
+                                    >
                                         {editingMaterialId ? "Cập nhật" : "Thêm"}
                                     </button>
                                 </div>
@@ -292,7 +353,7 @@ function CreateMaterialPage() {
                                         <td className="px-6 py-4 whitespace-nowrap">{index + 1}</td>
                                         <td className="px-6 py-4 whitespace-nowrap">{material.name}</td>
                                         <td className="px-6 py-4 whitespace-nowrap">{material.sku}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap">{material.inventoryCategory.name}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{material.inventoryCategory?.name || "N/A"}</td>
                                         <td className="px-6 py-4 whitespace-nowrap">{material.unit}</td>
                                         <td className="px-6 py-4 whitespace-nowrap">{material.quantityInStock}</td>
                                         <td className="px-6 py-4 whitespace-nowrap">{material.reorderLevel}</td>
@@ -301,8 +362,18 @@ function CreateMaterialPage() {
                                         <td className="px-6 py-4 whitespace-nowrap">{material.sellingPrice}</td>
                                         <td className="px-6 py-4 whitespace-nowrap">{material.status}</td>
                                         <td className="px-6 py-4 whitespace-nowrap flex justify-center">
-                                            {/* <button onClick={() => handleEdit(material)} className="text-blue-600 hover:text-blue-900">Edit</button> */}
-                                            <button onClick={() => material.id && handleDelete(material.id)} className="text-red-600 hover:text-red-900 ml-4">Xoá</button>
+                                            <button
+                                                onClick={() => handleEdit(material)}
+                                                className="text-blue-600 hover:text-blue-900"
+                                            >
+                                                Edit
+                                            </button>
+                                            <button
+                                                onClick={() => material.id && handleDelete(material.id)}
+                                                className="text-red-600 hover:text-red-900 ml-4"
+                                            >
+                                                Xoá
+                                            </button>
                                         </td>
                                     </tr>
                                 ))}

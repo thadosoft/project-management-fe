@@ -5,7 +5,7 @@ import { Separator } from "@/components/ui/separator.tsx";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb.tsx";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
-import { InventoryTransactionResponse, InventoryTransactionRequest } from "@/models/Warehouse";
+import { InventoryTransactionResponse } from "@/models/Warehouse";
 import { getAllMaterial } from "@/services/material/materialService";
 import { creatInventoryTransaction, getInventoryTransactionByProjectId, updateInventoryTransaction } from "@/services/warehouse/warehouseEntryService";
 
@@ -62,11 +62,11 @@ function WarehouseEntryPage() {
     const validateForm = () => {
         let newErrors: { [key: string]: string } = {};
 
-        if (!bom.itemId) newErrors.itemId = "Họ và tên không được để trống";
-        if (!bom.quantity || bom.quantity <= 0) newErrors.username = "Username không được để trống";
-        if (!bom.transactionDate) newErrors.transactionDate = "Email không được để trống";
-        if (!bom.processedBy.trim()) newErrors.processedBy = "Giới tính không được để trống";
-        if (!bom.receiver.trim()) newErrors.receiver = "Phân hệ không được để trống";
+        if (!bom.itemName) newErrors.itemName = "Tên không được để trống";
+        if (!bom.quantity || bom.quantity <= 0) newErrors.username = "Số lượng không được để trống";
+        if (!bom.transactionDate) newErrors.transactionDate = "Loại không được để trống";
+        if (!bom.processedBy.trim()) newErrors.processedBy = "Người gửi không được để trống";
+        if (!bom.receiver.trim()) newErrors.receiver = "Người nhận không được để trống";
 
         setErrors(newErrors);
 

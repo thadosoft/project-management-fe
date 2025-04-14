@@ -269,12 +269,13 @@ export default function LoginPage() {
                     <span className="text-red-500 text-[12px]">
                         {loginStatus}
                     </span>
+                    <div className="text-right mt-2">
+                      <a href="/forgot-password" className="text-blue-500 text-sm hover:underline">Forgot Password?</a>
+                    </div>
                   </CardContent>
-                  {
-                    <CardFooter className="flex justify-center py-4">
-                      <Button onClick={handleLogin}>Login</Button>
-                    </CardFooter>
-                  }
+                  <CardFooter className="flex justify-center py-4">
+                    <Button onClick={handleLogin}>Login</Button>
+                  </CardFooter>
                 </Card>
               </TabsContent>
             </Tabs>

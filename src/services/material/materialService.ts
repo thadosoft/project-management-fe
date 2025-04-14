@@ -6,8 +6,8 @@ export const getAllMaterial = async (): Promise<any[] | null> => {
     return await fetchData<any[]>("inventory/materials", "GET", tokenService.accessToken);
 };
 
-export const getMaterialById = async (id: number): Promise<any[] | null> => {
-    return await fetchData<any[]>(`inventory/materials/${id}`, "GET", tokenService.accessToken);
+export const getMaterialById = async (id: number): Promise<Material | null> => {
+    return await fetchData<Material>(`inventory/materials/${id}`, "GET", tokenService.accessToken);
 };
 
 export const createMaterial = async (module: Material): Promise<any | null> => {

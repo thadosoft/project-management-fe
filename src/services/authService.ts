@@ -1,4 +1,4 @@
-import {fetchData} from "@/utils/api.ts";
+import { fetchData } from "@/utils/api.ts";
 import tokenService from "@/services/tokenService.ts";
 
 export const login = async (username: string, password: string): Promise<{ accessToken: string; refreshToken: string, id: string } | null> => {
@@ -24,7 +24,22 @@ export const logout = async (): Promise<void | null> => {
   return await fetchData<void>(`auth/logout`, "POST", tokenService.accessToken);
 };
 
-
 export const isTokenValidate = async (token: string): Promise<boolean | null> => {
   return await fetchData<boolean>(`auth/validate-token?token=${token}`, "POST", undefined);
+};
+
+export const verifyUsername = async (username: string): Promise<{ usernameExists: boolean; message: string } | null> => {
+  return await fetchData<
+      { usernameExists: boolean; message: string },
+      { username: string }
+  >
+  ("auth/forgot-password", "POST", undefined, { username });
+};
+
+export const resetPassword = async (username: string, password: string, confirmPassword: string): Promise<void | null> => {
+  return await fetchData<
+      void,
+      { username: string; password: string; confirmPassword: string }
+  >
+  ("auth/reset-password", "POST", undefined, { username, password, confirmPassword });
 };

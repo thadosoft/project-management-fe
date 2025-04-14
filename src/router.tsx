@@ -19,12 +19,17 @@ import SearchAttandancePage from "./pages/attendance/SearchAttandancePage";
 import AttendancePageMonthDetail from "./pages/attendance/AttendancePageMonthDetail";
 import WarehouseEntryPage from "./pages/warehouse/WarehouseEntryPage";
 import SearchWarehousePage from "./pages/warehouse/SearchWarehousePage";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 
 export const router = createBrowserRouter([
   // {path: "/", element: <App/>},
   { path: "/", element: <LoginPage /> },
   { path: "/home", element: <DashboardPage /> },
-  { path: "/login", element: <LoginPage /> },
+  { path: "/login", element: <LoginPage /> },  
+  { path: "/forgot-password", element: <ForgotPasswordPage /> },
+
+
+
 
   // hrm
   { path: "/create-employee", element: <CreateEmployeePage /> },
