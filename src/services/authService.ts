@@ -28,18 +28,10 @@ export const isTokenValidate = async (token: string): Promise<boolean | null> =>
   return await fetchData<boolean>(`auth/validate-token?token=${token}`, "POST", undefined);
 };
 
-export const verifyUsername = async (username: string): Promise<{ usernameExists: boolean; message: string } | null> => {
-  return await fetchData<
-      { usernameExists: boolean; message: string },
-      { username: string }
-  >
-  ("auth/forgot-password", "POST", undefined, { username });
-};
-
 export const resetPassword = async (username: string, password: string, confirmPassword: string): Promise<void | null> => {
   return await fetchData<
       void,
       { username: string; password: string; confirmPassword: string }
   >
-  ("auth/reset-password", "POST", undefined, { username, password, confirmPassword });
+  ("auth/forgot-password", "POST", undefined, { username, password, confirmPassword });
 };

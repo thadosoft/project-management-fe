@@ -1,8 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import LoginPage from "@/pages/LoginPage.tsx"; // Adjust path if needed
-import ForgotPasswordPage from "@/pages/ForgotPasswordPage.tsx"; // Adjust path if needed
+import LoginPage from "@/pages/LoginPage.tsx"; 
+import ForgotPasswordPage from "@/pages/ForgotPasswordPage.tsx"; 
 
-// Placeholder components (replace with actual components when available)
 const HomePage = () => <div>Home Page</div>;
 const ProjectPage = () => <div>Project Page</div>;
 

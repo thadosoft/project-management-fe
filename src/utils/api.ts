@@ -1,4 +1,6 @@
 export const BASE_API_URL = "http://localhost:8080/api/v1/";
+// export const BASE_API_URL = "https://little-rouge-fwd-britannica.trycloudflare.com/api/v1/";
+
 
 export const fetchBlobData = async (url: string, method: string, token?: string | null): Promise<Blob> => {
   const headers: HeadersInit = token ? { Authorization: `Bearer ${token ?? ""}` } : {};
