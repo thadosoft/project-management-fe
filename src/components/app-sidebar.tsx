@@ -114,37 +114,9 @@ const data = {
         },
       ],
     },
+    
     {
-      title: "Kỹ thuật",
-      icon: SiAudiotechnica,
-      url: "",
-      isActive: true,
-      items: [
-        {
-          title: "Quản lý loại vật tư",
-          icon: SiAudiotechnica,
-          url: "/create-material-categories",
-        },
-        {
-          title: "Quản lý vật tư",
-          icon: SiAudiotechnica,
-          url: "",
-          isActive: true,
-          items: [
-            {
-              title: "Thêm vật tư",
-              url: "/create-material",
-            },
-            {
-              title: "Tìm kiếm vật tư",
-              url: "/search-material",
-            },
-          ],
-        },
-      ],
-    },
-    {
-      title: "Kho",
+      title: "Kho công ty",
       icon: SiAudiotechnica,
       url: "#",
       isActive: true,
@@ -156,6 +128,40 @@ const data = {
         {
           title: "Tìm kiếm nhập / kho kho",
           url: "/search-warehouse",
+        },
+        {
+          title: "Kỹ thuật",
+          icon: SiAudiotechnica,
+          url: "",
+          isActive: true,
+          items: [
+            {
+              title: "Quản lý loại vật tư",
+              icon: SiAudiotechnica,
+              url: "/create-material-categories",
+            },
+            {
+              title: "Quản lý vật tư",
+              icon: SiAudiotechnica,
+              url: "",
+              isActive: true,
+              items: [
+                {
+                  title: "Quản lý loại vật tư",
+                  icon: SiAudiotechnica,
+                  url: "/create-material-categories",
+                },
+                {
+                  title: "Thêm vật tư",
+                  url: "/create-material",
+                },
+                {
+                  title: "Tìm kiếm vật tư",
+                  url: "/search-material",
+                },
+              ],
+            },
+          ],
         },
       ],
     },

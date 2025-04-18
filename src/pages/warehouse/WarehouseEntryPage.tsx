@@ -25,7 +25,7 @@ function WarehouseEntryPage() {
     const [bom, setBom] = useState<InventoryTransactionResponse>({
         id: 0,
         itemId: 0,
-        transactionType: "",
+        transactionType: "NK",
         itemName: "",
         quantity: 0,
         transactionDate: new Date().toISOString().slice(0, 10),
@@ -51,6 +51,7 @@ function WarehouseEntryPage() {
                     setExistingData(data);
                     setBom({
                         ...data,
+                        transactionType: data.transactionType || "",
                         transactionDate: data.transactionDate ? data.transactionDate.split("T")[0] : ""
                     });
                     setOriginalBom(data);
@@ -62,11 +63,13 @@ function WarehouseEntryPage() {
     const validateForm = () => {
         let newErrors: { [key: string]: string } = {};
 
-        if (!bom.itemName) newErrors.itemName = "Tên không được để trống";
-        if (!bom.quantity || bom.quantity <= 0) newErrors.username = "Số lượng không được để trống";
-        if (!bom.transactionDate) newErrors.transactionDate = "Loại không được để trống";
-        if (!bom.processedBy.trim()) newErrors.processedBy = "Người gửi không được để trống";
-        if (!bom.receiver.trim()) newErrors.receiver = "Người nhận không được để trống";
+        // if (!bom.itemName) newErrors.itemName = "Tên không được để trống";
+        if (!bom.quantity || bom.quantity <= 0) newErrors.quantity = "Số lượng không được để trống";
+        if (!bom.transactionType) newErrors.transactionType = "Loại không được để trống";
+        if (!bom.processedBy) newErrors.processedBy = "Người gửi không được để trống";
+        if (!bom.receiver) newErrors.receiver = "Người nhận không được để trống";
+
+        console.log(bom);
 
         setErrors(newErrors);
 
@@ -81,7 +84,6 @@ function WarehouseEntryPage() {
             console.warn("Có lỗi nhập liệu");
             return;
         }
-
 
         try {
             if (existingData?.id) {
