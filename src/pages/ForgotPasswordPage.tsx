@@ -18,7 +18,7 @@ export default function ForgotPasswordPage() {
     try {
       await resetPassword(username, newPassword, confirmPassword);
       setStatusMessage("Password reset successfully");
-      setTimeout(() => navigate("/"), 2000);
+      setTimeout(() => navigate("/"), 2000); // Redirect to login after 2 seconds
     } catch {
 
       setStatusMessage("Username does not exist");

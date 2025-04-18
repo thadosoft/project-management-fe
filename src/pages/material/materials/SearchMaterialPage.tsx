@@ -174,7 +174,7 @@ function SearchMaterialPage() {
                                         <td className="px-6 py-4 whitespace-nowrap">{page * size + index + 1}</td>
                                         <td className="px-6 py-4 whitespace-nowrap">{material?.name}</td>
                                         <td className="px-6 py-4 whitespace-nowrap">{material?.sku}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap">{material.inventoryCategory?.name || "N/A"}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{material?.name}</td>
                                         <td className="px-6 py-4 whitespace-nowrap">{material?.unit}</td>
                                         <td className="px-6 py-4 whitespace-nowrap">{material?.quantityInStock}</td>
                                         {/* <td className="px-6 py-4 whitespace-nowrap">{material?.reorderLevel}</td> */}

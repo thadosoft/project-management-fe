@@ -5,7 +5,7 @@ import { Separator } from "@/components/ui/separator.tsx";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb.tsx";
 import { Material } from "@/models/Material";
 import { useEffect, useState } from "react";
-import { createMaterial, deleteMaterial, getAllMaterial, getMaterialById, updateMaterial, getMaterialImages, uploadMaterialImage, ReferenceFileV2 } from "@/services/material/materialService";
+import { createMaterial, deleteMaterial, getAllMaterial, getMaterialById, updateMaterial } from "@/services/material/materialService";
 import { getAllMaterialCategory } from "@/services/material/materialCategoryService";
 import { MaterialCategory } from "@/models/MaterialCategory";
 
@@ -13,8 +13,6 @@ function CreateMaterialPage() {
     const [categories, setCategories] = useState<MaterialCategory[]>([]);
     const [editingMaterialId, setEditingMaterialId] = useState<number | null>(null);
     const [materials, setMaterials] = useState<Material[]>([]);
-    const [materialImages, setMaterialImages] = useState<{ [key: number]: ReferenceFileV2[] }>({});
-    const [previewUrls, setPreviewUrls] = useState<string[]>([]);
     const [material, setMaterial] = useState<Material>({
         name: "",
         sku: "",
@@ -27,7 +25,6 @@ function CreateMaterialPage() {
         sellingPrice: 0,
     });
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
-    const [imageFiles, setImageFiles] = useState<File[]>([]);
 
     const validateForm = () => {
         let newErrors: { [key: string]: string } = {};
@@ -49,26 +46,12 @@ function CreateMaterialPage() {
         }));
     };
 
-    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files) {
-            const filesArray = Array.from(e.target.files);
-            setImageFiles(filesArray);
-            setPreviewUrls(filesArray.map(file => URL.createObjectURL(file)));
-        }
-    };
-
     const handleDelete = async (id: number) => {
         try {
             await deleteMaterial(id);
             alert("Xóa vật tư thành công!");
             const data = await getAllMaterial();
             setMaterials(data || []);
-            // Remove images from state
-            setMaterialImages((prev) => {
-                const updated = { ...prev };
-                delete updated[id];
-                return updated;
-            });
         } catch (error) {
             console.error("Lỗi khi xóa:", error);
             alert("Xóa thất bại!");
@@ -92,12 +75,6 @@ function CreateMaterialPage() {
                         sellingPrice: data.sellingPrice || 0,
                     });
                     setEditingMaterialId(material.id);
-                    // Fetch images for the material being edited
-                    const images = await getMaterialImages(material.id);
-                    setMaterialImages((prev) => ({
-                        ...prev,
-                        [material.id!]: images,
-                    }));
                 }
             } catch (error) {
                 console.error("Lỗi khi lấy vật tư:", error);
@@ -127,43 +104,17 @@ function CreateMaterialPage() {
         };
 
         console.log("Payload gửi lên:", payload);
-        console.log(material.id);
-
 
         try {
-            let materialId: number;
-            let newMaterial: Material;
-
-
             if (editingMaterialId) {
                 await updateMaterial(editingMaterialId, payload);
                 alert("Cập nhật vật tư thành công!");
-                materialId = editingMaterialId;
-                newMaterial = { ...material, id: editingMaterialId };
             } else {
-                newMaterial = await createMaterial(material);
-                if (!newMaterial || !newMaterial.id) {
-                    throw new Error("Failed to create material");
-                }
+                await createMaterial(material);
                 alert("Thêm vật tư thành công!");
-                materialId = newMaterial.id;
             }
 
-            // Upload images 
-            if (imageFiles.length > 0) {
-                for (const file of imageFiles) {
-                    await uploadMaterialImage(materialId, file);
-                }
-                alert("Tải ảnh lên thành công!");
-
-                const images = await getMaterialImages(materialId);
-                setMaterialImages((prev) => ({
-                    ...prev,
-                    [materialId]: images,
-                }));
-            }
-
-            // Reset lai form
+            // Reset form
             setMaterial({
                 name: "",
                 sku: "",
@@ -177,14 +128,13 @@ function CreateMaterialPage() {
             });
             setEditingMaterialId(null);
             setErrors({});
-            setImageFiles([]);
 
-            // Refresh danh sachs vật tư
+            // Làm mới danh sách vật tư
             const data = await getAllMaterial();
             console.log("Dữ liệu sau khi làm mới:", data);
             setMaterials(data || []);
         } catch (error) {
-            console.error("Lỗi khi cập nhật/thêm vật tư hoặc tải ảnh:", error);
+            console.error("Lỗi khi cập nhật/thêm vật tư:", error);
             alert("Đã xảy ra lỗi!");
         }
     };
@@ -202,15 +152,6 @@ function CreateMaterialPage() {
                 const data = await getAllMaterial();
                 if (data) {
                     setMaterials(data);
-                    // fetch hình ảnh từ inventoryItemId của materials
-                    const imagesMap: { [key: number]: ReferenceFileV2[] } = {};
-                    for (const material of data) {
-                        if (material.id) {
-                            const images = await getMaterialImages(material.id);
-                            imagesMap[material.id] = images;
-                        }
-                    }
-                    setMaterialImages(imagesMap);
                 }
             } catch (error) {
                 console.error("Error fetching materials:", error);
@@ -222,11 +163,12 @@ function CreateMaterialPage() {
     }, []);
 
     return (
+        // ... Phần JSX không thay đổi, giữ nguyên như mã bạn đã cung cấp
         <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
             <SidebarProvider>
                 <AppSidebar />
                 <SidebarInset>
-                    <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
+                    <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrProjectPageer:h-12">
                         <div className="flex items-center gap-2 px-4">
                             <SidebarTrigger className="-ml-1" />
                             <Separator orientation="vertical" className="mr-2 h-4" />
@@ -351,42 +293,6 @@ function CreateMaterialPage() {
                                                 className="h-[50px] rounded-[5px] text-xs xs:text-sm border text-black border-[#D1D5DB] w-full px-2 pl-4 font-light"
                                             />
                                         </div>
-                                        <div>
-                                            <label className="text-xs xs:text-sm font-medium mb-1">Hình ảnh</label>
-                                            <input
-                                                type="file"
-                                                accept="image/*"
-                                                multiple
-                                                onChange={handleImageChange}
-                                                className="h-[50px] rounded-[5px] text-xs xs:text-sm border text-black border-[#D1D5DB] w-full px-2 pl-4 font-light"
-                                            />
-                                            {previewUrls.length > 0 && (
-                                                <div className="mt-2">
-                                                    <p className="text-sm text-gray-500">Xem trước:</p>
-                                                    <div className="flex gap-2">
-                                                        {previewUrls.map((url, idx) => (
-                                                            <img key={idx} src={url} className="h-16 w-16 object-cover rounded" />
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                            )}
-
-                                            {editingMaterialId && materialImages[editingMaterialId]?.length > 0 && (
-                                                <div className="mt-2">
-                                                    <p className="text-sm text-gray-500">Hình ảnh hiện tại:</p>
-                                                    <div className="flex gap-2">
-                                                        {materialImages[editingMaterialId].map((image) => (
-                                                            <img
-                                                                key={image.id}
-                                                                src={`/${image.filePath}`}
-                                                                alt={image.fileName}
-                                                                className="h-16 w-16 object-cover rounded"
-                                                            />
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </div>
                                     </div>
                                 </div>
                                 <div className="mt-8 pt-6 border-t border-gray-200 flex justify-between">
@@ -400,100 +306,79 @@ function CreateMaterialPage() {
                             </form>
                         </section>
 
-                        <div className="overflow-auto">
-                            <table className="min-w-full divide-y divide-gray-200 overflow-x-auto mt-12 text-center text-black">
-                                <thead className="bg-gray-50">
-                                    <tr>
-                                        <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            STT
-                                        </th>
-                                        <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Tên vật tư
-                                        </th>
-                                        <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Mã vật tư - SKU
-                                        </th>
-                                        <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Loại vật tư
-                                        </th>
-                                        <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Đơn vị
-                                        </th>
-                                        <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Số lượng
-                                        </th>
-                                        <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Số lượng cảnh báo
-                                        </th>
-                                        <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Vị trí
-                                        </th>
-                                        <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Giá mua
-                                        </th>
-                                        <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Giá bán
-                                        </th>
-                                        <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Trạng thái
-                                        </th>
-                                        <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Hình ảnh
-                                        </th>
-                                        <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            #
-                                        </th>
+                        <table className="min-w-full divide-y divide-gray-200 overflow-x-auto mt-12 text-center text-black">
+                            <thead className="bg-gray-50">
+                                <tr>
+                                    <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        STT
+                                    </th>
+                                    <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Tên vật tư
+                                    </th>
+                                    <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Mã vật tư - SKU
+                                    </th>
+                                    <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Loại vật tư
+                                    </th>
+                                    <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Đơn vị
+                                    </th>
+                                    <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Số lượng
+                                    </th>
+                                    <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Số lượng cảnh báo
+                                    </th>
+                                    <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Vị trí
+                                    </th>
+                                    <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Giá mua
+                                    </th>
+                                    <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Giá bán
+                                    </th>
+                                    <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Trạng thái
+                                    </th>
+                                    <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        #
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-200">
+                                {materials.map((material, index) => (
+                                    <tr key={material.id}>
+                                        <td className="px-6 py-4 whitespace-nowrap">{index + 1}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{material.name}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{material.sku}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{material.inventoryCategory?.name || "N/A"}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{material.unit}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{material.quantityInStock}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{material.reorderLevel}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{material.location}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{material.purchasePrice}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{material.sellingPrice}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{material.status}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap flex justify-center">
+                                            <button
+                                                onClick={() => handleEdit(material)}
+                                                className="text-blue-600 hover:text-blue-900"
+                                            >
+                                                Edit
+                                            </button>
+                                            <button
+                                                onClick={() => material.id && handleDelete(material.id)}
+                                                className="text-red-600 hover:text-red-900 ml-4"
+                                            >
+                                                Xoá
+                                            </button>
+                                        </td>
                                     </tr>
-                                </thead>
-                                <tbody className="bg-white divide-y divide-gray-200">
-                                    {materials.map((material, index) => (
-                                        <tr key={material.id}>
-                                            <td className="px-6 py-4 whitespace-nowrap">{index + 1}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap">{material.name}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap">{material.sku}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap">{material.inventoryCategory?.name || "N/A"}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap">{material.unit}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap">{material.quantityInStock}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap">{material.reorderLevel}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap">{material.location}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap">{material.purchasePrice}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap">{material.sellingPrice}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap">{material.status}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                {material.id && materialImages[material.id]?.length > 0 ? (
-                                                    <div className="flex gap-2 justify-center">
-                                                        {materialImages[material.id].map((image) => (
-                                                            <img
-                                                                key={image.id}
-                                                                src={`/${image.filePath}`}
-                                                                alt={image.fileName}
-                                                                className="h-12 w-12 object-cover rounded"
-                                                            />
-                                                        ))}
-                                                    </div>
-                                                ) : (
-                                                    "Không có ảnh"
-                                                )}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap flex justify-center">
-                                                <button
-                                                    onClick={() => handleEdit(material)}
-                                                    className="text-blue-600 hover:text-blue-900"
-                                                >
-                                                    Edit
-                                                </button>
-                                                <button
-                                                    onClick={() => material.id && handleDelete(material.id)}
-                                                    className="text-red-600 hover:text-red-900 ml-4"
-                                                >
-                                                    Xoá
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
+                                ))}
+                            </tbody>
+                        </table>
                     </div>
                 </SidebarInset>
             </SidebarProvider>
