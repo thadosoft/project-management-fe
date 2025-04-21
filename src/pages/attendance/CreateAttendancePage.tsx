@@ -19,7 +19,7 @@ function CreateAttendancePage() {
 
     const currentDate = new Date();
     const [year, setYear] = useState<number>(currentDate.getFullYear());
-    const [month, setMonth] = useState<number>(currentDate.getMonth() + 1); // Tháng trong JS bắt đầu từ 0, cần +1
+    const [month, setMonth] = useState<number>(currentDate.getMonth() + 1); // Tháng trong JS bắt đầu từ 0, cần +1//ok đã hiểu
     const [attendanceData, setAttendanceData] = useState<CreateAttendanceResponse[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
 
@@ -44,9 +44,11 @@ function CreateAttendancePage() {
     const getDaysInMonth = (year: number, month: number) => {
         const daysInMonth = new Date(year, month, 0).getDate();
         return Array.from({ length: daysInMonth }, (_, i) => {
-            const date = new Date(year, month - 1, i + 2);
+            const day = i + 1; 
+            const date = new Date(year, month - 1, day);
+            const formattedDate = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
             return {
-                date: date.toISOString().split("T")[0],
+                date: formattedDate,
                 dayOfWeek: ["CN", "T2", "T3", "T4", "T5", "T6", "T7"][date.getDay()]
             };
         });
@@ -125,45 +127,45 @@ function CreateAttendancePage() {
                                 <div className="min-w-full inline-block align-middle">
                                     <div className="overflow-hidden  border rounded-lg border-gray-300">
                                         <table className="table-auto min-w-full rounded-xl">
-                                            <thead className="border border-gray-300">
-                                                <tr className="bg-gray-50 border border-gray-300 text-center">
-                                                    <th scope="col" className="border border-gray-300 whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize w-8" rowSpan={2}>STT</th>
-                                                    <th scope="col" className="border border-gray-300 whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize w-[120px]" rowSpan={2}>Mã nhân viên</th>
-                                                    <th scope="col" className="border border-gray-300 whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize w-[100px]" rowSpan={2}>Họ và tên</th>
-                                                    {days.map((day, index) => (
-                                                        <th
-                                                            key={index}
-                                                            className={`border border-gray-300 text-center text-sm font-semibold text-gray-900 ${day.dayOfWeek === "CN" ? "bg-yellow-300" : ""
-                                                                }`}
-                                                        >
-                                                            {new Date(day.date).getUTCDate()}
-                                                        </th>
-                                                    ))}
-                                                </tr>
-                                                <tr className="bg-gray-50 border border-gray-300">
-                                                    {days.map((day, index) => (
-                                                        <th
-                                                            key={index}
-                                                            className={`border border-gray-300 text-center text-sm font-semibold text-gray-900 w-8 ${day.dayOfWeek === "CN" ? "bg-yellow-300" : ""
-                                                                }`}
-                                                        >
-                                                            {day.dayOfWeek}
-                                                        </th>
-                                                    ))}
-                                                </tr>
-                                            </thead>
-                                            <tbody className="divide-y divide-gray-300 border border-gray-300 text-black bg-white">
-                                                {attendanceData.map((employee, empIndex) => (
-                                                    <tr key={empIndex}>
-                                                        <td className="border border-gray-300 text-center">{empIndex + 1}</td>
-                                                        <td className="border border-gray-300 text-center">{employee.employeeCode}</td>
-                                                        <td className="border border-gray-300 px-5 whitespace-nowrap">{employee.fullName}</td>
-                                                        {days.map((day, index) => {
-                                                            const attendance = employee.dailyAttendance.find(a => a.workDate === day.date);
-
-                                                            const isSunday = day.dayOfWeek === "CN";
-                                                            return (
-                                                                <td
+                                        <thead className="border border-gray-300"> 
+                                            <tr className="bg-gray-50 border border-gray-300 text-center">
+                                                <th scope="col" className="border border-gray-300 whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize w-8" rowSpan={2}>STT</th>
+                                                <th scope="col" className="border border-gray-300 whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize w-[120px]" rowSpan={2}>Mã nhân viên</th>
+                                                <th scope="col" className="border border-gray-300 whitespace-nowrap text-sm leading-6 font-semibold text-gray-900 capitalize w-[100px]" rowSpan={2}>Họ và tên</th>
+                                                {days.map((day, index) => (
+                                                    <th
+                                                        key={index}
+                                                        className={`border border-gray-300 text-center text-sm font-semibold text-gray-900 ${day.dayOfWeek === "CN" ? "bg-yellow-300" : ""}`}
+                                                    >
+                                                        {index + 1}
+                                                    </th>
+                                                ))}
+                                            </tr>
+                                            <tr className="bg-gray-50 border border-gray-300">
+                                                {days.map((day, index) => (
+                                                    <th
+                                                        key={index}
+                                                        className={`border border-gray-300 text-center text-sm font-semibold text-gray-900 w-8 ${day.dayOfWeek === "CN" ? "bg-yellow-300" : ""}`}
+                                                    >
+                                                        {day.dayOfWeek}
+                                                    </th>
+                                                ))}
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-gray-300 border border-gray-300 text-black bg-white">
+                                            {attendanceData.map((employee, empIndex) => (
+                                                <tr key={empIndex}>
+                                                    <td className="border border-gray-300 text-center">{empIndex + 1}</td>
+                                                    <td className="border border-gray-300 text-center">{employee.employeeCode}</td>
+                                                    <td className="border border-gray-300 px-5 whitespace-nowrap">{employee.fullName}</td>
+                                                    {days.map((day, index) => {
+                                                    const attendance = employee.dailyAttendance.find(a => {
+                                                        // console.log(`Comparing day.date: ${day.date} with workDate: ${a.workDate}`); bị lệch data 1 ngày so với thực tế => sử dụng hàm căn chỉnh lại index ở cột và hàng
+                                                        return a.workDate === day.date;
+                                                    });
+                                                    const isSunday = day.dayOfWeek === "CN";
+                                                    return (
+                                                        <td
                                                                     key={index}
                                                                     className={`border border-gray-300 text-center ${
                                                                         isSunday

@@ -1,5 +1,14 @@
 import { MaterialCategory } from "./MaterialCategory";
 
+export interface ReferenceFile {
+    id: number;
+    fileName: string;
+    fileType: string;
+    fileSize: number;
+    filePath: string;
+    accessUrl: string;
+}
+
 export interface Material {
     id?: number;
     name: string;
@@ -8,11 +17,12 @@ export interface Material {
     inventoryCategoryId?: number;
     unit: string;
     quantityInStock: number;
-    reorderLevel: number;
+    // reorderLevel: number;
     location: string;
     purchasePrice: number;
-    sellingPrice: number;
+    // sellingPrice: number;
     status?: string;
+    images?: ReferenceFile[];
 }
 
 export interface UpdateMaterial {
@@ -21,10 +31,10 @@ export interface UpdateMaterial {
     inventoryCategoryId?: number;
     unit: string;
     quantityInStock: number;
-    reorderLevel: number;
+    // reorderLevel: number;
     location: string;
     purchasePrice: number;
-    sellingPrice: number;
+    // sellingPrice: number;
 }
 
 export interface SearchMaterialRequest {

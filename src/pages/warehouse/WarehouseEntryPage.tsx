@@ -8,6 +8,7 @@ import { useNavigate, useParams } from "react-router";
 import { InventoryTransactionResponse } from "@/models/Warehouse";
 import { getAllMaterial } from "@/services/material/materialService";
 import { creatInventoryTransaction, getInventoryTransactionByProjectId, updateInventoryTransaction } from "@/services/warehouse/warehouseEntryService";
+import { Material } from "@/models/Material";
 
 
 function WarehouseEntryPage() {
@@ -19,7 +20,7 @@ function WarehouseEntryPage() {
     const [existingData, setExistingData] = useState<InventoryTransactionResponse | null>(null);
     const [originalBom, setOriginalBom] = useState<InventoryTransactionResponse | null>(null);
     const [searchTerm, setSearchTerm] = useState("");
-    const [filteredMaterials, setFilteredMaterials] = useState<{ id: number; name: string }[]>([]);
+    const [filteredMaterials, setFilteredMaterials] = useState<Material[]>([]);
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
     const [bom, setBom] = useState<InventoryTransactionResponse>({
@@ -118,12 +119,17 @@ function WarehouseEntryPage() {
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
         const term = e.target.value;
         setSearchTerm(term);
+      
         if (term.length > 2) {
-            getAllMaterial().then((materials) => {
-                setFilteredMaterials(materials ? materials.filter((m) => m.name.toLowerCase().includes(term.toLowerCase())) : []);
-            });
+          getAllMaterial().then((materials) => {
+            const filtered = materials?.filter((m) =>
+              m.name.toLowerCase().includes(term.toLowerCase())
+            ) ?? [];
+      
+            setFilteredMaterials(filtered);
+          });
         } else {
-            setFilteredMaterials([]);
+          setFilteredMaterials([]);
         }
     };
 
@@ -213,12 +219,14 @@ function WarehouseEntryPage() {
                                                     {filteredMaterials.map((material) => (
                                                         <li
                                                             key={material.id}
-                                                            onClick={() => handleSelect(material)}
+                                                            onClick={() =>
+                                                            handleSelect({ id: material.id!, name: `${material.name} (${material.sku})` })
+                                                            }
                                                             className="p-2 cursor-pointer hover:bg-gray-200 text-black"
                                                         >
-                                                            {material.name}
+                                                            {material.name} <span className="text-sm text-gray-600">({material.sku})</span>
                                                         </li>
-                                                    ))}
+                                                        ))}
                                                 </ul>
                                             )}
                                             {errors.itemId && <p className="text-red-500 text-sm">{errors.itemId}</p>}

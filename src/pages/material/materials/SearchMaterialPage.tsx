@@ -8,10 +8,9 @@ import { deleteMaterial, searchMaterials } from "@/services/material/materialSer
 import { Material } from "@/models/Material";
 
 function SearchMaterialPage() {
-
     const [totalPages, setTotalPages] = useState(0);
     const [page, setPage] = useState(0);
-    const [size, _] = useState(10);
+    const [size] = useState(10);
     const [materials, setMaterials] = useState<Material[]>([]);
     const [searchRequest, setSearchRequest] = useState({
         name: "",
@@ -58,9 +57,10 @@ function SearchMaterialPage() {
     const handleDelete = async (id: number) => {
         try {
             await deleteMaterial(id);
-            alert("Xóa loại vật tư thành công!");
+            alert("Xóa vật tư thành công!");
             const data = await searchMaterials(searchRequest, page, size);
-            setMaterials(data.content);
+            setMaterials(data?.content || []);
+            setTotalPages(data?.totalPages || 0);
         } catch (error) {
             console.error("Lỗi khi xóa:", error);
             alert("Xóa thất bại!");
@@ -72,16 +72,14 @@ function SearchMaterialPage() {
             <SidebarProvider>
                 <AppSidebar />
                 <SidebarInset>
-                    <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrProjectPageer:h-12">
+                    <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
                         <div className="flex items-center gap-2 px-4">
                             <SidebarTrigger className="-ml-1" />
                             <Separator orientation="vertical" className="mr-2 h-4" />
                             <Breadcrumb>
                                 <BreadcrumbList>
                                     <BreadcrumbItem className="hidden md:block">
-                                        <BreadcrumbLink href="/home">
-                                            Home
-                                        </BreadcrumbLink>
+                                        <BreadcrumbLink href="/home">Home</BreadcrumbLink>
                                     </BreadcrumbItem>
                                     <BreadcrumbSeparator className="hidden md:block" />
                                     <BreadcrumbItem>
@@ -92,7 +90,9 @@ function SearchMaterialPage() {
                         </div>
                     </header>
                     <div className="p-10">
-                        <h3 className="text-3xl mb-8 sm:text-5xl leading-normal font-extrabold tracking-tight text-white">Tìm kiếm <span className="text-indigo-600">vật tư</span></h3>
+                        <h3 className="text-3xl mb-8 sm:text-5xl leading-normal font-extrabold tracking-tight text-white">
+                            Tìm kiếm <span className="text-indigo-600">vật tư</span>
+                        </h3>
                         <section className="mx-auto border border-[#4D7C0F] rounded-lg p-8">
                             <form onSubmit={handleSearch}>
                                 <div className="space-y-6">
@@ -134,13 +134,16 @@ function SearchMaterialPage() {
                                         STT
                                     </th>
                                     <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Hình ảnh
+                                    </th>
+                                    <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Tên vật tư
                                     </th>
                                     <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Mã vật tư - SKU
+                                        Mã serial
                                     </th>
                                     <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Loại vật tư
+                                        Nhóm vật tư
                                     </th>
                                     <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Đơn vị
@@ -148,18 +151,15 @@ function SearchMaterialPage() {
                                     <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Số lượng
                                     </th>
-                                    {/* <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Số lượng cảnh báo
-                                    </th> */}
                                     <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Vị trí
+                                        Nguồn gốc
                                     </th>
                                     <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Giá mua
                                     </th>
-                                    <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    {/* <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Giá bán
-                                    </th>
+                                    </th> */}
                                     <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Trạng thái
                                     </th>
@@ -172,18 +172,30 @@ function SearchMaterialPage() {
                                 {materials.map((material, index) => (
                                     <tr key={material.id}>
                                         <td className="px-6 py-4 whitespace-nowrap">{page * size + index + 1}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            {material.images && material.images.length > 0 ? (
+                                                <img
+                                                    src={material.images[0].accessUrl}
+                                                    alt={material.name}
+                                                    className="max-w-[50px] max-h-[50px] object-contain"
+                                                />
+                                            ) : (
+                                                "Không có hình"
+                                            )}
+                                        </td>
                                         <td className="px-6 py-4 whitespace-nowrap">{material?.name}</td>
                                         <td className="px-6 py-4 whitespace-nowrap">{material?.sku}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap">{material?.name}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{material?.inventoryCategory?.name || "N/A"}</td>
                                         <td className="px-6 py-4 whitespace-nowrap">{material?.unit}</td>
                                         <td className="px-6 py-4 whitespace-nowrap">{material?.quantityInStock}</td>
-                                        {/* <td className="px-6 py-4 whitespace-nowrap">{material?.reorderLevel}</td> */}
                                         <td className="px-6 py-4 whitespace-nowrap">{material?.location}</td>
                                         <td className="px-6 py-4 whitespace-nowrap">{material?.purchasePrice}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap">{material?.sellingPrice}</td>
+                                        {/* <td className="px-6 py-4 whitespace-nowrap">{material?.sellingPrice}</td> */}
                                         <td className="px-6 py-4 whitespace-nowrap">{material?.status}</td>
                                         <td className="px-6 py-4 whitespace-nowrap flex justify-center">
-                                            <button onClick={() => material?.id && handleDelete(material.id)} className="text-red-600 hover:text-red-900 ml-4">Xoá</button>
+                                            <button onClick={() => material?.id && handleDelete(material.id)} className="text-red-600 hover:text-red-900 ml-4">
+                                                Xoá
+                                            </button>
                                         </td>
                                     </tr>
                                 ))}

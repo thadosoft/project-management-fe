@@ -114,17 +114,13 @@ const data = {
         },
       ],
     },
+    
     {
-      title: "Kỹ thuật",
+      title: "Kho công ty",
       icon: SiAudiotechnica,
-      url: "",
+      url: "#",
       isActive: true,
       items: [
-        {
-          title: "Quản lý loại vật tư",
-          icon: SiAudiotechnica,
-          url: "/create-material-categories",
-        },
         {
           title: "Quản lý vật tư",
           icon: SiAudiotechnica,
@@ -132,7 +128,12 @@ const data = {
           isActive: true,
           items: [
             {
-              title: "Thêm vật tư",
+              title: "Loại vật tư",
+              icon: SiAudiotechnica,
+              url: "/create-material-categories",
+            },
+            {
+              title: "Vật tư",
               url: "/create-material",
             },
             {
@@ -141,21 +142,22 @@ const data = {
             },
           ],
         },
-      ],
-    },
-    {
-      title: "Kho",
-      icon: SiAudiotechnica,
-      url: "#",
-      isActive: true,
-      items: [
+        
         {
-          title: "Nhập/Xuất kho",
-          url: "/warehouse-entry",
-        },
-        {
-          title: "Tìm kiếm nhập / kho kho",
-          url: "/search-warehouse",
+          title: "Quản lý kho",
+          icon: SiAudiotechnica,
+          url: "",
+          isActive: true,
+          items: [
+            {
+              title: "Nhập/Xuất kho",
+              url: "/warehouse-entry",
+            },
+            {
+              title: "Tìm kiếm nhập/xuất kho",
+              url: "/search-warehouse",
+            },
+          ],
         },
       ],
     },
@@ -228,6 +230,28 @@ const data = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const userRole = localStorage.getItem("role") || "USER";
+  console.log("User role in AppSidebar:", userRole);
+
+  const rolePermissions: { [key: string]: string[] } = {
+    TECHNICAL: ["Kho công ty", "Hồ sơ tham khảo"],
+    INVENTORY: ["Kho công ty"],
+    USER: ["Hồ sơ tham khảo"], 
+    OFM: ["HRM(Office & Facility Management)", "Thông tin nhân viên", "Kinh doanh", "Hồ sơ tham khảo"], 
+    SALE: ["Kinh doanh", "Hồ sơ tham khảo"],
+    PM: ["Điều vận", "Hồ sơ tham khảo"]
+  };
+
+  const allowedMenus = rolePermissions[userRole.toUpperCase()] || [];
+
+  const filteredNavMain = data.navMain.filter((item) => {
+    if (allowedMenus.length > 0) {
+      return allowedMenus.includes(item.title);
+    }
+    return true;//trả về tất cả danh mục
+  });
+
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
@@ -235,13 +259,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavApp items={data.navApp} />
-        <NavMain items={data.navMain} />
-        {/*<NavProjects projects={data.projects}/>*/}
+        <NavMain items={filteredNavMain} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
-  )
+  );
 }

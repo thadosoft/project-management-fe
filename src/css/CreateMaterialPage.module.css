@@ -1,0 +1,86 @@
+/* CreateMaterialPage.module.css */
+.table :global(.ant-table) {
+    background: #e5e7eb !important;
+    color: #1f2937 !important;
+    border-radius: 0.5rem !important;
+    overflow: hidden !important;
+    font-family: 'Inter', sans-serif !important;
+  }
+  
+  .table :global(.ant-table-thead th) {
+    background: #d1d5db !important;
+    color: #1f2937 !important;
+    font-weight: 700 !important;
+    text-align: center !important;
+    border-bottom: 2px solid #9ca3af !important;
+    padding: 12px !important;
+  }
+  
+  .table :global(.ant-table-tbody td) {
+    background: #e5e7eb !important;
+    color: #1f2937 !important;
+    border-bottom: 1px solid #9ca3af !important;
+    padding: 10px !important;
+    font-size: 14px !important;
+  }
+  
+  .table :global(.ant-table-tbody tr:nth-child(even) td) {
+    background: #f3f4f6 !important;
+  }
+  
+  .table :global(.ant-table-row:hover td) {
+    background: #d1d5db !important;
+  }
+  
+  .table :global(.ant-table-tbody .ant-btn) {
+    border-radius: 4px !important;
+    padding: 4px 12px !important;
+    font-weight: 500 !important;
+  }
+  
+  .table :global(.ant-table-tbody .ant-btn-primary) {
+    background: #4D7C0F !important;
+    border-color: #4D7C0F !important;
+  }
+  
+  .table :global(.ant-table-tbody .ant-btn-danger) {
+    background: #dc2626 !important;
+    border-color: #dc2626 !important;
+  }
+  
+  .table :global(.ant-table-tbody .ant-btn-primary:hover) {
+    background: #1d4ed8 !important;
+    border-color: #1d4ed8 !important;
+  }
+  
+  .table :global(.ant-table-tbody .ant-btn-danger:hover) {
+    background: #b91c1c !important;
+    border-color: #b91c1c !important;
+  }
+  
+  .table :global(.ant-table-container) {
+    border: 2px solid #9ca3af !important;
+  }
+  
+  .table :global(.ant-table-pagination) {
+    background: #e5e7eb !important;
+    color: #1f2937 !important;
+    padding: 16px !important;
+  }
+  
+  .table :global(.ant-table-pagination .ant-pagination-item a),
+  .table :global(.ant-table-pagination .ant-pagination-prev button),
+  .table :global(.ant-table-pagination .ant-pagination-next button) {
+    color: #1f2937 !important;
+  }
+  
+  .table :global(.ant-table-pagination .ant-pagination-item-active a) {
+    background: #4D7C0F !important;
+    border-color: #4D7C0F !important;
+    color: #ffffff !important;
+  }
+  
+  .table :global(.ant-table-tbody td img) {
+    border: 1px solid #9ca3af !important;
+    border-radius: 4px !important;
+  }
