@@ -14,6 +14,9 @@ export interface Assignment {
   medias: Media[];
   modifiedDate: string;
   createdDate: string;
+  status_type: string;
+  start_date?: string;
+  end_date?: string;
 }
 
 export interface AssignmentRequest {
@@ -25,5 +28,8 @@ export interface AssignmentRequest {
   taskId?: string;
   assignerId?: string;
   receiverId?: string;
+  status_type?: string;
+  start_date?: string;
+  end_date?: string;
 }
 

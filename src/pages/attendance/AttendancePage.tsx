@@ -46,7 +46,6 @@ function AttendancePage() {
         }));
     };
 
-    // Function to validate Check-in and Check-out based on 12:00 AM threshold
     const validateCheckInOut = (times: string[], date: string) => {
         const noonThreshold = new Date(`${date}T12:00:00`);
         let hasCheckIn = false;

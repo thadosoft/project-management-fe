@@ -1,5 +1,5 @@
-// export const BASE_API_URL = "http://localhost:8080/api/v1/";
-export const BASE_API_URL = "https://headphones-political-planning-hungarian.trycloudflare.com/api/v1/";
+export const BASE_API_URL = "http://localhost:8080/api/v1/";
+// export const BASE_API_URL = "https://headphones-political-planning-hungarian.trycloudflare.com/api/v1/";
 
 export const fetchData = async <T, B = unknown>(
     url: string,

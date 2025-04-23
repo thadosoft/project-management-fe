@@ -67,7 +67,7 @@ export function ItemProject({
         <div className="flex flex-row mt-auto mr-auto items-center">
           <Avatar className="h-9 w-9 sm:h-8 sm:w-8 md:h-9 md:w-9">
             <AvatarImage src="/avatars/shadcn.jpg" alt={project.user.name}/>
-            <AvatarFallback>TT</AvatarFallback>
+            <AvatarFallback>PM</AvatarFallback>
           </Avatar>
           <div className="flex items-center pl-2 w-[10vw]">
           <span className="font-semibold text-sm sm:text-xs md:text-sm">

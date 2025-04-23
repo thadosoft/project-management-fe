@@ -6,6 +6,10 @@ export const getAssignments = async (): Promise<Assignment[] | null> => {
   return await fetchData<Assignment[]>("assignments", "GET", tokenService.accessToken);
 };
 
+export const getStatusType = async (): Promise<string[] | null> => {
+  return await fetchData<string[]>("assignments/statuses", "GET", tokenService.accessToken);
+};
+
 export const createAssignment = async (assignmentRequest: AssignmentRequest): Promise<Assignment | null> => {
   return await fetchData<Assignment>("assignments", "POST", tokenService.accessToken, assignmentRequest);
 };
