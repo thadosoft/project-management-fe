@@ -53,7 +53,7 @@ function WarehouseEntryPage() {
                         setExistingData(data);
                         setBom({
                             ...data,
-                            transactionDate: data.transactionDate ? data.transactionDate.split("T")[0] : ""
+                            transactionDate: new Date(Number(data.transactionDate) * 1000).toISOString().slice(0, 10)
                         });
                         setOriginalBom(data);
                     }
@@ -70,16 +70,16 @@ function WarehouseEntryPage() {
 
     const validateForm = () => {
         let newErrors: { [key: string]: string } = {};
-    
+
         if (!bom.itemId || bom.itemId <= 0) newErrors.itemId = "Vui lòng chọn vật tư hợp lệ";
         if (!bom.quantity || bom.quantity <= 0) newErrors.quantity = "Số lượng không được để trống";
         if (!bom.transactionType) newErrors.transactionType = "Loại không được để trống";
         if (!bom.transactionDate) newErrors.transactionDate = "Ngày không được để trống";
         if (!bom.processedBy.trim()) newErrors.processedBy = "Người gửi không được để trống";
         if (!bom.receiver.trim()) newErrors.receiver = "Người nhận không được để trống";
-    
+
         setErrors(newErrors);
-    
+
         return Object.keys(newErrors).length === 0;
     };
 
@@ -93,29 +93,28 @@ function WarehouseEntryPage() {
 
         try {
             setLoading(true);
-            // Make sure itemName is set correctly
             const dataToSubmit = {
-                ...bom,
-                itemName: searchTerm // Ensure itemName matches what's displayed
+                itemId: bom.itemId,
+                transactionType: bom.transactionType,
+                quantity: bom.quantity,
+                transactionDate: bom.transactionDate,
+                reason: bom.reason,
+                processedBy: bom.processedBy,
+                receiver: bom.receiver,
             };
-            
-            console.log("Dữ liệu gửi lên:", dataToSubmit);
 
             if (existingData?.id) {
-                if (JSON.stringify(dataToSubmit) !== JSON.stringify(originalBom)) {
-                    const response = await updateInventoryTransaction(existingData.id, dataToSubmit);
-                    if (response) {
-                        alert("Inventory Transaction updated successfully!");
-                        setOriginalBom(dataToSubmit);
-                    }
-                } else {
-                    alert("Không có thay đổi nào để lưu.");
+                // UPDATE
+                const response = await updateInventoryTransaction(existingData.id, dataToSubmit);
+                if (response) {
+                    alert("Inventory Transaction updated successfully!");
+                    setOriginalBom({ ...bom });
                 }
             } else {
-                const response = await creatInventoryTransaction(dataToSubmit);
+                // CREATE
+                const response = await creatInventoryTransaction(dataToSubmit); // bỏ id
                 if (response) {
                     alert("Inventory Transaction added successfully!");
-                    setOriginalBom(dataToSubmit);
                     navigate("/search-warehouse");
                 }
             }
@@ -132,26 +131,27 @@ function WarehouseEntryPage() {
         }
     };
 
+
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
         const term = e.target.value;
         setSearchTerm(term);
-      
+
         if (term.length > 2) {
-          getAllMaterial().then((materials) => {
-            const filtered = materials?.filter((m) =>
-              m.name.toLowerCase().includes(term.toLowerCase())
-            ) ?? [];
-      
-            setFilteredMaterials(filtered);
-          });
+            getAllMaterial().then((materials) => {
+                const filtered = materials?.filter((m) =>
+                    m.name.toLowerCase().includes(term.toLowerCase())
+                ) ?? [];
+
+                setFilteredMaterials(filtered);
+            });
         } else {
-          setFilteredMaterials([]);
+            setFilteredMaterials([]);
         }
     };
 
     const handleSelect = (material: { id: number; name: string }) => {
-        setBom({ 
-            ...bom, 
+        setBom({
+            ...bom,
             itemId: material.id,
             itemName: material.name // Make sure to update itemName in the state
         });
@@ -197,9 +197,9 @@ function WarehouseEntryPage() {
                                     </h3>
                                     <div>
                                         {isUpdate && !isEditing && (
-                                            <button 
+                                            <button
                                                 type="button"
-                                                onClick={handleEdit} 
+                                                onClick={handleEdit}
                                                 className="hover:bg-blue-600 bg-blue-500 text-white px-4 py-2 rounded"
                                             >
                                                 Cập nhật
@@ -207,9 +207,9 @@ function WarehouseEntryPage() {
                                         )}
 
                                         {isEditing && (
-                                            <button 
-                                                type="submit" 
-                                                disabled={loading} 
+                                            <button
+                                                type="submit"
+                                                disabled={loading}
                                                 className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded"
                                             >
                                                 Lưu
@@ -256,13 +256,13 @@ function WarehouseEntryPage() {
                                                             <li
                                                                 key={material.id}
                                                                 onClick={() =>
-                                                                handleSelect({ id: material.id!, name: `${material.name} (${material.sku})` })
+                                                                    handleSelect({ id: material.id!, name: `${material.name} (${material.sku})` })
                                                                 }
                                                                 className="p-2 cursor-pointer hover:bg-gray-200 text-black"
                                                             >
                                                                 {material.name} <span className="text-sm text-gray-600">({material.sku})</span>
                                                             </li>
-                                                            ))}
+                                                        ))}
                                                     </ul>
                                                 )}
                                                 {errors.itemId && <p className="text-red-500 text-sm">{errors.itemId}</p>}
@@ -358,7 +358,7 @@ function WarehouseEntryPage() {
                                                 ) : (
                                                     <p className="min-h-[50px] flex items-center justify-start rounded-[5px] text-xs xs:text-sm border text-white border-[#D1D5DB] w-full px-2 pl-4 font-light">{bom.reason}</p>
                                                 )}
-                                            </div>  
+                                            </div>
                                         </div>
                                     </div>
                                 </section>
