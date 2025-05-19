@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 import { createMaterial, deleteMaterial, getAllMaterial, getMaterialById, updateMaterial } from "@/services/material/materialService";
 import { getAllMaterialCategory } from "@/services/material/materialCategoryService";
 import { MaterialCategory } from "@/models/MaterialCategory";
-import { uploadMaterialImage, getImage } from "@/services/material/uploadFileService";
+import { getImage, uploadMultipleMaterialImages } from "@/services/material/uploadFileService";
 import { Table, Button, Space, Modal } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import styles from '../../../css/CreateMaterialPage.module.css';
@@ -17,7 +17,15 @@ function CreateMaterialPage() {
     const [categories, setCategories] = useState<MaterialCategory[]>([]);
     const [editingMaterialId, setEditingMaterialId] = useState<number | null>(null);
     const [materials, setMaterials] = useState<Material[]>([]);
-    const [imageUrls, setImageUrls] = useState<{ [key: number]: string }>({});
+    const [imageUrls, setImageUrls] = useState<Record<string, string>>({});
+    const [imageViewerVisible, setImageViewerVisible] = useState(false);
+    const [currentMaterial, setCurrentMaterial] = useState<Material | null>(null);
+    // Function to open the image viewer
+    const openImageViewer = (material: Material) => {
+        setCurrentMaterial(material);
+        setImageViewerVisible(true);
+        loadMultipleImages(material);
+    };
 
     const [material, setMaterial] = useState<Material>({
         name: "",
@@ -28,7 +36,7 @@ function CreateMaterialPage() {
         location: "",
         purchasePrice: 0,
     });
-    const [imageFile, setImageFile] = useState<File | null>(null);
+    const [imageFiles, setImageFiles] = useState<File[]>([]);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
@@ -45,20 +53,49 @@ function CreateMaterialPage() {
         }
     };
 
+    const loadMultipleImages = async (material: Material) => {
+        if (!material || !material.images || material.images.length === 0) return;
+        
+        const newImageUrls: { [key: string]: string } = {};
+        
+        for (let i = 0; i < material.images.length; i++) {
+            const image = material.images[i];
+            try {
+                const filename = image.fileName || image.accessUrl.split('/').pop();
+                if (filename) {
+                    const blob = await getImage(filename);
+                    const objectUrl = URL.createObjectURL(blob);
+                    const key = `${material.id}_${i}`;
+                    newImageUrls[key] = objectUrl;
+                }
+            } catch (error) {
+                console.error(`Error loading image ${i} for material ${material.id}:`, error);
+            }
+        }
+        
+        setImageUrls(prev => ({ ...prev, ...newImageUrls }));
+    };
+
     const validateForm = () => {
         let newErrors: { [key: string]: string } = {};
-
+    
         if (!material.name) newErrors.name = "Tên vật tư không được để trống";
         if (!material.sku) newErrors.sku = "Mã serial không được để trống";
         if (!material.inventoryCategoryId) newErrors.category = "Loại vật tư không được để trống";
         if (!material.unit) newErrors.unit = "Đơn vị không được để trống";
-        if (imageFile && !imageFile.type.startsWith("image/")) {
-            newErrors.image = "Chỉ chấp nhận file hình ảnh";
+        
+        // Kiểm tra từng file trong danh sách
+        for (const file of imageFiles) {
+            if (!file.type.startsWith("image/")) {
+                newErrors.image = "Chỉ chấp nhận file hình ảnh";
+                break;
+            }
+            if (file.size > 10 * 1024 * 1024) {
+                newErrors.image = "Kích thước hình ảnh không được vượt quá 10MB";
+                break;
+            }
         }
-        if (imageFile && imageFile.size > 10 * 1024 * 1024) {
-            newErrors.image = "Kích thước hình ảnh không được vượt quá 10MB";
-        }
-
+    
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
@@ -72,14 +109,25 @@ function CreateMaterialPage() {
     };
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0] || null;
-        setImageFile(file);
-        if (file) {
-            const previewUrl = URL.createObjectURL(file);
-            setImagePreview(previewUrl);
-        } else {
+        const files = e.target.files;
+        if (!files || files.length === 0) {
+            setImageFiles([]);
             setImagePreview(null);
+            return;
         }
+        
+        // Lưu tất cả các file được chọn
+        const newFiles: File[] = [];
+        for (let i = 0; i < files.length; i++) {
+            newFiles.push(files[i]);
+        }
+        
+        setImageFiles(newFiles);
+        
+        // Chỉ hiển thị preview của hình ảnh đầu tiên
+        const firstFile = files[0];
+        const previewUrl = URL.createObjectURL(firstFile);
+        setImagePreview(previewUrl);
     };
 
     const handleDelete = async (id: number) => {
@@ -134,7 +182,8 @@ function CreateMaterialPage() {
                         location: data.location || "",
                         purchasePrice: data.purchasePrice || 0,
                     });
-                    setImageFile(null);
+                    // Thay setImageFile thành setImageFiles với một mảng rỗng
+                    setImageFiles([]);
                     setImagePreview(null);
                     setEditingMaterialId(material.id);
                 } else {
@@ -149,12 +198,12 @@ function CreateMaterialPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-
+    
         if (!validateForm()) {
             console.warn("Có lỗi nhập liệu");
             return;
         }
-
+    
         const payload = {
             name: material.name,
             sku: material.sku,
@@ -164,9 +213,7 @@ function CreateMaterialPage() {
             location: material.location,
             purchasePrice: material.purchasePrice,
         };
-
-        console.log("Payload gửi lên:", payload);
-
+    
         try {
             let materialId: number;
             if (editingMaterialId) {
@@ -188,13 +235,20 @@ function CreateMaterialPage() {
                 }
                 alert("Thêm vật tư thành công!");
             }
-
-            if (imageFile) {
-                const uploadResult = await uploadMaterialImage(imageFile, materialId);
-                console.log("uploadMaterialImage result:", uploadResult);
-                alert("Tải hình ảnh thành công!");
+    
+            // Upload nhiều hình ảnh nếu có
+            if (imageFiles.length > 0) {
+                try {
+                    const uploadResult = await uploadMultipleMaterialImages(imageFiles, materialId);
+                    console.log("Upload nhiều hình ảnh thành công:", uploadResult);
+                    alert("Tải hình ảnh thành công!");
+                } catch (error) {
+                    console.error("Lỗi khi tải hình ảnh:", error);
+                    alert("Tải hình ảnh thất bại!");
+                }
             }
-
+    
+            // Reset form
             setMaterial({
                 name: "",
                 sku: "",
@@ -204,13 +258,13 @@ function CreateMaterialPage() {
                 location: "",
                 purchasePrice: 0,
             });
-            setImageFile(null);
+            setImageFiles([]);
             setImagePreview(null);
             setEditingMaterialId(null);
             setErrors({});
-
+    
+            // Refresh materials list
             const data = await getAllMaterial();
-            console.log("Dữ liệu sau khi làm mới:", JSON.stringify(data, null, 2));
             if (data) {
                 setMaterials(data);
                 data.forEach(material => {
@@ -239,7 +293,6 @@ function CreateMaterialPage() {
         const fetchMaterials = async () => {
             try {
                 const data = await getAllMaterial();
-                console.log("Materials:", JSON.stringify(data, null, 2));
                 if (data) {
                     setMaterials(data);
                     data.forEach(material => {
@@ -281,16 +334,29 @@ function CreateMaterialPage() {
             key: 'image',
             align: 'center',
             width: 120,
-            render: (id) =>
-                id && imageUrls[id] ? (
-                    <img
-                        src={imageUrls[id]}
-                        alt="Material"
-                        className="max-w-[80px] max-h-[80px] object-contain mx-auto"
-                    />
-                ) : (
-                    <span className="text-gray-400">Không có hình</span>
-                ),
+            render: (id: number, record: Material) => {
+                if (id && record.images && record.images.length > 0) {
+                    return (
+                        <div 
+                            className="relative cursor-pointer" 
+                            onClick={() => openImageViewer(record)}
+                        >
+                            <img
+                                src={imageUrls[id]}
+                                alt="Material"
+                                className="max-w-[80px] max-h-[80px] object-contain mx-auto"
+                            />
+                            {record.images.length > 1 && (
+                                <div className="absolute bottom-0 right-0 bg-blue-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                                    +{record.images.length - 1}
+                                </div>
+                            )}
+                        </div>
+                    );
+                } else {
+                    return <span className="text-gray-400">Không có hình</span>;
+                }
+            },
         },
         {
             title: 'Tên vật tư',
@@ -486,24 +552,47 @@ function CreateMaterialPage() {
                                                 className="h-[50px] rounded-[5px] text-xs xs:text-sm border text-black border-[#D1D5DB] w-full px-2 pl-4 font-light bg-white"
                                             />
                                         </div>
-                                        <div>
-                                            <label className="text-xs xs:text-sm font-medium mb-1 text-gray-200">Hình ảnh</label>
-                                            <input
-                                                type="file"
-                                                accept="image/*"
-                                                onChange={handleImageChange}
-                                                className="h-[50px] rounded-[5px] text-xs xs:text-sm border text-black border-[#D1D5DB] w-full px-2 pl-4 font-light bg-white"
-                                            />
-                                            {errors.image && <p className="text-red-500 text-sm">{errors.image}</p>}
+                                        <div className="mb-4">
+                                            <label className="block text-gray-700 font-bold mb-2">Hình ảnh</label>
+                                            <div className="flex items-center">
+                                                <label className="cursor-pointer bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+                                                    {imageFiles.length > 0 ? `Đã chọn ${imageFiles.length} hình` : "Chọn hình"}
+                                                    <input
+                                                        type="file"
+                                                        multiple
+                                                        onChange={handleImageChange}
+                                                        accept="image/*"
+                                                        className="hidden"
+                                                    />
+                                                </label>
+                                                {imageFiles.length > 0 && (
+                                                    <button 
+                                                        type="button" 
+                                                        className="ml-2 text-red-500 hover:text-red-700"
+                                                        onClick={() => {
+                                                            setImageFiles([]);
+                                                            setImagePreview(null);
+                                                        }}
+                                                    >
+                                                        Xóa
+                                                    </button>
+                                                )}
+                                            </div>
                                             {imagePreview && (
                                                 <div className="mt-2">
                                                     <img
                                                         src={imagePreview}
                                                         alt="Preview"
-                                                        className="max-w-[200px] max-h-[200px] object-contain"
+                                                        className="max-w-[200px] max-h-[200px] object-contain border rounded mt-2"
                                                     />
+                                                    {imageFiles.length > 1 && (
+                                                        <span className="text-sm text-gray-500 mt-1 block">
+                                                            (+{imageFiles.length - 1} hình ảnh khác)
+                                                        </span>
+                                                    )}
                                                 </div>
                                             )}
+                                            {errors.image && <p className="text-red-500 text-xs mt-1">{errors.image}</p>}
                                         </div>
                                     </div>
                                 </div>
@@ -531,6 +620,32 @@ function CreateMaterialPage() {
                         </div>
                     </div>
                 </SidebarInset>
+                <Modal
+                    title={`Hình ảnh vật tư: ${currentMaterial?.name || ''}`}
+                    open={imageViewerVisible}
+                    onCancel={() => setImageViewerVisible(false)}
+                    footer={null}
+                    width={800}
+                >
+                    {currentMaterial && currentMaterial.images && currentMaterial.images.length > 0 ? (
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                            {currentMaterial.images.map((image, index: number) => {
+                                const key = `${currentMaterial.id}_${index}`;
+                                return (
+                                    <div key={index} className="border p-2 rounded">
+                                        <img
+                                            src={imageUrls[key] || `api/v1/file-uploads/images/${image.fileName}`}
+                                            alt={`${currentMaterial.name} - ${index + 1}`}
+                                            className="w-full h-auto object-contain max-h-[200px]"
+                                        />
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    ) : (
+                        <p className="text-center py-6 text-gray-500">Không có hình ảnh nào.</p>
+                    )}
+                </Modal>
             </SidebarProvider>
         </ThemeProvider>
     );

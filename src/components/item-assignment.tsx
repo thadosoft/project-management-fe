@@ -131,7 +131,7 @@ export function ItemAssignment({
   const [fileNames, setFileNames] = useState<{ name: string; blob: string }[]>([]);
   const [localAssignment, setLocalAssignment] = useState(assignment);
   const hasUpdatedStatus = useRef(false);
-  const [status, setStatus] = useState<string>(assignment.status_type || "IN_PROGRESS");
+  const [status, setStatus] = useState<string>(assignment.status_type);
   const [statusList, setStatusList] = useState<string[]>([]);
   const [isLoadingStatuses, setIsLoadingStatuses] = useState(true);
   const [isAlertOpen, setIsAlertOpen] = useState(false);
@@ -173,7 +173,7 @@ export function ItemAssignment({
     console.log("Received assignment:", assignment);
     console.log("assignment.statusType for id", assignment.id, ":", assignment.status_type);
     if (!hasUpdatedStatus.current) {
-      setStatus(assignment.status_type || "IN_PROGRESS");
+      setStatus(assignment.status_type);
     }
     setLocalAssignment(assignment);
     setStartDate(parseDate(assignment.start_date));

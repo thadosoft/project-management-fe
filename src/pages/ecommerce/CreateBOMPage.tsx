@@ -111,7 +111,6 @@ function CreateBOMPage() {
         }
     };
 
-
     const saveMaterial = (index: any) => {
         setBom((prevBom) => {
             const updatedMaterials = [...prevBom.materialQuotations];

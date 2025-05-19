@@ -20,6 +20,28 @@ export const uploadMaterialImage = async (
     return result;
 };
 
+export const uploadMultipleMaterialImages = async (
+    files: File[],
+    inventoryItemId: number
+): Promise<ReferenceFile[] | null> => {
+    const formData = new FormData();
+    
+    // Append each file to the form data
+    files.forEach(file => {
+        formData.append("files", file);
+    });
+    
+    formData.append("inventoryItemId", inventoryItemId.toString());
+    const result = await fetchData<ReferenceFile[], FormData>(
+        "file-uploads/images/upload",
+        "POST",
+        tokenService.accessToken,
+        formData
+    );
+    console.log("uploadMultipleMaterialImages result:", result);
+    return result;
+};
+
 // Thêm hàm getImage để tải ảnh dưới dạng Blob
 export const getImage = async (filename: string): Promise<Blob> => {
     const url = `file-uploads/images/${filename}`;
