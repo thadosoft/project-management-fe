@@ -128,7 +128,9 @@ export function ItemAssignment({
   >([]);
   const didFetch = useRef(false);
   const [isLeftOpen, setIsLeftOpen] = useState(true);
-  const [fileNames, setFileNames] = useState<{ name: string; blob: string }[]>([]);
+  const [fileNames, setFileNames] = useState<{ name: string; blob: string }[]>(
+    []
+  );
   const [localAssignment, setLocalAssignment] = useState(assignment);
   const hasUpdatedStatus = useRef(false);
   const [status, setStatus] = useState<string>(assignment.status_type);
@@ -143,12 +145,14 @@ export function ItemAssignment({
     DONE: "bg-green-900",
     IN_PROGRESS: "bg-yellow-600",
     EXPIRED: "bg-red-900",
+    NOT_START: "bg-gray-600",
   };
 
   const textColorMap = {
     DONE: "text-white",
     IN_PROGRESS: "text-white",
     EXPIRED: "text-white",
+    NOT_START: "text-white",
     undefined: "text-gray-500",
   };
 
@@ -171,7 +175,12 @@ export function ItemAssignment({
 
   useEffect(() => {
     console.log("Received assignment:", assignment);
-    console.log("assignment.statusType for id", assignment.id, ":", assignment.status_type);
+    console.log(
+      "assignment.statusType for id",
+      assignment.id,
+      ":",
+      assignment.status_type
+    );
     if (!hasUpdatedStatus.current) {
       setStatus(assignment.status_type);
     }
@@ -251,7 +260,9 @@ export function ItemAssignment({
       taskId: assignment.task.id,
       assignerId: assignment.assigner.id,
       receiverId: assignment.receiver?.id ?? "",
-      start_date: startDate ? format(startDate, "dd/MM/yyyy HH:mm:ss") : undefined,
+      start_date: startDate
+        ? format(startDate, "dd/MM/yyyy HH:mm:ss")
+        : undefined,
       end_date: endDate ? format(endDate, "dd/MM/yyyy HH:mm:ss") : undefined,
     };
 
@@ -261,8 +272,12 @@ export function ItemAssignment({
         const updatedAssignment = {
           ...localAssignment,
           description: changedContent.body.innerHTML,
-          start_date: startDate ? format(startDate, "dd/MM/yyyy HH:mm:ss") : undefined,
-          end_date: endDate ? format(endDate, "dd/MM/yyyy HH:mm:ss") : undefined,
+          start_date: startDate
+            ? format(startDate, "dd/MM/yyyy HH:mm:ss")
+            : undefined,
+          end_date: endDate
+            ? format(endDate, "dd/MM/yyyy HH:mm:ss")
+            : undefined,
         };
         setLocalAssignment(updatedAssignment);
         if (onUpdate) {
@@ -280,7 +295,9 @@ export function ItemAssignment({
       assignerId: localAssignment.assigner.id,
       receiverId: selectedUserId,
       status_type: status,
-      start_date: startDate ? format(startDate, "dd/MM/yyyy HH:mm:ss") : undefined,
+      start_date: startDate
+        ? format(startDate, "dd/MM/yyyy HH:mm:ss")
+        : undefined,
       end_date: endDate ? format(endDate, "dd/MM/yyyy HH:mm:ss") : undefined,
     };
 
@@ -291,8 +308,12 @@ export function ItemAssignment({
           const updatedAssignment = {
             ...localAssignment,
             receiver: newReceiver,
-            start_date: startDate ? format(startDate, "dd/MM/yyyy HH:mm:ss") : undefined,
-            end_date: endDate ? format(endDate, "dd/MM/yyyy HH:mm:ss") : undefined,
+            start_date: startDate
+              ? format(startDate, "dd/MM/yyyy HH:mm:ss")
+              : undefined,
+            end_date: endDate
+              ? format(endDate, "dd/MM/yyyy HH:mm:ss")
+              : undefined,
           };
           setLocalAssignment(updatedAssignment);
           if (onUpdate) {
@@ -508,13 +529,17 @@ export function ItemAssignment({
   const handleStatusChange = (value: string) => {
     if (!localAssignment.title) {
       console.error("Title cannot be blank");
-      setAlertMessage("Please fill in all required information: Title cannot be blank.");
+      setAlertMessage(
+        "Please fill in all required information: Title cannot be blank."
+      );
       setIsAlertOpen(true);
       return;
     }
     if (!localAssignment.task.id) {
       console.error("Task ID cannot be blank");
-      setAlertMessage("Please fill in all required information: Task ID cannot be blank.");
+      setAlertMessage(
+        "Please fill in all required information: Task ID cannot be blank."
+      );
       setIsAlertOpen(true);
       return;
     }
@@ -528,7 +553,9 @@ export function ItemAssignment({
     }
     if (!localAssignment.receiver || !localAssignment.receiver.id) {
       console.error("Receiver cannot be blank");
-      setAlertMessage("Please fill in all required information: Receiver cannot be blank.");
+      setAlertMessage(
+        "Please fill in all required information: Receiver cannot be blank."
+      );
       setIsAlertOpen(true);
       return;
     }
@@ -553,7 +580,9 @@ export function ItemAssignment({
       assignerId: localAssignment.assigner.id || "",
       receiverId: localAssignment.receiver.id,
       status_type: value,
-      start_date: startDate ? format(startDate, "dd/MM/yyyy HH:mm:ss") : undefined,
+      start_date: startDate
+        ? format(startDate, "dd/MM/yyyy HH:mm:ss")
+        : undefined,
       end_date: endDate ? format(endDate, "dd/MM/yyyy HH:mm:ss") : undefined,
     };
     console.log("Sending assignmentRequest:", assignmentRequest);
@@ -567,8 +596,12 @@ export function ItemAssignment({
         const updatedAssignment = {
           ...localAssignment,
           status_type: value,
-          start_date: startDate ? format(startDate, "dd/MM/yyyy HH:mm:ss") : undefined,
-          end_date: endDate ? format(endDate, "dd/MM/yyyy HH:mm:ss") : undefined,
+          start_date: startDate
+            ? format(startDate, "dd/MM/yyyy HH:mm:ss")
+            : undefined,
+          end_date: endDate
+            ? format(endDate, "dd/MM/yyyy HH:mm:ss")
+            : undefined,
         };
         setStatus(value);
         setLocalAssignment(updatedAssignment);
@@ -629,7 +662,10 @@ export function ItemAssignment({
             : undefined,
       };
 
-      console.log("Sending assignmentRequest for date update:", assignmentRequest);
+      console.log(
+        "Sending assignmentRequest for date update:",
+        assignmentRequest
+      );
 
       updateAssignment(localAssignment.id, assignmentRequest)
         .then(() => {
@@ -671,7 +707,9 @@ export function ItemAssignment({
   const handleCalendarOpen = (type: "start" | "end") => {
     if (!isReceiverSelected()) {
       setAlertMessage(
-        `Please select a Receiver before choosing the ${type === "start" ? "start" : "end"} date.`
+        `Please select a Receiver before choosing the ${
+          type === "start" ? "start" : "end"
+        } date.`
       );
       setIsAlertOpen(true);
     }
@@ -684,7 +722,9 @@ export function ItemAssignment({
       <Card
         ref={setNodeRef}
         style={style}
-        className={`${statusColorMap[status as keyof typeof statusColorMap]} ${variants({
+        className={`${
+          statusColorMap[status as keyof typeof statusColorMap]
+        } ${variants({
           dragging: isOverlay ? "overlay" : isDragging ? "over" : undefined,
         })}`}
       >
@@ -702,7 +742,8 @@ export function ItemAssignment({
             <Badge
               variant={"outline"}
               className={`font-semibold ${
-                textColorMap[status as keyof typeof textColorMap] || textColorMap.undefined
+                textColorMap[status as keyof typeof textColorMap] ||
+                textColorMap.undefined
               }`}
             >
               {formatStatusText(status)}
@@ -732,14 +773,19 @@ export function ItemAssignment({
               direction="horizontal"
               className="max-w-md rounded-lg md:min-w-[85vw]"
             >
-              <ResizablePanel defaultSize={60} className="h-[85vh] md:min-w-[25vw]">
+              <ResizablePanel
+                defaultSize={60}
+                className="h-[85vh] md:min-w-[25vw]"
+              >
                 <ResizablePanelGroup direction="vertical">
                   <ResizablePanel
                     defaultSize={10}
                     className="md:min-h-[8vh] md:max-h-[8vh]"
                   >
                     <div className="h-full flex items-center pl-4">
-                      <span className="font-semibold text-2xl">{assignment.title}</span>
+                      <span className="font-semibold text-2xl">
+                        {assignment.title}
+                      </span>
                     </div>
                   </ResizablePanel>
                   <ResizableHandle />
@@ -774,7 +820,8 @@ export function ItemAssignment({
                             onClick={() => setIsEditing(true)}
                             dangerouslySetInnerHTML={{
                               __html:
-                                content || "<p>Click here to start writing...</p>",
+                                content ||
+                                "<p>Click here to start writing...</p>",
                             }}
                           />
                         ) : (
@@ -892,14 +939,20 @@ export function ItemAssignment({
                                               Are you absolutely sure?
                                             </AlertDialogTitle>
                                             <AlertDialogDescription>
-                                              This file will be permanently deleted and
-                                              CANNOT BE UNDONE.
+                                              This file will be permanently
+                                              deleted and CANNOT BE UNDONE.
                                             </AlertDialogDescription>
                                           </AlertDialogHeader>
                                           <AlertDialogFooter>
-                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                            <AlertDialogCancel>
+                                              Cancel
+                                            </AlertDialogCancel>
                                             <AlertDialogAction
-                                              onClick={() => handleDeleteAttachFile(file.name)}
+                                              onClick={() =>
+                                                handleDeleteAttachFile(
+                                                  file.name
+                                                )
+                                              }
                                             >
                                               Delete
                                             </AlertDialogAction>
@@ -917,7 +970,9 @@ export function ItemAssignment({
                                       >
                                         {file.name}
                                       </p>
-                                      <p className="text-xs text-gray-400">{uploadDate}</p>
+                                      <p className="text-xs text-gray-400">
+                                        {uploadDate}
+                                      </p>
                                     </div>
                                   </div>
                                 );
@@ -930,7 +985,10 @@ export function ItemAssignment({
                 </ResizablePanelGroup>
               </ResizablePanel>
               <ResizableHandle />
-              <ResizablePanel defaultSize={40} className="h-[80vh] md:min-w-[15vw]">
+              <ResizablePanel
+                defaultSize={40}
+                className="h-[80vh] md:min-w-[15vw]"
+              >
                 <ResizablePanelGroup direction="vertical">
                   <ResizablePanel
                     defaultSize={10}
@@ -945,7 +1003,11 @@ export function ItemAssignment({
                         >
                           <SelectTrigger className="w-[180px] bg-zinc-800">
                             <SelectValue
-                              placeholder={isLoadingStatuses ? "Loading..." : "Select Status"}
+                              placeholder={
+                                isLoadingStatuses
+                                  ? "Loading..."
+                                  : "Select Status"
+                              }
                             />
                           </SelectTrigger>
                           <SelectContent>
@@ -1027,7 +1089,10 @@ export function ItemAssignment({
                                     </SelectTrigger>
                                     <SelectContent>
                                       {users.map((user) => (
-                                        <SelectItem value={user.id} key={user.id}>
+                                        <SelectItem
+                                          value={user.id}
+                                          key={user.id}
+                                        >
                                           {user.name} ({user.username})
                                         </SelectItem>
                                       ))}
@@ -1047,7 +1112,9 @@ export function ItemAssignment({
                                     className="w-[20vw] bg-zinc-800 text-gray-300 p-2 rounded"
                                     placeholderText="Select start date and time"
                                     disabled={!isReceiverSelected()}
-                                    onCalendarOpen={() => handleCalendarOpen("start")}
+                                    onCalendarOpen={() =>
+                                      handleCalendarOpen("start")
+                                    }
                                   />
                                 </p>
                                 <p className="flex items-center p-1 rounded-s">
@@ -1063,7 +1130,9 @@ export function ItemAssignment({
                                     className="w-[20vw] bg-zinc-800 text-gray-300 p-2 rounded"
                                     placeholderText="Select end date and time"
                                     disabled={!isReceiverSelected()}
-                                    onCalendarOpen={() => handleCalendarOpen("end")}
+                                    onCalendarOpen={() =>
+                                      handleCalendarOpen("end")
+                                    }
                                   />
                                 </p>
                               </div>
@@ -1084,7 +1153,9 @@ export function ItemAssignment({
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {alertMessage.includes("Receiver") ? "Receiver Required" : "Invalid Date Range"}
+              {alertMessage.includes("Receiver")
+                ? "Receiver Required"
+                : "Invalid Date Range"}
             </AlertDialogTitle>
             <AlertDialogDescription>{alertMessage}</AlertDialogDescription>
           </AlertDialogHeader>

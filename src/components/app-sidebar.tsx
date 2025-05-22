@@ -38,14 +38,14 @@ const data = {
   ],
   navApp: [
     {
-      title: "Home",
+      title: "Trang chủ",
       url: "/home",
       icon: Home,
     },
   ],
   navMain: [
     {
-      title: "HRM(Office & Facility Management)",
+      title: "Hành chính nhân sự",
       url: "#",
       icon: PiFinnTheHuman,
       isActive: true,
@@ -55,7 +55,7 @@ const data = {
           url: "/attendance-sheet",
         },
         {
-          title: "Lịch tính lương",
+          title: "Bảng tính lương",
           url: "#",
           isActive: true,
           items: [
@@ -75,14 +75,29 @@ const data = {
           isActive: true,
           items: [
             {
-              title: "Khởi tạo người dùng",
+              title: "Khởi tạo tài khoản",
               url: "/create-employee",
             },
             {
-              title: "Tìm kiếm người dùng",
+              title: "Tìm kiếm tài khoản",
               url: "/search-employee",
             },
           ]
+        },
+        {
+          title: "Thông tin Hành chính & nhân sự",
+          url: "#",
+          isActive: true,
+          // items: [
+          //   {
+          //     title: "Khởi tạo tài khoản",
+          //     url: "/create-employee",
+          //   },
+          //   {
+          //     title: "Tìm kiếm tài khoản",
+          //     url: "/search-employee",
+          //   },
+          // ]
         },
       ],
     },
@@ -93,23 +108,46 @@ const data = {
       isActive: true,
       items: [
         {
-          title: "Phiếu báo giá",
+          title: "Quản lý khách hàng",
+          url: "#",
+        },
+        {
+          title: "Quản lý đối tác - cung cấp",
+          url: "#",
+        },
+        {
+          title: "Tạo phiếu báo giá",
           url: "/create-bom",
         },
         {
           title: "Tìm kiếm báo giá",
           url: "/search-bom",
         },
+        {
+          title: "Thông tin phòng kinh doanh",
+          url: "#",
+        },
       ],
     },
     {
-      title: "Điều vận",
+      title: "Khối kỹ thuật",
       icon: SiAudiotechnica,
       url: "#",
       isActive: true,
       items: [
         {
           title: "Quản lý dự án",
+          url: "/project",
+        },
+        {
+          title: "Các sản phẩm đóng gói",
+          url: "/project",
+        },{
+          title: "Bảng trắng",
+          url: "/white-boards",
+        },
+        {
+          title: "Thông tin phòng kỹ thuật",
           url: "/project",
         },
       ],
@@ -205,7 +243,7 @@ const data = {
     //   ],
     // },
     {
-      title: "Hồ sơ tham khảo",
+      title: "Hồ sơ lưu trữ",
       url: "/profile",
       icon: CgProfile,
     },
@@ -231,15 +269,15 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const userRole = localStorage.getItem("role") || "USER";
-  console.log("User role in AppSidebar:", userRole);
+  // console.log("User role in AppSidebar:", userRole);
 
   const rolePermissions: { [key: string]: string[] } = {
-    TECHNICAL: ["Kho công ty", "Hồ sơ tham khảo"],
+    TECHNICAL: ["Kho công ty", "Hồ sơ lưu trữ"],
     INVENTORY: ["Kho công ty"],
-    USER: ["Hồ sơ tham khảo"], 
-    OFM: ["HRM(Office & Facility Management)", "Thông tin nhân viên", "Kinh doanh", "Hồ sơ tham khảo"], 
-    SALE: ["Kinh doanh", "Hồ sơ tham khảo"],
-    PM: ["Điều vận", "Hồ sơ tham khảo"]
+    USER: ["Hồ sơ lưu trữ"], 
+    OFM: ["Hành chính nhân sự", "Thông tin nhân viên", "Kinh doanh", "Hồ sơ lưu trữ"],
+    SALE: ["Kinh doanh", "Hồ sơ lưu trữ"],
+    PM: ["Khối kỹ thuật", "Hồ sơ lưu trữ"]
   };
 
   const allowedMenus = rolePermissions[userRole.toUpperCase()] || [];
@@ -248,7 +286,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     if (allowedMenus.length > 0) {
       return allowedMenus.includes(item.title);
     }
-    return true;//trả về tất cả danh mục
+    return true;
   });
 
 

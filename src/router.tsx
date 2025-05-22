@@ -20,6 +20,7 @@ import AttendancePageMonthDetail from "./pages/attendance/AttendancePageMonthDet
 import WarehouseEntryPage from "./pages/warehouse/WarehouseEntryPage";
 import SearchWarehousePage from "./pages/warehouse/SearchWarehousePage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import WhiteBoardPage from "./pages/whiteboard/WhiteBoardPage";
 
 export const router = createBrowserRouter([
   // {path: "/", element: <App/>},
@@ -63,6 +64,8 @@ export const router = createBrowserRouter([
   { path: "/search-warehouse", element: < SearchWarehousePage /> },
   { path: "/warehouse-update/:id", element: < WarehouseEntryPage /> },
   
+  //whiteboard
+  { path: "/white-boards", element: <WhiteBoardPage /> },
 
 
 ]);
