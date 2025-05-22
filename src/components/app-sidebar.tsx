@@ -142,7 +142,7 @@ const data = {
         {
           title: "Các sản phẩm đóng gói",
           url: "/project",
-        },{
+        }, {
           title: "Bảng trắng",
           url: "/white-boards",
         },
@@ -152,7 +152,7 @@ const data = {
         },
       ],
     },
-    
+
     {
       title: "Kho công ty",
       icon: SiAudiotechnica,
@@ -180,7 +180,7 @@ const data = {
             },
           ],
         },
-        
+
         {
           title: "Quản lý kho",
           icon: SiAudiotechnica,
@@ -247,6 +247,11 @@ const data = {
       url: "/profile",
       icon: CgProfile,
     },
+    {
+      title: "Nhật ký hoạt động",
+      url: "/audit-log",
+      icon: CgProfile,
+    },
   ],
   projects: [
     {
@@ -274,7 +279,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const rolePermissions: { [key: string]: string[] } = {
     TECHNICAL: ["Kho công ty", "Hồ sơ lưu trữ"],
     INVENTORY: ["Kho công ty"],
-    USER: ["Hồ sơ lưu trữ"], 
+    USER: ["Hồ sơ lưu trữ"],
     OFM: ["Hành chính nhân sự", "Thông tin nhân viên", "Kinh doanh", "Hồ sơ lưu trữ"],
     SALE: ["Kinh doanh", "Hồ sơ lưu trữ"],
     PM: ["Khối kỹ thuật", "Hồ sơ lưu trữ"]

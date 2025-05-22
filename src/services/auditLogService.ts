@@ -6,9 +6,9 @@ export const searchAuditLogs = async (
     searchParams: SearchAuditLog,
     page: number,
     size: number
-): Promise<AuditLog | null> => {
+): Promise<any | null> => {
     try {
-        return await fetchData<AuditLog, SearchAuditLog>(
+        return await fetchData<any, SearchAuditLog>(
             `audit-logs/search-params?page=${page}&size=${size}`,
             "POST",
             tokenService.accessToken,
