@@ -152,3 +152,13 @@ export interface UpdateDailyAttendance {
 
     otherCheckins: string;
 }
+
+export interface LateStaft {
+    personId: string;
+
+    personName: string;
+
+    time: string;
+
+    closeup: string;
+}

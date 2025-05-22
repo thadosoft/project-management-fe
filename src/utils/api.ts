@@ -19,7 +19,7 @@ export const fetchData = async <T, B = unknown>(
             body: isFormData ? (body as FormData) : body && method !== "GET" ? JSON.stringify(body) : undefined,
         });
 
-        console.log(`fetchData [${url}]: Status=${response.status}, Content-Type=${response.headers.get("Content-Type")}`);
+        // console.log(`fetchData [${url}]: Status=${response.status}, Content-Type=${response.headers.get("Content-Type")}`);
 
         if (!response.ok) {
             let errorMessage = `Error ${response.status}: ${response.statusText}`;
@@ -35,7 +35,7 @@ export const fetchData = async <T, B = unknown>(
         // Xử lý theo responseType
         if (options?.responseType === 'blob') {
             const blob = await response.blob();
-            console.log(`fetchData [${url}]: Blob Data, Size=${blob.size}`);
+            // console.log(`fetchData [${url}]: Blob Data, Size=${blob.size}`);
             return blob as T;
         }
 
@@ -51,14 +51,14 @@ export const fetchData = async <T, B = unknown>(
         if (contentType?.includes("application/json")) {
             try {
                 const jsonData = JSON.parse(text);
-                console.log(`fetchData [${url}]: JSON Data=`, JSON.stringify(jsonData, null, 2));
+                // console.log(`fetchData [${url}]: JSON Data=`, JSON.stringify(jsonData, null, 2));
                 return jsonData as T;
             } catch (e) {
                 console.error(`fetchData [${url}]: Failed to parse JSON:`, e);
                 return null;
             }
         } else if (contentType?.includes("text/plain")) {
-            console.log(`fetchData [${url}]: Text Data=`, text);
+            // console.log(`fetchData [${url}]: Text Data=`, text);
             return text as T;
         } else {
             console.warn(`fetchData [${url}]: Unexpected Content-Type, returning null`);

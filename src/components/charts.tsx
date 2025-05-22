@@ -5,29 +5,34 @@ import { Chart, registerables } from "chart.js"
 
 Chart.register(...registerables)
 
-export function PieChart() {
-  const chartRef = useRef<HTMLCanvasElement>(null)
-  const chartInstance = useRef<Chart | null>(null)
+type PieChartProps = {
+  data: {
+    name: string;
+    value: number;
+  }[];
+};
+
+export function PieChart({ data }: PieChartProps) {
+  const chartRef = useRef<HTMLCanvasElement>(null);
+  const chartInstance = useRef<Chart | null>(null);
 
   useEffect(() => {
     if (chartRef.current) {
-      const ctx = chartRef.current.getContext("2d")
+      const ctx = chartRef.current.getContext("2d");
 
       if (ctx) {
-        // Destroy existing chart instance if it exists
         if (chartInstance.current) {
-          chartInstance.current.destroy()
+          chartInstance.current.destroy();
         }
 
-        // Create new chart
         chartInstance.current = new Chart(ctx, {
           type: "pie",
           data: {
-            labels: ["Phù hợp", "Không có bạt", "Rách bạt", "Khác"],
+            labels: data.map((d) => d.name),
             datasets: [
               {
-                data: [53, 30, 23, 1],
-                backgroundColor: ["#3b82f6", "#a855f7", "#ef4444", "#f97316"],
+                data: data.map((d) => d.value),
+                backgroundColor: ["#3b82f6", "#a855f7", "#ef4444", "#f97316", "#10b981", "#facc15"],
                 borderWidth: 1,
               },
             ],
@@ -41,19 +46,20 @@ export function PieChart() {
               },
             },
           },
-        })
+        });
       }
     }
 
     return () => {
       if (chartInstance.current) {
-        chartInstance.current.destroy()
+        chartInstance.current.destroy();
       }
-    }
-  }, [])
+    };
+  }, [data]);
 
-  return <canvas ref={chartRef} />
+  return <canvas ref={chartRef} />;
 }
+
 
 export function DonutChart() {
   const chartRef = useRef<HTMLCanvasElement>(null)

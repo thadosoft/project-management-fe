@@ -1,6 +1,6 @@
 import { fetchData } from "@/utils/api.ts";
 import tokenService from "@/services/tokenService.ts";
-import { Attendance, AttendanceByDayRequest, CreateAttendanceResponse, UpdateDailyAttendance } from "@/models/Attendance";
+import { Attendance, AttendanceByDayRequest, CreateAttendanceResponse, LateStaft, UpdateDailyAttendance } from "@/models/Attendance";
 
 // Search employees by parameters (full name, career)
 export const searchAttendances = async (
@@ -66,9 +66,23 @@ export const CreateMonthlyAttendance = async (year: number, month: number): Prom
 
 export const updateAttendance = async (id: number, attendance: UpdateDailyAttendance): Promise<void | null> => {
     try {
-      await fetchData<void, UpdateDailyAttendance>(`attendances/${id}`, "PUT", tokenService.accessToken, attendance);
+        await fetchData<void, UpdateDailyAttendance>(`attendances/${id}`, "PUT", tokenService.accessToken, attendance);
     } catch (error) {
-      console.error("Error updating attendance:", error);
+        console.error("Error updating attendance:", error);
     }
-  };
-  
+};
+
+
+
+export const get6LatestEmployeesAttendance = async (): Promise<LateStaft[] | null> => {
+    try {
+        return await fetchData<LateStaft[], null>(
+            `attendances/latest-late`,
+            "GET",
+            tokenService.accessToken
+        );
+    } catch (error) {
+        console.error("Error fetching latest audit logs:", error);
+        return null;
+    }
+};
