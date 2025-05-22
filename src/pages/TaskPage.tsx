@@ -1,7 +1,7 @@
-import {useEffect, useMemo, useRef, useState} from "react";
-import {createPortal} from "react-dom";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
-import {ItemTask, BoardContainer} from "@/components/item-task.tsx";
+import { ItemTask, BoardContainer } from "@/components/item-task.tsx";
 import {
   DndContext,
   type DragEndEvent,
@@ -15,23 +15,23 @@ import {
   TouchSensor,
   MouseSensor,
 } from "@dnd-kit/core";
-import {SortableContext, arrayMove} from "@dnd-kit/sortable";
-import {ItemAssignment} from "@/components/item-assignment.tsx";
-import {hasDraggableData} from "@/components/utils";
-import {coordinateGetter} from "@/components/multipleContainersKeyboardPreset";
-import {createTask, getTasksByProjectId, updateTask} from "@/services/taskService.ts";
-import {useParams} from "react-router";
-import {getAssignmentsByProjectId, updateAssignment} from "@/services/assignmentService.ts";
-import {Task, TaskRequest} from "@/models/Task.ts";
-import {Assignment, AssignmentRequest} from "@/models/Assignment.ts";
-import {AppSidebar} from "@/components/app-sidebar.tsx";
-import {ThemeProvider} from "@/components/theme-provider.tsx";
-import {SidebarInset, SidebarProvider, SidebarTrigger} from "@/components/ui/sidebar.tsx";
-import {Separator} from "@/components/ui/separator.tsx";
-import {Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator} from "@/components/ui/breadcrumb.tsx";
-import {Button} from "@/components/ui/button.tsx";
-import {Check, Plus, X} from "lucide-react";
-import {Input} from "@/components/ui/input.tsx";
+import { SortableContext, arrayMove } from "@dnd-kit/sortable";
+import { ItemAssignment } from "@/components/item-assignment.tsx";
+import { hasDraggableData } from "@/components/utils";
+import { coordinateGetter } from "@/components/multipleContainersKeyboardPreset";
+import { createTask, getTasksByProjectId, updateTask } from "@/services/taskService.ts";
+import { useParams } from "react-router";
+import { getAssignmentsByProjectId, updateAssignment } from "@/services/assignmentService.ts";
+import { Task, TaskRequest } from "@/models/Task.ts";
+import { Assignment, AssignmentRequest } from "@/models/Assignment.ts";
+import { AppSidebar } from "@/components/app-sidebar.tsx";
+import { ThemeProvider } from "@/components/theme-provider.tsx";
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar.tsx";
+import { Separator } from "@/components/ui/separator.tsx";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb.tsx";
+import { Button } from "@/components/ui/button.tsx";
+import { Check, Plus, X } from "lucide-react";
+import { Input } from "@/components/ui/input.tsx";
 
 export default function TaskPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -43,16 +43,16 @@ export default function TaskPage() {
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [activeAssignment, setActiveAssignment] = useState<Assignment | null>(null);
   const sensors = useSensors(
-      useSensor(MouseSensor),
-      useSensor(TouchSensor),
-      useSensor(KeyboardSensor, {
-        coordinateGetter: coordinateGetter,
-      })
+    useSensor(MouseSensor),
+    useSensor(TouchSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: coordinateGetter,
+    })
   );
   const [taskRequest, setTaskRequest] = useState<TaskRequest | null>(null);
   const [assignmentUpdated, setAssignmentUpdated] = useState<AssignmentRequest | null>(null);
 
-  const {projectId} = useParams<{ projectId: string }>();
+  const { projectId } = useParams<{ projectId: string }>();
 
   const handleAddTask = async (isChanged: boolean) => {
     if (isChanged) {
@@ -96,29 +96,79 @@ export default function TaskPage() {
       try {
         const [tasksData, assignmentsData] = await Promise.all([
           getTasksByProjectId(projectId),
-          getAssignmentsByProjectId(projectId)
+          getAssignmentsByProjectId(projectId),
         ]);
 
-        if (tasksData && assignmentsData) {
-          setTasks(tasksData.sort((a, b) => a.taskOrder - b.taskOrder));
+        let finalTasks: Task[] = [];
+
+        if (!tasksData || tasksData.length === 0) {
+          const defaultTaskTitles = ["Việc cần làm", "Việc chưa làm", "Việc hoàn thành"];
+          const createdTasks: Task[] = [];
+
+          for (let i = 0; i < defaultTaskTitles.length; i++) {
+            const newTask: TaskRequest = {
+              status: defaultTaskTitles[i],
+              projectId: projectId,
+              taskOrder: i + 1,
+            };
+            const createdTask = await createTask(newTask);
+            if (createdTask) {
+              createdTasks.push(createdTask);
+            }
+          }
+
+          finalTasks = createdTasks;
+        } else {
+          finalTasks = tasksData.sort((a, b) => a.taskOrder - b.taskOrder);
+        }
+
+        setTasks(finalTasks);
+
+        if (assignmentsData) {
           setAssignments(assignmentsData.sort((a, b) => a.assignmentOrder - b.assignmentOrder));
         }
+
       } catch (error) {
         console.error('Error fetching tasks:', error);
       }
     };
 
     fetchTasks()
-    .then(() => console.log("Tasks fetched successfully"))
-    .catch((error) => console.error("Error in fetchTasks:", error));
+      .then(() => console.log("Tasks fetched successfully"))
+      .catch((error) => console.error("Error in fetchTasks:", error));
   }, [projectId]);
+
+
+  // useEffect(() => {
+  //   if (!projectId) return;
+
+  //   const fetchTasks = async () => {
+  //     try {
+  //       const [tasksData, assignmentsData] = await Promise.all([
+  //         getTasksByProjectId(projectId),
+  //         getAssignmentsByProjectId(projectId)
+  //       ]);
+
+  //       if (tasksData && assignmentsData) {
+  //         setTasks(tasksData.sort((a, b) => a.taskOrder - b.taskOrder));
+  //         setAssignments(assignmentsData.sort((a, b) => a.assignmentOrder - b.assignmentOrder));
+  //       }
+  //     } catch (error) {
+  //       console.error('Error fetching tasks:', error);
+  //     }
+  //   };
+
+  //   fetchTasks()
+  //   .then(() => console.log("Tasks fetched successfully"))
+  //   .catch((error) => console.error("Error in fetchTasks:", error));
+  // }, [projectId]);
 
   const [isNewTaskEditing, setIsNewTaskEditing] = useState(false);
   const [newTaskTitle, setNewTaskTitle] = useState("");
 
   function getDraggingAssignmentData(assignmentId: string, taskId: string) {
     const assignmentsInTask = assignments.filter((assignment) =>
-        assignment.task.id === taskId).sort((a, b) =>
+      assignment.task.id === taskId).sort((a, b) =>
         a.assignmentOrder - b.assignmentOrder);
     const assignmentPosition = assignmentsInTask.findIndex((assignment) => assignment.id === assignmentId);
     const task = tasks.find((task) => task.id === taskId);
@@ -131,123 +181,112 @@ export default function TaskPage() {
   }
 
   const announcements: Announcements = {
-    onDragStart({active}) {
+    onDragStart({ active }) {
       if (!hasDraggableData(active)) return;
       if (active.data.current?.type === "Task") {
         const startTaskIdx = tasksId.findIndex((id) => id === active.id);
         const startTask = tasks[startTaskIdx];
-        return `Picked up Task ${startTask?.status} at position: ${
-            startTaskIdx + 1
-        } of ${tasksId.length}`;
+        return `Picked up Task ${startTask?.status} at position: ${startTaskIdx + 1
+          } of ${tasksId.length}`;
       } else if (active.data.current?.type === "Assignment") {
         pickedUpAssignmentTask.current = active.data.current.assignment.task.id;
-        const {assignmentsInTask, assignmentPosition, task} = getDraggingAssignmentData(
-            active.id as string,
-            pickedUpAssignmentTask.current
+        const { assignmentsInTask, assignmentPosition, task } = getDraggingAssignmentData(
+          active.id as string,
+          pickedUpAssignmentTask.current
         );
 
-        return `Picked up Assignment ${
-            active.data.current.assignment.title
-        } at position: ${assignmentPosition + 1} of ${
-            assignmentsInTask.length
-        } in task ${task?.status}`;
+        return `Picked up Assignment ${active.data.current.assignment.title
+          } at position: ${assignmentPosition + 1} of ${assignmentsInTask.length
+          } in task ${task?.status}`;
       }
     },
-    onDragOver({active, over}) {
+    onDragOver({ active, over }) {
       if (!hasDraggableData(active) || !hasDraggableData(over)) return;
 
       if (
-          active.data.current?.type === "Task" &&
-          over.data.current?.type === "Task"
+        active.data.current?.type === "Task" &&
+        over.data.current?.type === "Task"
       ) {
         setTaskRequest((prev) =>
-            ({
-              ...prev,
-              taskOrder: over.data.current?.sortable.index + 1,
-            }));
+        ({
+          ...prev,
+          taskOrder: over.data.current?.sortable.index + 1,
+        }));
         const overTaskIdx = tasksId.findIndex((id) => id === over.id);
 
-        return `Task ${active.data.current.task.status} was moved over ${
-            over.data.current.task.status
-        } at position ${overTaskIdx + 1} of ${tasksId.length}`;
+        return `Task ${active.data.current.task.status} was moved over ${over.data.current.task.status
+          } at position ${overTaskIdx + 1} of ${tasksId.length}`;
       } else if (
-          active.data.current?.type === "Assignment" &&
-          over.data.current?.type === "Assignment"
+        active.data.current?.type === "Assignment" &&
+        over.data.current?.type === "Assignment"
       ) {
         setAssignmentUpdated((prev) =>
-            ({
-              ...prev,
-              taskId: active.data.current?.assignment.task.id,
-              oldAssignmentOrder: active.data.current?.assignment.assignmentOrder,
-              assignmentOrder: over.data.current?.sortable.index + 1
-            }));
-        const {assignmentsInTask, assignmentPosition, task} = getDraggingAssignmentData(
-            over.id as string,
-            over.data.current.assignment.task.id
+        ({
+          ...prev,
+          taskId: active.data.current?.assignment.task.id,
+          oldAssignmentOrder: active.data.current?.assignment.assignmentOrder,
+          assignmentOrder: over.data.current?.sortable.index + 1
+        }));
+        const { assignmentsInTask, assignmentPosition, task } = getDraggingAssignmentData(
+          over.id as string,
+          over.data.current.assignment.task.id
         );
         if (over.data.current.assignment.task.id !== pickedUpAssignmentTask.current) {
-          return `Assignment ${
-              active.data.current.assignment.title
-          } was moved over task ${task?.status} in position ${
-              assignmentPosition + 1
-          } of ${assignmentsInTask.length}`;
+          return `Assignment ${active.data.current.assignment.title
+            } was moved over task ${task?.status} in position ${assignmentPosition + 1
+            } of ${assignmentsInTask.length}`;
         }
 
-        return `Assignment was moved over position ${assignmentPosition + 1} of ${
-            assignmentsInTask.length
-        } in task ${task?.status}`;
+        return `Assignment was moved over position ${assignmentPosition + 1} of ${assignmentsInTask.length
+          } in task ${task?.status}`;
       }
     },
-    onDragEnd({active, over}) {
+    onDragEnd({ active, over }) {
       if (!hasDraggableData(active) || !hasDraggableData(over)) {
         pickedUpAssignmentTask.current = null;
         return;
       }
       if (
-          active.data.current?.type === "Task" &&
-          over.data.current?.type === "Task"
+        active.data.current?.type === "Task" &&
+        over.data.current?.type === "Task"
       ) {
 
         const overTaskPosition = tasksId.findIndex((id) => id === over.id);
 
-        return `Task ${
-            active.data.current.task.status
-        } was dropped into position ${overTaskPosition + 1} of ${
-            tasksId.length
-        }`;
+        return `Task ${active.data.current.task.status
+          } was dropped into position ${overTaskPosition + 1} of ${tasksId.length
+          }`;
       } else if (
-          active.data.current?.type === "Assignment" &&
-          over.data.current?.type === "Assignment"
+        active.data.current?.type === "Assignment" &&
+        over.data.current?.type === "Assignment"
       ) {
         if (activeAssignment?.id && assignmentUpdated) {
           if (assignmentUpdated.taskId !== assignmentUpdated.oldTaskId ||
-              assignmentUpdated.assignmentOrder !== assignmentUpdated.oldAssignmentOrder) {
+            assignmentUpdated.assignmentOrder !== assignmentUpdated.oldAssignmentOrder) {
             assignmentUpdated.title = activeAssignment.title;
 
             Object.assign(activeAssignment, assignmentUpdated);
 
             updateAssignment(activeAssignment.id, assignmentUpdated)
-            .then(() => console.log("Assignment updated successfully"))
-            .catch((error) => console.error("Error in update Assignment:", error));
+              .then(() => console.log("Assignment updated successfully"))
+              .catch((error) => console.error("Error in update Assignment:", error));
           }
         }
-        const {assignmentsInTask, assignmentPosition, task} = getDraggingAssignmentData(
-            over.id as string,
-            over.data.current.assignment.task.id
+        const { assignmentsInTask, assignmentPosition, task } = getDraggingAssignmentData(
+          over.id as string,
+          over.data.current.assignment.task.id
         );
         if (over.data.current.assignment.task.id !== pickedUpAssignmentTask.current) {
-          return `Assignment was dropped into task ${task?.status} in position ${
-              assignmentPosition + 1
-          } of ${assignmentsInTask.length}`;
+          return `Assignment was dropped into task ${task?.status} in position ${assignmentPosition + 1
+            } of ${assignmentsInTask.length}`;
         }
-        return `Assignment was dropped into position ${assignmentPosition + 1} of ${
-            assignmentsInTask.length
-        } in task ${task?.status}`;
+        return `Assignment was dropped into position ${assignmentPosition + 1} of ${assignmentsInTask.length
+          } in task ${task?.status}`;
       }
       pickedUpAssignmentTask.current = null;
     }
     ,
-    onDragCancel({active}) {
+    onDragCancel({ active }) {
       pickedUpAssignmentTask.current = null;
       if (!hasDraggableData(active)) return;
       return `Dragging ${active.data.current?.type} cancelled.`;
@@ -256,142 +295,142 @@ export default function TaskPage() {
   };
 
   return (
-      <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-        <SidebarProvider>
-          <AppSidebar/>
-          <SidebarInset className="overflow-auto">
-            <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrProjectPageer:h-12">
-              <div className="flex items-center gap-2 px-4">
-                <SidebarTrigger className="-ml-1"/>
-                <Separator orientation="vertical" className="mr-2 h-4"/>
-                <Breadcrumb>
-                  <BreadcrumbList>
-                    <BreadcrumbItem className="hidden md:block">
-                      <BreadcrumbLink href="/project">
-                        Quản lý dự án
-                      </BreadcrumbLink>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator className="hidden md:block"/>
-                    <BreadcrumbItem>
-                      <BreadcrumbPage>Quản lý dự án</BreadcrumbPage>
-                    </BreadcrumbItem>
-                  </BreadcrumbList>
-                </Breadcrumb>
-              </div>
-            </header>
-            <div className="px-4">
-              <DndContext
-                  accessibility={{
-                    announcements,
-                  }}
-                  sensors={sensors}
-                  onDragStart={onDragStart}
-                  onDragEnd={onDragEnd}
-                  onDragOver={onDragOver}
-              >
-                <BoardContainer>
-                  <SortableContext items={tasksId}>
-                    {
-                      tasks.map((task) => (
-                          <ItemTask
-                              key={task.id}
-                              task={task}
-                              assignments={
-                                assignments.filter((assignment) =>
-                                    assignment.task.id === task.id
-                                )
-                              }
-                              removeTask={handleDeleteTask}
-                              addAssignment={handleAddNewAssignment}
-                              removeAssignment={handleDeleteAssignment}
-                          />
-                      ))
-                    }
-                  </SortableContext>
-                  <div className="pr-40">
-                    {isNewTaskEditing ? (
-                        <div className="flex flex-col gap-2">
-                          <Input
-                              value={newTaskTitle}
-                              onChange={(e) => setNewTaskTitle(e.target.value)}
-                              autoFocus
-                              className="w-[300px] "
-                          />
-                          <div className="flex gap-2 justify-end">
-                            {
-                              newTaskTitle !== "" && !tasks.some((task) => task.status.toLowerCase() === newTaskTitle.toLowerCase())
-                                  ?
-                                  <Button
-                                      onClick={() => handleAddTask(true)}
-                                      variant="outline"
-                                  >
-                                    <Check/>
-                                  </Button>
-                                  :
-                                  <Button variant="outline" className="opacity-50 hover:bg-transparent cursor-auto">
-                                    <Check/>
-                                  </Button>
-                            }
-                            <Button onClick={() => handleAddTask(false)} variant="destructive">
-                              <X/>
-                            </Button>
-                          </div>
-                        </div>
-                    ) : (
-                        <Button
-                            className="bg-zinc-900 text-white hover:bg-zinc-600" size="sm"
-                            onClick={() => setIsNewTaskEditing(true)}
-                        >
-                          <Plus/>
-                        </Button>
-                    )}
-
-
-                  </div>
-                </BoardContainer>
-                {
-                    "document" in window &&
-                    createPortal(
-                        <DragOverlay>
-                          {
-                              activeTask && (
-                                  <ItemTask
-                                      isOverlay
-                                      task={activeTask}
-                                      assignments={
-                                        assignments.filter((assignment) =>
-                                            assignment.task.id === activeTask.id
-                                        )
-                                      }
-                                      removeTask={handleDeleteTask}
-                                      addAssignment={handleAddNewAssignment}
-                                      removeAssignment={handleDeleteAssignment}
-                                  />
-                              )
-                          }
-                          {activeAssignment && <ItemAssignment assignment={activeAssignment} isOverlay removeAssignment={handleDeleteAssignment}/>}
-                        </DragOverlay>,
-                        document.body
-                    )
-                }
-              </DndContext>
+    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+      <SidebarProvider>
+        <AppSidebar />
+        <SidebarInset className="overflow-auto">
+          <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrProjectPageer:h-12">
+            <div className="flex items-center gap-2 px-4">
+              <SidebarTrigger className="-ml-1" />
+              <Separator orientation="vertical" className="mr-2 h-4" />
+              <Breadcrumb>
+                <BreadcrumbList>
+                  <BreadcrumbItem className="hidden md:block">
+                    <BreadcrumbLink href="/project">
+                      Quản lý dự án
+                    </BreadcrumbLink>
+                  </BreadcrumbItem>
+                  <BreadcrumbSeparator className="hidden md:block" />
+                  <BreadcrumbItem>
+                    <BreadcrumbPage>Quản lý dự án</BreadcrumbPage>
+                  </BreadcrumbItem>
+                </BreadcrumbList>
+              </Breadcrumb>
             </div>
-          </SidebarInset>
-        </SidebarProvider>
-      </ThemeProvider>
+          </header>
+          <div className="px-4">
+            <DndContext
+              accessibility={{
+                announcements,
+              }}
+              sensors={sensors}
+              onDragStart={onDragStart}
+              onDragEnd={onDragEnd}
+              onDragOver={onDragOver}
+            >
+              <BoardContainer>
+                <SortableContext items={tasksId}>
+                  {
+                    tasks.map((task) => (
+                      <ItemTask
+                        key={task.id}
+                        task={task}
+                        assignments={
+                          assignments.filter((assignment) =>
+                            assignment.task.id === task.id
+                          )
+                        }
+                        removeTask={handleDeleteTask}
+                        addAssignment={handleAddNewAssignment}
+                        removeAssignment={handleDeleteAssignment}
+                      />
+                    ))
+                  }
+                </SortableContext>
+                <div className="pr-40">
+                  {isNewTaskEditing ? (
+                    <div className="flex flex-col gap-2">
+                      <Input
+                        value={newTaskTitle}
+                        onChange={(e) => setNewTaskTitle(e.target.value)}
+                        autoFocus
+                        className="w-[300px] "
+                      />
+                      <div className="flex gap-2 justify-end">
+                        {
+                          newTaskTitle !== "" && !tasks.some((task) => task.status.toLowerCase() === newTaskTitle.toLowerCase())
+                            ?
+                            <Button
+                              onClick={() => handleAddTask(true)}
+                              variant="outline"
+                            >
+                              <Check />
+                            </Button>
+                            :
+                            <Button variant="outline" className="opacity-50 hover:bg-transparent cursor-auto">
+                              <Check />
+                            </Button>
+                        }
+                        <Button onClick={() => handleAddTask(false)} variant="destructive">
+                          <X />
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <Button
+                      className="bg-zinc-900 text-white hover:bg-zinc-600" size="sm"
+                      onClick={() => setIsNewTaskEditing(true)}
+                    >
+                      <Plus />
+                    </Button>
+                  )}
+
+
+                </div>
+              </BoardContainer>
+              {
+                "document" in window &&
+                createPortal(
+                  <DragOverlay>
+                    {
+                      activeTask && (
+                        <ItemTask
+                          isOverlay
+                          task={activeTask}
+                          assignments={
+                            assignments.filter((assignment) =>
+                              assignment.task.id === activeTask.id
+                            )
+                          }
+                          removeTask={handleDeleteTask}
+                          addAssignment={handleAddNewAssignment}
+                          removeAssignment={handleDeleteAssignment}
+                        />
+                      )
+                    }
+                    {activeAssignment && <ItemAssignment assignment={activeAssignment} isOverlay removeAssignment={handleDeleteAssignment} />}
+                  </DragOverlay>,
+                  document.body
+                )
+              }
+            </DndContext>
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
+    </ThemeProvider>
   );
 
   function onDragStart(event: DragStartEvent) {
     if (!hasDraggableData(event.active)) return;
     const data = event.active.data.current;
     if (data?.type === "Task") {
-      setTaskRequest((prev) => ({...prev, oldTaskOrder: event.active.data.current?.task.taskOrder}));
+      setTaskRequest((prev) => ({ ...prev, oldTaskOrder: event.active.data.current?.task.taskOrder }));
       setActiveTask(data.task);
       return;
     }
 
     if (data?.type === "Assignment") {
-      setAssignmentUpdated((prev) => ({...prev, oldTaskId: event.active.data.current?.assignment.task.id}));
+      setAssignmentUpdated((prev) => ({ ...prev, oldTaskId: event.active.data.current?.assignment.task.id }));
       setActiveAssignment(data.assignment);
       return;
     }
@@ -401,7 +440,7 @@ export default function TaskPage() {
     setActiveTask(null);
     setActiveAssignment(null);
 
-    const {active, over} = event;
+    const { active, over } = event;
     if (!over) return;
 
     const activeId = active.id;
@@ -422,8 +461,8 @@ export default function TaskPage() {
           Object.assign(activeTask, taskRequest);
 
           updateTask(activeTask.id, taskRequest)
-          .then(() => console.log("Task updated successfully"))
-          .catch((error) => console.error("Error in update Task:", error));
+            .then(() => console.log("Task updated successfully"))
+            .catch((error) => console.error("Error in update Task:", error));
         }
       }
       setTasks((tasks) => {
@@ -435,21 +474,21 @@ export default function TaskPage() {
     } else {
       if (activeAssignment?.id && assignmentUpdated) {
         if (assignmentUpdated.taskId !== assignmentUpdated.oldTaskId ||
-            assignmentUpdated.assignmentOrder !== assignmentUpdated.oldAssignmentOrder) {
+          assignmentUpdated.assignmentOrder !== assignmentUpdated.oldAssignmentOrder) {
           assignmentUpdated.title = activeAssignment.title;
 
           Object.assign(activeAssignment, assignmentUpdated);
 
           updateAssignment(activeAssignment.id, assignmentUpdated)
-          .then(() => console.log("Assignment updated successfully"))
-          .catch((error) => console.error("Error in update Assignment:", error));
+            .then(() => console.log("Assignment updated successfully"))
+            .catch((error) => console.error("Error in update Assignment:", error));
         }
       }
     }
   }
 
   function onDragOver(event: DragOverEvent) {
-    const {active, over} = event;
+    const { active, over } = event;
     if (!over) return;
 
     const activeId = active.id;
@@ -470,12 +509,12 @@ export default function TaskPage() {
     // dropping assignment over assignment
     if (isActiveAAssignment && isOverAAssignment) {
       setAssignmentUpdated((prev) =>
-          ({
-            ...prev,
-            taskId: active.data.current?.assignment.task.id,
-            oldAssignmentOrder: active.data.current?.assignment.assignmentOrder,
-            assignmentOrder: over.data.current?.sortable.index + 1
-          }));
+      ({
+        ...prev,
+        taskId: active.data.current?.assignment.task.id,
+        oldAssignmentOrder: active.data.current?.assignment.assignmentOrder,
+        assignmentOrder: over.data.current?.sortable.index + 1
+      }));
 
       setAssignments((assignments) => {
         const activeIndex = assignments.findIndex((t) => t.id === activeId);
@@ -484,9 +523,9 @@ export default function TaskPage() {
         const overAssignment = assignments[overIndex];
 
         if (
-            activeAssignment &&
-            overAssignment &&
-            activeAssignment.task.id !== overAssignment.task.id
+          activeAssignment &&
+          overAssignment &&
+          activeAssignment.task.id !== overAssignment.task.id
         ) {
           activeAssignment.task.id = overAssignment.task.id;
           return arrayMove(assignments, activeIndex, overIndex - 1);
@@ -501,12 +540,12 @@ export default function TaskPage() {
     // dropping assignment over task
     if (isActiveAAssignment && isOverATask) {
       setAssignmentUpdated((prev) =>
-          ({
-            ...prev,
-            taskId: over.data.current?.task.id,
-            oldAssignmentOrder: active.data.current?.assignment.assignmentOrder,
-            assignmentOrder: over.data.current?.sortable.index - 1
-          }));
+      ({
+        ...prev,
+        taskId: over.data.current?.task.id,
+        oldAssignmentOrder: active.data.current?.assignment.assignmentOrder,
+        assignmentOrder: over.data.current?.sortable.index - 1
+      }));
 
       setAssignments((assignments) => {
         const activeIndex = assignments.findIndex((t) => t.id === activeId);
