@@ -5,7 +5,7 @@ import { Separator } from "@/components/ui/separator.tsx";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb.tsx";
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { PieChart, DonutChart } from "@/components/charts"
+import { PieChart } from "@/components/charts"
 import { Dashboard } from "@/models/Dashboard";
 import { useEffect, useState } from "react";
 import { getDashboard } from "@/services/dashboardService";

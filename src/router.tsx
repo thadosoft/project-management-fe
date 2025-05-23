@@ -22,6 +22,7 @@ import SearchWarehousePage from "./pages/warehouse/SearchWarehousePage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import WhiteBoardPage from "./pages/whiteboard/WhiteBoardPage";
 import AuditLogPage from "./pages/AuditLog/ẠuditLogPage";
+import DashboardTechnical from "./components/ui/DashboardTechnical";
 
 export const router = createBrowserRouter([
   // {path: "/", element: <App/>},
@@ -70,4 +71,7 @@ export const router = createBrowserRouter([
 
   //audit-log
   { path: "/audit-log", element: <AuditLogPage /> },
+
+    //technical-dash
+  { path: "/technical-dashboard", element: <DashboardTechnical /> },
 ]);

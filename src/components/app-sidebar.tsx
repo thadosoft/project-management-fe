@@ -132,7 +132,7 @@ const data = {
     {
       title: "Khối kỹ thuật",
       icon: SiAudiotechnica,
-      url: "#",
+      url: "/technical-dashboard",
       isActive: true,
       items: [
         {
