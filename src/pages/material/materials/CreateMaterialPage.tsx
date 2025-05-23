@@ -240,7 +240,6 @@ function CreateMaterialPage() {
             if (imageFiles.length > 0) {
                 try {
                     const uploadResult = await uploadMultipleMaterialImages(imageFiles, materialId);
-                    console.log("Upload nhiều hình ảnh thành công:", uploadResult);
                     alert("Tải hình ảnh thành công!");
                 } catch (error) {
                     console.error("Lỗi khi tải hình ảnh:", error);

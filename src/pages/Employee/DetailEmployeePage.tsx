@@ -87,9 +87,6 @@ function DetailEmployeePage() {
             const file = event.target.files[0];
             const reader = new FileReader();
 
-            console.log("File:", file);
-
-
             reader.onloadend = () => {
                 const base64String = reader.result as string;
                 setImage(base64String);

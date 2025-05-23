@@ -74,7 +74,6 @@ const TimelineItem: React.FC<TimelineItemProps> = ({ id, number, title, descript
     const navigate = useNavigate();
 
     const handleSave = (data: any) => {
-        console.log("Dữ liệu mới:", data);
     };
 
     const handleViewDetail = () => {

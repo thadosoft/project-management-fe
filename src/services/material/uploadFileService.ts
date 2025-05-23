@@ -16,7 +16,6 @@ export const uploadMaterialImage = async (
         tokenService.accessToken,
         formData
     );
-    console.log("uploadMaterialImage result:", result);
     return result;
 };
 
@@ -38,7 +37,6 @@ export const uploadMultipleMaterialImages = async (
         tokenService.accessToken,
         formData
     );
-    console.log("uploadMultipleMaterialImages result:", result);
     return result;
 };
 

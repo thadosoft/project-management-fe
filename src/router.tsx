@@ -23,6 +23,7 @@ import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import WhiteBoardPage from "./pages/whiteboard/WhiteBoardPage";
 import AuditLogPage from "./pages/AuditLog/ẠuditLogPage";
 import DashboardTechnical from "./components/ui/DashboardTechnical";
+import EmployeeOfMonthPage from "./pages/employee-of-month-page";
 
 export const router = createBrowserRouter([
   // {path: "/", element: <App/>},
@@ -74,4 +75,7 @@ export const router = createBrowserRouter([
 
     //technical-dash
   { path: "/technical-dashboard", element: <DashboardTechnical /> },
+
+  { path: "/employee-of-month", element: <EmployeeOfMonthPage /> },
+
 ]);

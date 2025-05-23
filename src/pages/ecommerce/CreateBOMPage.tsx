@@ -69,8 +69,6 @@ function CreateBOMPage() {
                     setExistingData(data);
                     setBom(data);
                     setOriginalBom(data);
-                    console.log(loading);
-
                 }
             });
         }

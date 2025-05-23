@@ -44,7 +44,6 @@ export default function WhiteBoardPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [employees, setEmployees] = useState<Employee[]>([]);
-  console.log(employees);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -90,8 +89,6 @@ export default function WhiteBoardPage() {
     });
     fetchWhiteBoards(currentPage);
   }, [currentPage]);
-  console.log("Employees:", employees);
-  console.log("Form employeeId:", form.employeeId);
 
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">

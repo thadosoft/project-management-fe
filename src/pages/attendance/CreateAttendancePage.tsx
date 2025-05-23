@@ -160,7 +160,6 @@ function CreateAttendancePage() {
                                                     <td className="border border-gray-300 px-5 whitespace-nowrap">{employee.fullName}</td>
                                                     {days.map((day, index) => {
                                                     const attendance = employee.dailyAttendance.find(a => {
-                                                        // console.log(`Comparing day.date: ${day.date} with workDate: ${a.workDate}`); bị lệch data 1 ngày so với thực tế => sử dụng hàm căn chỉnh lại index ở cột và hàng
                                                         return a.workDate === day.date;
                                                     });
                                                     const isSunday = day.dayOfWeek === "CN";

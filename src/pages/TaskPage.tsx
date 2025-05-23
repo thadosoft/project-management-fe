@@ -86,7 +86,6 @@ export default function TaskPage() {
   }
 
   useEffect(() => {
-    console.log(assignmentUpdated);
   }, [assignmentUpdated]);
 
   useEffect(() => {

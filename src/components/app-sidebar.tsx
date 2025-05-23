@@ -99,6 +99,10 @@ const data = {
           //   },
           // ]
         },
+        {
+          title: "Nhân viên xuất sắc tháng",
+          url: "/employee-of-month",
+        },
       ],
     },
     {
@@ -274,7 +278,6 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const userRole = localStorage.getItem("role") || "USER";
-  // console.log("User role in AppSidebar:", userRole);
 
   const rolePermissions: { [key: string]: string[] } = {
     TECHNICAL: ["Kho công ty", "Hồ sơ lưu trữ"],

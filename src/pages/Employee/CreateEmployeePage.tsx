@@ -81,7 +81,6 @@ function CreateEmployeePage() {
     });
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-        console.log("Change detected:", event.target.name, event.target.value);
         setEmployee({ ...employee, [event.target.name]: event.target.value });
     };
 
