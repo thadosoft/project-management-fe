@@ -15,14 +15,19 @@ import { get6LatestAuditLogs } from "@/services/auditLogService";
 import { LateStaft } from "@/models/Attendance";
 import { get6LatestEmployeesAttendance } from "@/services/attendanceService";
 import { getImageUrl } from "@/services/fileUploadService";
+import { EmployeeOfMonth } from "@/models/EmployeeOfMonth";
+import { searchEmployeeOfMonth } from "@/services/employeeOfMonthService";
 
 
 function DashboardPage() {
   const [dashboardData, setDashboardData] = useState<Dashboard[]>([]);
+  console.log(dashboardData);
+  
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const COLORS = ["bg-purple-600", "bg-teal-500", "bg-orange-500", "bg-blue-500", "bg-red-500"];
   const [lateStaff, setLateStaff] = useState<LateStaft[]>([]);
+  const [excellentStaffs, setExcellentStaffs] = useState<EmployeeOfMonth[]>([]);
 
   useEffect(() => {
     const fetchDashboard = async () => {
@@ -58,6 +63,14 @@ function DashboardPage() {
         setLateStaff(lateStaffWithImages);
       }
     };
+
+    const fetchTopEmployees = async () => {
+      const res = await searchEmployeeOfMonth({}, 0, 2);
+      if (res && res.content) {
+        setExcellentStaffs(res.content);
+      }
+    };
+    fetchTopEmployees();
 
     const fetchAll = async () => {
       setLoading(true);
@@ -192,26 +205,30 @@ function DashboardPage() {
                   <div className="mb-2">
                     <h2 className="text-base font-medium">Nhân viên xuất xắc nhất công ty</h2>
                   </div>
-                  {[1, 2].map((_, index) => (
+                  {excellentStaffs.map((item, index) => (
                     <div
-                      key={index}
-                      className="relative w-full max-w-2xl my-4 md:my-8 flex flex-col items-start space-y-4 sm:flex-row sm:space-y-0 sm:space-x-6 px-4 py-8 border-2 border-dashed border-gray-400 dark:border-gray-400 shadow-lg rounded-lg">
-
-                      <span className="absolute text-xs font-medium top-0 left-0 rounded-br-lg rounded-tl-lg px-2 py-1 bg-primary-100 dark:bg-gray-900 dark:text-gray-300 border-gray-400 dark:border-gray-400 border-b-2 border-r-2 border-dashed ">
-                        Excellent staff {index + 1}
+                      key={item.id}
+                      className="relative w-full max-w-2xl my-4 md:my-8 flex flex-col items-start space-y-4 sm:flex-row sm:space-y-0 sm:space-x-6 px-4 py-8 border-2 border-dashed border-gray-400 shadow-lg rounded-lg"
+                    >
+                      <span className="absolute text-xs font-medium top-0 left-0 rounded-br-lg rounded-tl-lg px-2 py-1 bg-primary-100 border-gray-400 border-b-2 border-r-2 border-dashed">
+                        Nhân viên xuất sắc {index + 1}
                       </span>
 
                       <div className="w-full flex justify-center sm:justify-start sm:w-auto">
-                        <img className="object-cover w-20 h-20 mt-3 mr-3 rounded-full" src="https://lh3.googleusercontent.com/a/AEdFTp70cvwI5eevfcr4LonOEX5gB2rzx7JnudOcnYbS1qU=s96-c" />
+                        <img
+                          className="object-cover w-20 h-20 mt-3 mr-3 rounded-full"
+                          src={item.employee.avatar}
+                          alt={item.employee.fullName}
+                        />
                       </div>
 
                       <div className="w-full sm:w-auto flex flex-col items-center sm:items-start">
-                        <p className="font-display mb-2 text-2xl font-semibold dark:text-gray-200">
-                          Prajwal Hallale
+                        <p className="font-display mb-2 text-2xl font-semibold">
+                          {item.employee.fullName}
                         </p>
 
                         <div className="mb-4 md:text-lg text-gray-400">
-                          <p>Prajwal is a versatile content writer with a strong background in web development.</p>
+                          <p>{item.reason || "Không có mô tả"}</p>
                         </div>
                       </div>
                     </div>
@@ -219,10 +236,11 @@ function DashboardPage() {
                 </Card>
 
                 {/* Cameras */}
-                <Card className="border shadow-sm p-4">                  <div className="mb-2">
-                  <h2 className="text-base font-medium">Chấm công nhân viên</h2>
-                  <p className="text-xs text-gray-500">Tổng quan hình ảnh điện</p>
-                </div>
+                <Card className="border shadow-sm p-4">
+                  <div className="mb-2">
+                    <h2 className="text-base font-medium">Chấm công nhân viên</h2>
+                    <p className="text-xs text-gray-500">Tổng quan thông tin nhận diện</p>
+                  </div>
                   {lateStaff.map((staft, index) => (
                     <div key={index} className="flex justify-between mt-2 items-center">
                       <div className="w-full flex justify-center sm:justify-start sm:w-auto">
@@ -300,3 +318,203 @@ function DashboardPage() {
 }
 
 export default DashboardPage;
+
+// import {
+//   Layout,
+//   Breadcrumb,
+//   Card,
+//   Row,
+//   Col,
+//   Typography,
+//   Table,
+//   Avatar,
+//   Progress,
+//   Skeleton,
+//   Tag,
+// } from "antd";
+// import { useEffect, useState } from "react";
+// import { AppSidebar } from "@/components/app-sidebar";
+// import { getDashboard } from "@/services/dashboardService";
+// import { get6LatestAuditLogs } from "@/services/auditLogService";
+// import { get6LatestEmployeesAttendance } from "@/services/attendanceService";
+// import { searchEmployeeOfMonth } from "@/services/employeeOfMonthService";
+// import { getImageUrl } from "@/services/fileUploadService";
+// import { Dashboard } from "@/models/Dashboard";
+// import { AuditLog } from "@/models/AuditLog";
+// import { LateStaft } from "@/models/Attendance";
+// import { EmployeeOfMonth } from "@/models/EmployeeOfMonth";
+// import { ThemeProvider } from "@/components/theme-provider.tsx";
+// import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar.tsx";
+// import { BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb.tsx";
+// import { Separator } from "@/components/ui/separator.tsx";
+
+
+// const { Header, Content } = Layout;
+// const { Title, Text } = Typography;
+
+// function DashboardPage() {
+//   const [dashboardData, setDashboardData] = useState<Dashboard[]>([]);
+//   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
+//   const [lateStaff, setLateStaff] = useState<LateStaft[]>([]);
+//   const [excellentStaffs, setExcellentStaffs] = useState<EmployeeOfMonth[]>([]);
+//   const [loading, setLoading] = useState(true);
+
+//   useEffect(() => {
+//     const fetchAll = async () => {
+//       setLoading(true);
+//       const [dashData, logs, late, topEmployees] = await Promise.all([
+//         getDashboard(),
+//         get6LatestAuditLogs(),
+//         get6LatestEmployeesAttendance(),
+//         searchEmployeeOfMonth({}, 0, 2),
+//       ]);
+
+//       if (dashData) setDashboardData(dashData);
+//       if (logs) setAuditLogs(logs);
+//       if (late) {
+//         const enriched = await Promise.all(
+//           late.map(async (s) => ({
+//             ...s,
+//             imageUrl: await getImageUrl(s.closeup),
+//           }))
+//         );
+//         setLateStaff(enriched);
+//       }
+//       if (topEmployees?.content) setExcellentStaffs(topEmployees.content);
+
+//       setLoading(false);
+//     };
+
+//     fetchAll();
+//   }, []);
+
+//   if (loading) {
+//     return <Skeleton active />;
+//   }
+
+//   return (
+//     <ThemeProvider>
+//       <SidebarProvider>
+//         <AppSidebar />
+//         <SidebarInset>
+//           <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrProjectPageer:h-12">
+//             <div className="flex items-center gap-2 px-4">
+//               <SidebarTrigger className="-ml-1" />
+//               <Separator orientation="vertical" className="mr-2 h-4" />
+//               <Breadcrumb>
+//                 <BreadcrumbList>
+//                   <BreadcrumbItem className="hidden md:block">
+//                     <BreadcrumbLink href="/">
+//                       Dashboard
+//                     </BreadcrumbLink>
+//                   </BreadcrumbItem>
+//                   <BreadcrumbSeparator className="hidden md:block" />
+//                   <BreadcrumbItem>
+//                     <BreadcrumbPage>Báo cáo tổng quan</BreadcrumbPage>
+//                   </BreadcrumbItem>
+//                 </BreadcrumbList>
+//               </Breadcrumb>
+//             </div>
+//           </header>
+//           <Layout style={{ minHeight: "100vh" }}>
+            
+//             <Layout>
+//               <Content style={{ margin: 16 }}>
+//                 <Row gutter={[16, 16]}>
+//                   {/* Project Progress */}
+//                   <Col span={24} md={12}>
+//                     <Card title="Tiến độ các dự án">
+//                       {dashboardData.map((item, i) => (
+//                         <div key={i} style={{ marginBottom: 12 }}>
+//                           <Text>{item.projectName}</Text>
+//                           <Progress
+//                             percent={item.progressPercentage}
+//                             strokeColor="#1890ff"
+//                             status={item.status === "DONE" ? "success" : "active"}
+//                           />
+//                         </div>
+//                       ))}
+//                     </Card>
+//                   </Col>
+
+//                   {/* Pie Chart - Optional Enhancement Placeholder */}
+//                   <Col span={24} md={12}>
+//                     <Card title="Thống kê tổng thể">
+//                       <p>Tổng số dự án: <Text strong>{dashboardData.length}</Text></p>
+//                       <p>Hoàn thành: <Tag color="green">{dashboardData.filter(d => d.status === '').length}</Tag></p>
+//                       <p>Đang tiến hành: <Tag color="orange">{dashboardData.filter(d => d.status === 'IN_PROGRESS').length}</Tag></p>
+//                     </Card>
+//                   </Col>
+
+//                   {/* Recent Audit Logs */}
+//                   <Col span={24} md={12}>
+//                     <Card title="6 hoạt động gần nhất">
+//                       <Table
+//                         size="small"
+//                         dataSource={auditLogs}
+//                         rowKey={(r) => r.id}
+//                         pagination={false}
+//                         columns={[
+//                           { title: "Người dùng", dataIndex: "username" },
+//                           { title: "Hành động", dataIndex: "action" },
+//                           { title: "Tài nguyên", dataIndex: "resource" },
+//                           { title: "Thời gian", dataIndex: "createdAt" },
+//                         ]}
+//                       />
+//                     </Card>
+//                   </Col>
+
+//                   {/* Excellent Employees */}
+//                   <Col span={24} md={12}>
+//                     <Card title="Nhân viên xuất sắc">
+//                       {excellentStaffs.map((staff, i) => (
+//                         <Card
+//                           key={staff.id}
+//                           type="inner"
+//                           title={`${i + 1}. ${staff.employee.fullName}`}
+//                           style={{ marginBottom: 12 }}
+//                         >
+//                           <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+//                             <Avatar size={64} src={staff.employee.avatar} />
+//                             <div>
+//                               <Text>{staff.reason || "Không có mô tả"}</Text>
+//                             </div>
+//                           </div>
+//                         </Card>
+//                       ))}
+//                     </Card>
+//                   </Col>
+
+//                   {/* Late Staff Attendance */}
+//                   <Col span={24}>
+//                     <Card title="Nhân viên đi trễ gần đây">
+//                       <Row gutter={[16, 16]}>
+//                         {lateStaff.map((staff, i) => (
+//                           <Col xs={24} sm={12} md={8} key={i}>
+//                             <Card hoverable>
+//                               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+//                                 <Avatar size="large" src={getImageUrl(staff.closeup)} />
+//                                 <div>
+//                                   <Text strong>{staff.personName}</Text>
+//                                   <br />
+//                                   <Text type="secondary">{staff.time}</Text>
+//                                 </div>
+//                               </div>
+//                             </Card>
+//                           </Col>
+//                         ))}
+//                       </Row>
+//                     </Card>
+//                   </Col>
+//                 </Row>
+//               </Content>
+//             </Layout>
+//           </Layout>
+//         </SidebarInset>
+//       </SidebarProvider>
+//     </ThemeProvider>
+//   );
+// }
+
+// export default DashboardPage;
+

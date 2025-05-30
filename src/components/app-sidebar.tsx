@@ -48,7 +48,7 @@ const data = {
       title: "Hành chính nhân sự",
       url: "#",
       icon: PiFinnTheHuman,
-      isActive: true,
+      isActive: false,
       items: [
         {
           title: "Bảng chấm công",
@@ -57,7 +57,7 @@ const data = {
         {
           title: "Bảng tính lương",
           url: "#",
-          isActive: true,
+          isActive: false,
           items: [
             {
               title: "Tạo bảng chấm công tháng",
@@ -72,7 +72,7 @@ const data = {
         {
           title: "Thông tin nhân viên",
           url: "#",
-          isActive: true,
+          isActive: false,
           items: [
             {
               title: "Khởi tạo tài khoản",
@@ -87,7 +87,7 @@ const data = {
         {
           title: "Thông tin Hành chính & nhân sự",
           url: "#",
-          isActive: true,
+          isActive: false,
           // items: [
           //   {
           //     title: "Khởi tạo tài khoản",
@@ -109,7 +109,7 @@ const data = {
       title: "Kinh doanh",
       icon: SiAudiotechnica,
       url: "#",
-      isActive: true,
+      isActive: false,
       items: [
         {
           title: "Quản lý khách hàng",
@@ -137,7 +137,7 @@ const data = {
       title: "Khối kỹ thuật",
       icon: SiAudiotechnica,
       url: "/technical-dashboard",
-      isActive: true,
+      isActive: false,
       items: [
         {
           title: "Quản lý dự án",
@@ -161,13 +161,13 @@ const data = {
       title: "Kho công ty",
       icon: SiAudiotechnica,
       url: "#",
-      isActive: true,
+      isActive: false,
       items: [
         {
           title: "Quản lý vật tư",
           icon: SiAudiotechnica,
           url: "",
-          isActive: true,
+          isActive: false,
           items: [
             {
               title: "Loại vật tư",
@@ -189,7 +189,7 @@ const data = {
           title: "Quản lý kho",
           icon: SiAudiotechnica,
           url: "",
-          isActive: true,
+          isActive: false,
           items: [
             {
               title: "Nhập/Xuất kho",
@@ -277,25 +277,25 @@ const data = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const userRole = localStorage.getItem("role") || "USER";
+  // const userRole = localStorage.getItem("role") || "USER";
 
-  const rolePermissions: { [key: string]: string[] } = {
-    TECHNICAL: ["Kho công ty", "Hồ sơ lưu trữ"],
-    INVENTORY: ["Kho công ty"],
-    USER: ["Hồ sơ lưu trữ"],
-    OFM: ["Hành chính nhân sự", "Thông tin nhân viên", "Kinh doanh", "Hồ sơ lưu trữ"],
-    SALE: ["Kinh doanh", "Hồ sơ lưu trữ"],
-    PM: ["Khối kỹ thuật", "Hồ sơ lưu trữ"]
-  };
+  // const rolePermissions: { [key: string]: string[] } = {
+  //   TECHNICAL: ["Kho công ty", "Hồ sơ lưu trữ"],
+  //   INVENTORY: ["Kho công ty"],
+  //   USER: ["Hồ sơ lưu trữ"],
+  //   OFM: ["Hành chính nhân sự", "Thông tin nhân viên", "Kinh doanh", "Hồ sơ lưu trữ"],
+  //   SALE: ["Kinh doanh", "Hồ sơ lưu trữ"],
+  //   PM: ["Khối kỹ thuật", "Hồ sơ lưu trữ"]
+  // };
 
-  const allowedMenus = rolePermissions[userRole.toUpperCase()] || [];
+  // const allowedMenus = rolePermissions[userRole.toUpperCase()] || [];
 
-  const filteredNavMain = data.navMain.filter((item) => {
-    if (allowedMenus.length > 0) {
-      return allowedMenus.includes(item.title);
-    }
-    return true;
-  });
+  // const filteredNavMain = data.navMain.filter((item) => {
+  //   if (allowedMenus.length > 0) {
+  //     return allowedMenus.includes(item.title);
+  //   }
+  //   return true;
+  // });
 
 
   return (
@@ -305,7 +305,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavApp items={data.navApp} />
-        <NavMain items={filteredNavMain} />
+        <NavMain items={data.navMain} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser />

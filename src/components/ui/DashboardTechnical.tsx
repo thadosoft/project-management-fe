@@ -24,6 +24,8 @@ import { Label } from "@/components/ui/label.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { CardHeader, CardFooter, CardTitle, CardContent } from "@/components/ui/card.tsx";
 import { DialogTitle } from "@radix-ui/react-dialog";
+import { useNavigate } from "react-router-dom";
+
 
 function DashboardTechnical() {
   const [dashboardData, setDashboardData] = useState<Dashboard[]>([]);
@@ -35,6 +37,8 @@ function DashboardTechnical() {
   const [newProjectName, setNewProjectName] = useState<string>("");
   const [newProjectDescription, setNewProjectDescription] = useState<string>("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const navigate = useNavigate();
+
 
   const handleCreateProject = async () => {
     const projectRequest: ProjectRequest = {
@@ -79,7 +83,6 @@ function DashboardTechnical() {
     const fetchLateStaff = async () => {
       const data = await get6LatestEmployeesAttendance();
       if (data) {
-        // Gọi getImageUrl cho từng người
         const lateStaffWithImages = await Promise.all(
           data.map(async (staff) => {
             try {

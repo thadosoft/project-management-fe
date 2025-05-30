@@ -21,7 +21,6 @@ import customParseFormat from "dayjs/plugin/customParseFormat";
 import { CreateEmployeeOfTheMonth, deleteEmployeeOfMonth, searchEmployeeOfMonth } from "@/services/employeeOfMonthService";
 import { CreateEmployeeOfMonth, EmployeeOfMonth } from "@/models/EmployeeOfMonth";
 import { getAllEmployees } from "@/services/employee/EmployeeService";
-import { getImageUrl } from "@/services/fileUploadService";
 
 dayjs.extend(customParseFormat);
 
@@ -205,7 +204,7 @@ export default function EmployeeOfMonthPage() {
                                     render: (employee) => (
                                         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                                             <img
-                                                src={getImageUrl(employee?.avatar)}
+                                                src={employee?.avatar}
                                                 alt={employee?.fullName}
                                                 style={{ width: 40, height: 40, borderRadius: "50%", objectFit: "cover" }}
                                             />
