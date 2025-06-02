@@ -31,10 +31,9 @@ export default function LoginPage() {
         throw new Error("Register failed, response is null");
       }
 
-      const { accessToken, refreshToken, id } = response;
+      const { accessToken, id } = response;
 
       localStorage.setItem("accessToken", accessToken);
-      localStorage.setItem("refreshToken", refreshToken);
       localStorage.setItem("id", id);
 
       // Lấy thông tin người dùng để lấy role
@@ -58,10 +57,9 @@ export default function LoginPage() {
         throw new Error("Login failed, response is null");
       }
 
-      const { accessToken, refreshToken, id } = response;
+      const { accessToken, id } = response;
 
       localStorage.setItem("accessToken", accessToken);
-      localStorage.setItem("refreshToken", refreshToken);
       localStorage.setItem("id", id);
 
       const user = await getUserById(id);
@@ -149,7 +147,7 @@ export default function LoginPage() {
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
                       id="username"
-                      placeholder="Ex: ntdung"
+                      placeholder="Your username"
                     />
                     <span className="text-red-500 text-[12px]">
                       {username === ""
@@ -187,7 +185,7 @@ export default function LoginPage() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       id="password"
-                      placeholder="Ex: Dungdt1234#"
+                      placeholder="Your password"
                     />
                     <span className="text-red-500 text-[12px]">
                       {password === ""
@@ -251,7 +249,7 @@ export default function LoginPage() {
                       value={loginUsername}
                       onChange={(e) => setLoginUsername(e.target.value)}
                       id="username"
-                      placeholder="Ex: ntdung"
+                      placeholder="Your username"
                     />
                   </div>
                   <div className="pb-4">
@@ -260,14 +258,14 @@ export default function LoginPage() {
                       type="password"
                       value={loginPassword}
                       onChange={(e) => setLoginPassword(e.target.value)}
-                      placeholder="Ex: Dungdt1234#"
+                      placeholder="Your password"
                     />
                   </div>
                   <span className="text-red-500 text-[12px]">{loginStatus}</span>
                   <div className="text-right mt-2">
                     <a
                       href="/forgot-password"
-                      className="text-blue-500 text-sm hover:underline"
+                      className="text-blue-500 text-sm hover:underline" 
                     >
                       Forgot Password?
                     </a>

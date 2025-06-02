@@ -62,7 +62,6 @@ export function NavUser() {
     .catch(async (error) => {
       console.log(error);
       localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
       localStorage.removeItem("id");
       navigate("/");
     });

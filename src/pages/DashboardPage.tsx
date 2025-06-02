@@ -45,24 +45,23 @@ function DashboardPage() {
     };
 
     const fetchLateStaff = async () => {
-      const data = await get6LatestEmployeesAttendance();
-      if (data) {
-        // Gọi getImageUrl cho từng người
-        const lateStaffWithImages = await Promise.all(
-          data.map(async (staff) => {
-            try {
-              const imageUrl = await getImageUrl(staff.closeup);
-              return { ...staff, imageUrl };
-            } catch (err) {
-              console.error("Failed to load image for", staff.personName);
-              return { ...staff, imageUrl: null };
-            }
-          })
-        );
-
-        setLateStaff(lateStaffWithImages);
-      }
-    };
+  const data = await get6LatestEmployeesAttendance();
+  if (data) {
+    const lateStaffWithImages = await Promise.all(
+      data.map(async (staff) => {
+        try {
+          const imageUrl = await getImageUrl(staff.closeup);
+          console.log(`Image URL for ${staff.personName}: ${imageUrl}`);
+          return { ...staff, imageUrl };
+        } catch (err) {
+          console.error(`Failed to load image for ${staff.personName}:`, err);
+          return { ...staff, imageUrl: 'path/to/fallback-image.jpg' };
+        }
+      })
+    );
+    setLateStaff(lateStaffWithImages);
+  }
+};
 
     const fetchTopEmployees = async () => {
       const res = await searchEmployeeOfMonth({}, 0, 2);
@@ -242,24 +241,23 @@ function DashboardPage() {
                     <p className="text-xs text-gray-500">Tổng quan thông tin nhận diện</p>
                   </div>
                   {lateStaff.map((staft, index) => (
-                    <div key={index} className="flex justify-between mt-2 items-center">
-                      <div className="w-full flex justify-center sm:justify-start sm:w-auto">
-                        <img
-                          className="object-cover w-20 h-20 mt-3 mr-3 rounded-full"
-                          src={getImageUrl(staft.closeup)}
-                          alt={staft.personName}
-                        />                      </div>
-
-                      <div className="">
-
-                        <p className="font-display mb-2 text-md font-semibold dark:text-gray-200">
-                          {staft.personName}
-                        </p>
-                        <div className=""></div>
-                        <p>{staft.time}</p>
-                      </div>
-                    </div>
-                  ))}
+  <div key={index} className="flex justify-between mt-2 items-center">
+    <div className="w-full flex justify-center sm:justify-start sm:w-auto">
+      <img
+        className="object-cover w-20 h-20 mt-3 mr-3 rounded-full"
+        src={staft.imageUrl} // Đúng: staft.imageUrl là string
+        alt={staft.personName}
+      />
+    </div>
+    <div>
+      <p className="font-display mb-2 text-md font-semibold dark:text-gray-200">
+        {staft.personName}
+      </p>
+      <div className=""></div>
+      <p>{staft.time}</p>
+    </div>
+  </div>
+))}
                 </Card>
               </div>
 

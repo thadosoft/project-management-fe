@@ -161,4 +161,6 @@ export interface LateStaft {
     time: string;
 
     closeup: string;
+
+    imageUrl?: string;
 }
