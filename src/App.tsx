@@ -1,9 +1,9 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import LoginPage from "@/pages/LoginPage.tsx"; 
 import ForgotPasswordPage from "@/pages/ForgotPasswordPage.tsx"; 
+import DashboardPage from "./pages/DashboardPage";
+import ProjectPage from "./pages/ProjectPage";
 
-const HomePage = () => <div>Home Page</div>;
-const ProjectPage = () => <div>Project Page</div>;
 
 function App() {
   return (
@@ -11,7 +11,7 @@ function App() {
       <Routes>
         <Route path="/" element={<LoginPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-        <Route path="/home" element={<HomePage />} />
+        <Route path="/home" element={<DashboardPage />} />
         <Route path="/project" element={<ProjectPage />} />
       </Routes>
     </BrowserRouter>

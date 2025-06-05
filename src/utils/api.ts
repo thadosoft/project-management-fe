@@ -10,6 +10,12 @@ export const fetchData = async <T, B = unknown>(
 ): Promise<T | null> => {
     try {
         const isFormData = body instanceof FormData;
+        const headers: HeadersInit = {
+  ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  ...(!isFormData && method !== "GET" ? { "Content-Type": "application/json" } : {}),
+};
+
+console.log("Headers sent:", headers);
         const response = await fetch(BASE_API_URL + url, {
             method: method,
             headers: {
@@ -20,6 +26,7 @@ export const fetchData = async <T, B = unknown>(
         });
 
         // console.log(`fetchData [${url}]: Status=${response.status}, Content-Type=${response.headers.get("Content-Type")}`);
+        // console.log("Token sent:", token);
 
         if (!response.ok) {
             let errorMessage = `Error ${response.status}: ${response.statusText}`;

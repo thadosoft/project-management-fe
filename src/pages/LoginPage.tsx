@@ -49,30 +49,31 @@ export default function LoginPage() {
   };
 
   const handleLogin = async () => {
-    try {
-      const response = await login(loginUsername, loginPassword);
+  try {
+    const response = await login(loginUsername, loginPassword);
 
-      if (!response) {
-        setLoginStatus("Wrong username or password");
-        throw new Error("Login failed, response is null");
-      }
-
-      const { accessToken, id } = response;
-
-      localStorage.setItem("accessToken", accessToken);
-      localStorage.setItem("id", id);
-
-      const user = await getUserById(id);
-      const role = user?.role || "USER"; 
-      localStorage.setItem("role", role.toUpperCase());//in hoa để đồng bộ
-
-      navigate("/home");
-    } catch (err: unknown) {
+    if (!response) {
       setLoginStatus("Wrong username or password");
-      const errorMessage = (err as Error).message || "Something went wrong. Please try again.";
-      console.error("Login error:", errorMessage);
+      throw new Error("Login failed, response is null");
     }
-  };
+
+    const { accessToken, id } = response;
+
+    // Sửa ở đây
+    tokenService.accessToken = accessToken;
+    localStorage.setItem("id", id);
+
+    const user = await getUserById(id);
+    const role = user?.role || "USER"; 
+    localStorage.setItem("role", role.toUpperCase());
+
+    navigate("/home");
+  } catch (err: unknown) {
+    setLoginStatus("Wrong username or password");
+    const errorMessage = (err as Error).message || "Something went wrong. Please try again.";
+    console.error("Login error:", errorMessage);
+  }
+};
 
   useEffect(() => {
     const userId = localStorage.getItem("id");

@@ -17,6 +17,7 @@ import { get6LatestEmployeesAttendance } from "@/services/attendanceService";
 import { getImageUrl } from "@/services/fileUploadService";
 import { EmployeeOfMonth } from "@/models/EmployeeOfMonth";
 import { searchEmployeeOfMonth } from "@/services/employeeOfMonthService";
+import tokenService from "@/services/tokenService";
 
 
 function DashboardPage() {
@@ -25,64 +26,68 @@ function DashboardPage() {
   
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
   const COLORS = ["bg-purple-600", "bg-teal-500", "bg-orange-500", "bg-blue-500", "bg-red-500"];
   const [lateStaff, setLateStaff] = useState<LateStaft[]>([]);
   const [excellentStaffs, setExcellentStaffs] = useState<EmployeeOfMonth[]>([]);
 
+  const fetchDashboard = async () => {
+    const data = await getDashboard();
+    if (data) setDashboardData(data);
+  };
+
+  const fetchLogs = async () => {
+    const logs = await get6LatestAuditLogs();
+    if (logs) setAuditLogs(logs);
+  };
+
+  const fetchLateStaff = async () => {
+    const data = await get6LatestEmployeesAttendance();
+    if (data) {
+      const lateStaffWithImages = await Promise.all(
+        data.map(async (staff) => {
+          try {
+            const imageUrl = await getImageUrl(staff.closeup);
+            return { ...staff, imageUrl };
+          } catch {
+            return { ...staff, imageUrl: 'path/to/fallback-image.jpg' };
+          }
+        })
+      );
+      setLateStaff(lateStaffWithImages);
+    }
+  };
+
+  const fetchTopEmployees = async () => {
+    const res = await searchEmployeeOfMonth({}, 0, 2);
+    if (res && res.content) setExcellentStaffs(res.content);
+  };
+
   useEffect(() => {
-    const fetchDashboard = async () => {
-      const data = await getDashboard();
-      if (data) {
-        setDashboardData(data);
-      }
-    };
+  const fetchAll = async () => {
+    setLoading(true);
+    setError(null);
+    await Promise.all([fetchDashboard(), fetchLogs(), fetchLateStaff(), fetchTopEmployees()]);
+    setLoading(false);
+  };
 
-    const fetchLogs = async () => {
-      const logs = await get6LatestAuditLogs();
-      if (logs) {
-        setAuditLogs(logs);
-      }
-    };
-
-    const fetchLateStaff = async () => {
-  const data = await get6LatestEmployeesAttendance();
-  if (data) {
-    const lateStaffWithImages = await Promise.all(
-      data.map(async (staff) => {
-        try {
-          const imageUrl = await getImageUrl(staff.closeup);
-          console.log(`Image URL for ${staff.personName}: ${imageUrl}`);
-          return { ...staff, imageUrl };
-        } catch (err) {
-          console.error(`Failed to load image for ${staff.personName}:`, err);
-          return { ...staff, imageUrl: 'path/to/fallback-image.jpg' };
+  const checkAndFetch = () => {
+    const token = tokenService.accessToken;
+    if (token) {
+      fetchAll();
+    } else {
+      const interval = setInterval(() => {
+        const latestToken = tokenService.accessToken;
+        if (latestToken) {
+          clearInterval(interval);
+          fetchAll();
         }
-      })
-    );
-    setLateStaff(lateStaffWithImages);
-  }
-};
+      }, 300); // check mỗi 300ms
+    }
+  };
 
-    const fetchTopEmployees = async () => {
-      const res = await searchEmployeeOfMonth({}, 0, 2);
-      if (res && res.content) {
-        setExcellentStaffs(res.content);
-      }
-    };
-    fetchTopEmployees();
-
-    const fetchAll = async () => {
-      setLoading(true);
-      await Promise.all([fetchDashboard(), fetchLogs(), fetchLateStaff()]);
-      setLoading(false);
-    };
-
-    fetchAll();
-  }, []);
-
-  if (loading) {
-    return <Skeleton className="w-full h-48" />;
-  }
+  checkAndFetch();
+}, []);
 
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
@@ -316,203 +321,4 @@ function DashboardPage() {
 }
 
 export default DashboardPage;
-
-// import {
-//   Layout,
-//   Breadcrumb,
-//   Card,
-//   Row,
-//   Col,
-//   Typography,
-//   Table,
-//   Avatar,
-//   Progress,
-//   Skeleton,
-//   Tag,
-// } from "antd";
-// import { useEffect, useState } from "react";
-// import { AppSidebar } from "@/components/app-sidebar";
-// import { getDashboard } from "@/services/dashboardService";
-// import { get6LatestAuditLogs } from "@/services/auditLogService";
-// import { get6LatestEmployeesAttendance } from "@/services/attendanceService";
-// import { searchEmployeeOfMonth } from "@/services/employeeOfMonthService";
-// import { getImageUrl } from "@/services/fileUploadService";
-// import { Dashboard } from "@/models/Dashboard";
-// import { AuditLog } from "@/models/AuditLog";
-// import { LateStaft } from "@/models/Attendance";
-// import { EmployeeOfMonth } from "@/models/EmployeeOfMonth";
-// import { ThemeProvider } from "@/components/theme-provider.tsx";
-// import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar.tsx";
-// import { BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb.tsx";
-// import { Separator } from "@/components/ui/separator.tsx";
-
-
-// const { Header, Content } = Layout;
-// const { Title, Text } = Typography;
-
-// function DashboardPage() {
-//   const [dashboardData, setDashboardData] = useState<Dashboard[]>([]);
-//   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
-//   const [lateStaff, setLateStaff] = useState<LateStaft[]>([]);
-//   const [excellentStaffs, setExcellentStaffs] = useState<EmployeeOfMonth[]>([]);
-//   const [loading, setLoading] = useState(true);
-
-//   useEffect(() => {
-//     const fetchAll = async () => {
-//       setLoading(true);
-//       const [dashData, logs, late, topEmployees] = await Promise.all([
-//         getDashboard(),
-//         get6LatestAuditLogs(),
-//         get6LatestEmployeesAttendance(),
-//         searchEmployeeOfMonth({}, 0, 2),
-//       ]);
-
-//       if (dashData) setDashboardData(dashData);
-//       if (logs) setAuditLogs(logs);
-//       if (late) {
-//         const enriched = await Promise.all(
-//           late.map(async (s) => ({
-//             ...s,
-//             imageUrl: await getImageUrl(s.closeup),
-//           }))
-//         );
-//         setLateStaff(enriched);
-//       }
-//       if (topEmployees?.content) setExcellentStaffs(topEmployees.content);
-
-//       setLoading(false);
-//     };
-
-//     fetchAll();
-//   }, []);
-
-//   if (loading) {
-//     return <Skeleton active />;
-//   }
-
-//   return (
-//     <ThemeProvider>
-//       <SidebarProvider>
-//         <AppSidebar />
-//         <SidebarInset>
-//           <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrProjectPageer:h-12">
-//             <div className="flex items-center gap-2 px-4">
-//               <SidebarTrigger className="-ml-1" />
-//               <Separator orientation="vertical" className="mr-2 h-4" />
-//               <Breadcrumb>
-//                 <BreadcrumbList>
-//                   <BreadcrumbItem className="hidden md:block">
-//                     <BreadcrumbLink href="/">
-//                       Dashboard
-//                     </BreadcrumbLink>
-//                   </BreadcrumbItem>
-//                   <BreadcrumbSeparator className="hidden md:block" />
-//                   <BreadcrumbItem>
-//                     <BreadcrumbPage>Báo cáo tổng quan</BreadcrumbPage>
-//                   </BreadcrumbItem>
-//                 </BreadcrumbList>
-//               </Breadcrumb>
-//             </div>
-//           </header>
-//           <Layout style={{ minHeight: "100vh" }}>
-            
-//             <Layout>
-//               <Content style={{ margin: 16 }}>
-//                 <Row gutter={[16, 16]}>
-//                   {/* Project Progress */}
-//                   <Col span={24} md={12}>
-//                     <Card title="Tiến độ các dự án">
-//                       {dashboardData.map((item, i) => (
-//                         <div key={i} style={{ marginBottom: 12 }}>
-//                           <Text>{item.projectName}</Text>
-//                           <Progress
-//                             percent={item.progressPercentage}
-//                             strokeColor="#1890ff"
-//                             status={item.status === "DONE" ? "success" : "active"}
-//                           />
-//                         </div>
-//                       ))}
-//                     </Card>
-//                   </Col>
-
-//                   {/* Pie Chart - Optional Enhancement Placeholder */}
-//                   <Col span={24} md={12}>
-//                     <Card title="Thống kê tổng thể">
-//                       <p>Tổng số dự án: <Text strong>{dashboardData.length}</Text></p>
-//                       <p>Hoàn thành: <Tag color="green">{dashboardData.filter(d => d.status === '').length}</Tag></p>
-//                       <p>Đang tiến hành: <Tag color="orange">{dashboardData.filter(d => d.status === 'IN_PROGRESS').length}</Tag></p>
-//                     </Card>
-//                   </Col>
-
-//                   {/* Recent Audit Logs */}
-//                   <Col span={24} md={12}>
-//                     <Card title="6 hoạt động gần nhất">
-//                       <Table
-//                         size="small"
-//                         dataSource={auditLogs}
-//                         rowKey={(r) => r.id}
-//                         pagination={false}
-//                         columns={[
-//                           { title: "Người dùng", dataIndex: "username" },
-//                           { title: "Hành động", dataIndex: "action" },
-//                           { title: "Tài nguyên", dataIndex: "resource" },
-//                           { title: "Thời gian", dataIndex: "createdAt" },
-//                         ]}
-//                       />
-//                     </Card>
-//                   </Col>
-
-//                   {/* Excellent Employees */}
-//                   <Col span={24} md={12}>
-//                     <Card title="Nhân viên xuất sắc">
-//                       {excellentStaffs.map((staff, i) => (
-//                         <Card
-//                           key={staff.id}
-//                           type="inner"
-//                           title={`${i + 1}. ${staff.employee.fullName}`}
-//                           style={{ marginBottom: 12 }}
-//                         >
-//                           <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-//                             <Avatar size={64} src={staff.employee.avatar} />
-//                             <div>
-//                               <Text>{staff.reason || "Không có mô tả"}</Text>
-//                             </div>
-//                           </div>
-//                         </Card>
-//                       ))}
-//                     </Card>
-//                   </Col>
-
-//                   {/* Late Staff Attendance */}
-//                   <Col span={24}>
-//                     <Card title="Nhân viên đi trễ gần đây">
-//                       <Row gutter={[16, 16]}>
-//                         {lateStaff.map((staff, i) => (
-//                           <Col xs={24} sm={12} md={8} key={i}>
-//                             <Card hoverable>
-//                               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-//                                 <Avatar size="large" src={getImageUrl(staff.closeup)} />
-//                                 <div>
-//                                   <Text strong>{staff.personName}</Text>
-//                                   <br />
-//                                   <Text type="secondary">{staff.time}</Text>
-//                                 </div>
-//                               </div>
-//                             </Card>
-//                           </Col>
-//                         ))}
-//                       </Row>
-//                     </Card>
-//                   </Col>
-//                 </Row>
-//               </Content>
-//             </Layout>
-//           </Layout>
-//         </SidebarInset>
-//       </SidebarProvider>
-//     </ThemeProvider>
-//   );
-// }
-
-// export default DashboardPage;
 
