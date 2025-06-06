@@ -24,6 +24,7 @@ import WhiteBoardPage from "./pages/whiteboard/WhiteBoardPage";
 import AuditLogPage from "./pages/AuditLog/ẠuditLogPage";
 import DashboardTechnical from "./components/ui/DashboardTechnical";
 import EmployeeOfMonthPage from "./pages/employee-of-month-page";
+import WarehouseOutryPage from "./pages/warehouse/WarehouseOutryPage";
 
 export const router = createBrowserRouter([
   // {path: "/", element: <App/>},
@@ -63,7 +64,9 @@ export const router = createBrowserRouter([
   { path: "/search-bom", element: < SearchBOMPage /> },
 
   // kho
-  { path: "/warehouse-entry", element: < WarehouseEntryPage /> },
+  { path: "/warehouse-entry", element: < WarehouseEntryPage /> },  
+  { path: "/warehouse-outry", element: < WarehouseOutryPage /> },
+
   { path: "/search-warehouse", element: < SearchWarehousePage /> },
   { path: "/warehouse-update/:id", element: < WarehouseEntryPage /> },
   

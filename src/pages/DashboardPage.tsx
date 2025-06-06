@@ -9,7 +9,6 @@ import { PieChart } from "@/components/charts"
 import { Dashboard } from "@/models/Dashboard";
 import { useEffect, useState } from "react";
 import { getDashboard } from "@/services/dashboardService";
-import { Skeleton } from "antd";
 import { AuditLog } from "@/models/AuditLog";
 import { get6LatestAuditLogs } from "@/services/auditLogService";
 import { LateStaft } from "@/models/Attendance";

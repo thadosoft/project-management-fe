@@ -48,7 +48,7 @@ const data = {
       title: "Hành chính nhân sự",
       url: "#",
       icon: PiFinnTheHuman,
-      isActive: false,
+      isActive: true,
       items: [
         {
           title: "Bảng chấm công",
@@ -57,7 +57,7 @@ const data = {
         {
           title: "Bảng tính lương",
           url: "#",
-          isActive: false,
+          isActive: true,
           items: [
             {
               title: "Tạo bảng chấm công tháng",
@@ -72,7 +72,7 @@ const data = {
         {
           title: "Thông tin nhân viên",
           url: "#",
-          isActive: false,
+          isActive: true,
           items: [
             {
               title: "Khởi tạo tài khoản",
@@ -87,7 +87,7 @@ const data = {
         {
           title: "Thông tin Hành chính & nhân sự",
           url: "#",
-          isActive: false,
+          isActive: true,
           // items: [
           //   {
           //     title: "Khởi tạo tài khoản",
@@ -109,7 +109,7 @@ const data = {
       title: "Kinh doanh",
       icon: SiAudiotechnica,
       url: "#",
-      isActive: false,
+      isActive: true,
       items: [
         {
           title: "Quản lý khách hàng",
@@ -137,7 +137,7 @@ const data = {
       title: "Khối kỹ thuật",
       icon: SiAudiotechnica,
       url: "/technical-dashboard",
-      isActive: false,
+      isActive: true,
       items: [
         {
           title: "Quản lý dự án",
@@ -161,13 +161,13 @@ const data = {
       title: "Kho công ty",
       icon: SiAudiotechnica,
       url: "#",
-      isActive: false,
+      isActive: true,
       items: [
         {
           title: "Quản lý vật tư",
           icon: SiAudiotechnica,
           url: "",
-          isActive: false,
+          isActive: true,
           items: [
             {
               title: "Loại vật tư",
@@ -189,11 +189,15 @@ const data = {
           title: "Quản lý kho",
           icon: SiAudiotechnica,
           url: "",
-          isActive: false,
+          isActive: true,
           items: [
             {
-              title: "Nhập/Xuất kho",
+              title: "Nhập kho",
               url: "/warehouse-entry",
+            },
+            {
+              title: "Xuất kho",
+              url: "/warehouse-outry",
             },
             {
               title: "Tìm kiếm nhập/xuất kho",
@@ -303,7 +307,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader>
         <TeamSwitcher teams={data.teams} />
       </SidebarHeader>
-      <SidebarContent>
+      <SidebarContent className="sidebar-scroll">
         <NavApp items={data.navApp} />
         <NavMain items={data.navMain} />
       </SidebarContent>
