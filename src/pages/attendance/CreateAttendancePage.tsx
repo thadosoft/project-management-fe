@@ -189,6 +189,36 @@ function CreateAttendancePage() {
                                             </tbody>
                                         </table>
                                     </div>
+                                    <div className="flex justify-end gap-4 my-8 border border-white w-max p-4">
+                                        <div className="flex items-center gap-4">
+                                            <div className="bg-yellow-300 w-8 h-8"></div>
+                                            <div>Chủ nhật</div>
+                                        </div>
+                                        <div className="flex items-center gap-4">
+                                            <div className="bg-green-500 w-8 h-8"></div>
+                                            <div>Cả ngày</div>
+                                        </div>
+                                        <div className="flex items-center gap-4">
+                                            <div className="bg-purple-500 w-8 h-8"></div>
+                                            <div>Ca sáng</div>
+                                        </div>
+                                        <div className="flex items-center gap-4">
+                                            <div className="bg-orange-500 w-8 h-8"></div>
+                                            <div>Ca chiều</div>
+                                        </div>
+                                        <div className="flex items-center gap-4">
+                                            <div className="bg-blue-500 w-8 h-8"></div>
+                                            <div>Nhà máy</div>
+                                        </div>
+                                        <div className="flex items-center gap-4">
+                                            <div className="bg-cyan-300 w-8 h-8"></div>
+                                            <div>Phép</div>
+                                        </div>
+                                        <div className="flex items-center gap-4">
+                                            <div className="bg-pink-500 w-8 h-8"></div>
+                                            <div>Lễ</div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

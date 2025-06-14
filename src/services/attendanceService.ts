@@ -86,3 +86,28 @@ export const get6LatestEmployeesAttendance = async (): Promise<LateStaft[] | nul
         return null;
     }
 };
+
+export const searchGroupedAttendances = async (
+    searchParams: Attendance,
+    page: number,
+    size: number
+  ): Promise<any | null> => {
+    try {
+      const queryParams = new URLSearchParams({
+        page: page.toString(),
+        size: size.toString(),
+        personName: searchParams.personName || "",
+        startDate: searchParams.startDate || "",
+        endDate: searchParams.endDate || "",
+      });
+  
+      return await fetchData<any>(
+        `attendances/grouped?${queryParams.toString()}`,
+        "GET",
+        tokenService.accessToken
+      );
+    } catch (error) {
+      console.error("Error fetching grouped attendances:", error);
+      return null;
+    }
+  };

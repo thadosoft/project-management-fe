@@ -164,3 +164,9 @@ export interface LateStaft {
 
     imageUrl?: string;
 }
+
+export interface SearchCaptureDatumRequest {
+  personName?: string;
+  startDate?: string; // ISO hoặc "yyyy-MM-dd"
+  endDate?: string;
+}

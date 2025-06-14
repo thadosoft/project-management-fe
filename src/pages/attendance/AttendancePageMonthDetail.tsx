@@ -92,9 +92,11 @@ function CreateAttendancePage() {
     const getDaysInMonth = (year: number, month: number) => {
         const daysInMonth = new Date(year, month, 0).getDate();
         return Array.from({ length: daysInMonth }, (_, i) => {
-            const date = new Date(year, month - 1, i + 2);
+            const day = i + 1; 
+            const date = new Date(year, month - 1, day);
+            const formattedDate = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
             return {
-                date: date.toISOString().split("T")[0],
+                date: formattedDate,
                 dayOfWeek: ["CN", "T2", "T3", "T4", "T5", "T6", "T7"][date.getDay()]
             };
         });
@@ -155,7 +157,8 @@ function CreateAttendancePage() {
                                                             className={`border border-gray-300 text-center text-sm font-semibold text-gray-900 ${day.dayOfWeek === "CN" ? "bg-yellow-300" : ""
                                                                 }`}
                                                         >
-                                                            {new Date(day.date).getUTCDate()}
+                                                            {index + 1}
+                                                            {/* {new Date(day.date).getUTCDate()} */}
                                                         </th>
                                                     ))}
                                                 </tr>
