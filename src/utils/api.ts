@@ -11,11 +11,11 @@ export const fetchData = async <T, B = unknown>(
     try {
         const isFormData = body instanceof FormData;
         const headers: HeadersInit = {
-  ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  ...(!isFormData && method !== "GET" ? { "Content-Type": "application/json" } : {}),
-};
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            ...(!isFormData && method !== "GET" ? { "Content-Type": "application/json" } : {}),
+        };
 
-console.log("Headers sent:", headers);
+        console.log("Headers sent:", headers);
         const response = await fetch(BASE_API_URL + url, {
             method: method,
             headers: {
@@ -67,7 +67,12 @@ console.log("Headers sent:", headers);
         } else if (contentType?.includes("text/plain")) {
             // console.log(`fetchData [${url}]: Text Data=`, text);
             return text as T;
-        } else {
+        } else if (contentType?.includes("application/pdf")) {
+            const blob = new Blob([text], { type: contentType });
+            return blob as T;
+        }
+
+        else {
             console.warn(`fetchData [${url}]: Unexpected Content-Type, returning null`);
             return null;
         }

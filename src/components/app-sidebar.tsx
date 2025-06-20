@@ -19,9 +19,9 @@ import {
 import { NavApp } from "@/components/nav-app.tsx";
 import { Home } from "lucide-react"
 import { CgProfile } from "react-icons/cg";
-
 import { SiAudiotechnica } from "react-icons/si";
 import { PiFinnTheHuman } from "react-icons/pi";
+import { useEffect, useRef } from "react";
 
 const data = {
   user: {
@@ -281,6 +281,7 @@ const data = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const scrollRef = useRef<HTMLDivElement | null>(null);
   // const userRole = localStorage.getItem("role") || "USER";
 
   // const rolePermissions: { [key: string]: string[] } = {
