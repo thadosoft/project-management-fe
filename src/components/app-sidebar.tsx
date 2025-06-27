@@ -31,7 +31,7 @@ const data = {
   },
   teams: [
     {
-      name: "Thadosoft",
+      name: "AITS",
       logo: GalleryVerticalEnd,
       plan: "Enterprise",
     },
@@ -51,7 +51,7 @@ const data = {
       isActive: true,
       items: [
         {
-          title: "Bảng chấm công",
+          title: "Theo dõi chấm công",
           url: "/attendance-sheet",
         },
         {
@@ -105,34 +105,34 @@ const data = {
         },
       ],
     },
-    {
-      title: "Kinh doanh",
-      icon: SiAudiotechnica,
-      url: "#",
-      isActive: true,
-      items: [
-        {
-          title: "Quản lý khách hàng",
-          url: "#",
-        },
-        {
-          title: "Quản lý đối tác - cung cấp",
-          url: "#",
-        },
-        {
-          title: "Tạo phiếu báo giá",
-          url: "/create-bom",
-        },
-        {
-          title: "Tìm kiếm báo giá",
-          url: "/search-bom",
-        },
-        {
-          title: "Thông tin phòng kinh doanh",
-          url: "#",
-        },
-      ],
-    },
+    // {
+    //   title: "Kinh doanh",
+    //   icon: SiAudiotechnica,
+    //   url: "#",
+    //   isActive: true,
+    //   items: [
+    //     {
+    //       title: "Quản lý khách hàng",
+    //       url: "#",
+    //     },
+    //     {
+    //       title: "Quản lý đối tác - cung cấp",
+    //       url: "#",
+    //     },
+    //     {
+    //       title: "Tạo phiếu báo giá",
+    //       url: "/create-bom",
+    //     },
+    //     {
+    //       title: "Tìm kiếm báo giá",
+    //       url: "/search-bom",
+    //     },
+    //     {
+    //       title: "Thông tin phòng kinh doanh",
+    //       url: "#",
+    //     },
+    //   ],
+    // },
     {
       title: "Khối kỹ thuật",
       icon: SiAudiotechnica,

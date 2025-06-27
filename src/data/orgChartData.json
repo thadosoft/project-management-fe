@@ -1,38 +1,35 @@
 {
   "id": "1",
   "title": "CEO",
+  "subtitle": "Mr. Minh",
   "children": [
     {
       "id": "1-1",
-      "title": "Trợ lý"
+      "title": "P. Kỹ thuật",
+      "children": [
+        { "id": "1-1-1", "title": "Team IT", "subtitle": "Mr.Dũng", "children": [{"id": "1-1-1-1", "title": "Mr.Tùng"}] },
+        { "id": "1-1-2", "title": "Team AI", "subtitle": "Mr.Khoa", "children": [{"id": "1-1-2-1", "title": "Ms.Tiến"}]  },
+        { "id": "1-1-3", "title": "Team Automation", "subtitle": "Mr.Kiên" },
+        { "id": "1-1-4", "title": "Team Design", "subtitle": "Mr.Hải" },
+        { "id": "1-1-5", "title": "Triển khai dự án", "subtitle": "Mr.Khang" },
+        { "id": "1-1-6", "title": "Hỗ trợ", "subtitle": "Mr.Trọng" }
+      ]
     },
     {
       "id": "1-2",
-      "title": "P. Kỹ thuật",
+      "title": "P. Kinh doanh",
       "children": [
-        { "id": "1-2-1", "title": "Team IT - Mr. Dũng" },
-        { "id": "1-2-2", "title": "Team AI - Mr. Khoa" },
-        { "id": "1-2-3", "title": "Team Automation - Mr. Kiên" },
-        { "id": "1-2-4", "title": "Team Design - Mr. Hải" },
-        { "id": "1-2-5", "title": "Team Triển khai dự án - Mr. Khang" },
-        { "id": "1-2-6", "title": "Team hỗ trợ - Mr. Trọng" }
+        { "id": "1-2-1", "title": "BP. Kinh doanh", "subtitle": "Mr.Vũ" },
+        { "id": "1-2-2", "title": "BP. Marketing", "subtitle": "Ms.Tiên" }
       ]
     },
     {
       "id": "1-3",
-      "title": "P. Kinh doanh",
-      "children": [
-        { "id": "1-3-1", "title": "BP. Kinh doanh - Mr. Vũ" },
-        { "id": "1-3-2", "title": "BP. Marketing - Ms. Tiên" }
-      ]
-    },
-    {
-      "id": "1-4",
       "title": "P. HCNS",
       "children": [
-        { "id": "1-4-1", "title": "Kế toán - Ms. Giang" },
-        { "id": "1-4-2", "title": "Hành chính - Giang" },
-        { "id": "1-4-3", "title": "HR + Công đoàn - Ms. Giang" }
+        { "id": "1-3-1", "title": "Kế toán", "subtitle": "Ms.Giang" },
+        { "id": "1-3-2", "title": "Hành chính", "subtitle": "Ms.Giang" },
+        { "id": "1-3-3", "title": "HR + Công đoàn", "subtitle": "Ms.Giang" }
       ]
     }
   ]

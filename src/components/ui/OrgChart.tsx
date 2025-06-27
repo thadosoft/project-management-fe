@@ -32,7 +32,7 @@ const RenderNode: React.FC<{ node: OrgNode }> = ({ node }) => {
         >
           <div className="font-semibold">{node.title}</div>
           {node.subtitle && (
-            <div className="text-[10px] leading-tight mt-1">
+            <div className="text-[12px] leading-tight mt-1">
               {node.subtitle}
             </div>
           )}
@@ -59,7 +59,7 @@ export const OrgChart: React.FC<{ data: OrgNode }> = ({ data }) => {
     <div
       className="overflow-auto"
       style={{
-        transformOrigin: "top left",
+        transformOrigin: "top center",
         width: "fit-content",
       }}
     >

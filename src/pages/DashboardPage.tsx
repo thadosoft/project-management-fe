@@ -1,11 +1,9 @@
-import { ThemeProvider } from "@/components/theme-provider.tsx";
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar.tsx";
-import { AppSidebar } from "@/components/app-sidebar.tsx";
-import { Separator } from "@/components/ui/separator.tsx";
+"use client"
+
+import { ThemeProvider } from "@/components/theme-provider"
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
+import { AppSidebar } from "@/components/app-sidebar"
+import { Separator } from "@/components/ui/separator"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -13,464 +11,656 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb.tsx";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { PieChart } from "@/components/charts";
-import { Dashboard } from "@/models/Dashboard";
-import { useEffect, useState } from "react";
-import { getDashboard } from "@/services/dashboardService";
-import { AuditLog } from "@/models/AuditLog";
-import { get6LatestAuditLogs } from "@/services/auditLogService";
-import { LateStaft } from "@/models/Attendance";
-import { get6LatestEmployeesAttendance } from "@/services/attendanceService";
-import { getImageUrl } from "@/services/fileUploadService";
-import { EmployeeOfMonth } from "@/models/EmployeeOfMonth";
-import { searchEmployeeOfMonth } from "@/services/employeeOfMonthService";
-import tokenService from "@/services/tokenService";
-import { OrgChart, OrgNode } from "@/components/ui/OrgChart";
-import orgChartData from "@/data/orgChartData.json";
+} from "@/components/ui/breadcrumb"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { PieChart } from "@/components/charts"
+import type { Dashboard } from "@/models/Dashboard"
+import { useEffect, useState } from "react"
+import { getDashboard } from "@/services/dashboardService"
+import type { AuditLog } from "@/models/AuditLog"
+import { get6LatestAuditLogs } from "@/services/auditLogService"
+import type { LateStaft } from "@/models/Attendance"
+import { get6LatestEmployeesAttendance } from "@/services/attendanceService"
+import type { EmployeeOfMonth } from "@/models/EmployeeOfMonth"
+import { searchEmployeeOfMonth } from "@/services/employeeOfMonthService"
+import tokenService from "@/services/tokenService"
+import { OrgChart, type OrgNode } from "@/components/ui/OrgChart"
+import orgChartData from "@/data/orgChartData.json"
+import { Skeleton } from "@/components/ui/skeleton"
+import { Badge } from "@/components/ui/badge"
+import { Progress } from "@/components/ui/progress"
+import { getProjects, createProject } from "@/services/projectService"
+import type { Project, ProjectRequest } from "@/models/Project"
+import {
+  BarChart3,
+  Users,
+  Target,
+  TrendingUp,
+  Activity,
+  Clock,
+  CheckCircle2,
+  AlertCircle,
+  Rocket,
+  Star,
+  Award,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react"
 
 function DashboardPage() {
-  const [dashboardData, setDashboardData] = useState<Dashboard[]>([]);
-  console.log(dashboardData);
-
-  const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const [dashboardData, setDashboardData] = useState<Dashboard[]>([])
+  const [auditLogs, setAuditLogs] = useState<AuditLog[]>([])
+  const [loading, setLoading] = useState<boolean>(true)
+  const [error, setError] = useState<string | null>(null)
   const COLORS = [
-    "bg-purple-600",
-    "bg-teal-500",
-    "bg-orange-500",
-    "bg-blue-500",
-    "bg-red-500",
-  ];
-  const [lateStaff, setLateStaff] = useState<LateStaft[]>([]);
-  const [excellentStaffs, setExcellentStaffs] = useState<EmployeeOfMonth[]>([]);
+    "from-violet-500 to-purple-600",
+    "from-emerald-500 to-teal-600",
+    "from-orange-500 to-red-500",
+    "from-blue-500 to-indigo-600",
+    "from-pink-500 to-rose-600",
+  ]
+  const [lateStaff, setLateStaff] = useState<LateStaft[]>([])
+  const [excellentStaffs, setExcellentStaffs] = useState<EmployeeOfMonth[]>([])
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const [projects, setProjects] = useState<Project[]>([])
+
+
+  // Company images
+  const companyImages = [
+    {
+      url: "https://thadosoft.com/thumbs/757x475x1/upload/photo/chinh-dien-le-tan-6427.png",
+      title: "Văn phòng công ty",
+      description: "Không gian làm việc hiện đại",
+    },
+    {
+      url: "https://thadosoft.com/thumbs/757x475x1/upload/photo/thiet-ke-aits-6841.png",
+      title: "Logo công ty",
+      description: "Thương hiệu ThadoSoft",
+    },
+    {
+      url: "https://thadosoft.com/upload/filemanager/AITSOLUTION%20%281%29.png",
+      title: "AI Solution",
+      description: "Giải pháp công nghệ AI",
+    },
+    {
+      url: "https://thadosoft.com/upload/filemanager/z6024646018758_1927426de409fde80a46ed1e796fd91e.jpg",
+      title: "Đội ngũ phát triển",
+      description: "Team công nghệ chuyên nghiệp",
+    },
+  ]
 
   const fetchDashboard = async () => {
-    const data = await getDashboard();
-    if (data) setDashboardData(data);
-  };
+    const data = await getDashboard()
+    if (data) setDashboardData(data)
+  }
 
   const fetchLogs = async () => {
-    const logs = await get6LatestAuditLogs();
-    if (logs) setAuditLogs(logs);
-  };
+    const logs = await get6LatestAuditLogs()
+    if (logs) setAuditLogs(logs)
+  }
 
   const fetchLateStaff = async () => {
-    const data = await get6LatestEmployeesAttendance();
+    const data = await get6LatestEmployeesAttendance()
     if (data) {
-      const lateStaffWithImages = await Promise.all(
-        data.map(async (staff) => {
-          try {
-            const imageUrl = await getImageUrl(staff.closeup);
-            return { ...staff, imageUrl };
-          } catch {
-            return { ...staff, imageUrl: "path/to/fallback-image.jpg" };
-          }
-        })
-      );
-      setLateStaff(lateStaffWithImages);
+      // Bỏ phần xử lý hình ảnh closeup
+      setLateStaff(data)
     }
-  };
+  }
 
   const fetchTopEmployees = async () => {
-    const res = await searchEmployeeOfMonth({}, 0, 2);
-    if (res && res.content) setExcellentStaffs(res.content);
-  };
+    const res = await searchEmployeeOfMonth({}, 0, 2)
+    if (res && res.content) setExcellentStaffs(res.content)
+  }
+
+  const fetchProjects = async () => {
+    const data = await getProjects()
+    if (data) setProjects(data)
+  }
+
+  const nextImage = () => {
+    setCurrentImageIndex((prev) => (prev + 1) % companyImages.length)
+  }
+
+  const prevImage = () => {
+    setCurrentImageIndex((prev) => (prev - 1 + companyImages.length) % companyImages.length)
+  }
 
   useEffect(() => {
     const fetchAll = async () => {
-      setLoading(true);
-      setError(null);
-      await Promise.all([
-        fetchDashboard(),
-        fetchLogs(),
-        fetchLateStaff(),
-        fetchTopEmployees(),
-      ]);
-      setLoading(false);
-    };
+      setLoading(true)
+      setError(null)
+      await Promise.all([fetchDashboard(), fetchLogs(), fetchLateStaff(), fetchTopEmployees(), fetchProjects()])
+      setLoading(false)
+    }
 
     const checkAndFetch = () => {
-      const token = tokenService.accessToken;
+      const token = tokenService.accessToken
       if (token) {
-        fetchAll();
+        fetchAll()
       } else {
         const interval = setInterval(() => {
-          const latestToken = tokenService.accessToken;
+          const latestToken = tokenService.accessToken
           if (latestToken) {
-            clearInterval(interval);
-            fetchAll();
+            clearInterval(interval)
+            fetchAll()
           }
-        }, 300); // check mỗi 300ms
+        }, 300)
       }
-    };
+    }
 
-    checkAndFetch();
-  }, []);
+    checkAndFetch()
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800">
+        <div className="space-y-8 w-full max-w-6xl mx-auto p-8">
+          <div className="text-center space-y-4">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 animate-pulse">
+              <Rocket className="w-8 h-8 text-white" />
+            </div>
+            <div className="space-y-2">
+              <Skeleton className="h-8 w-64 mx-auto rounded-full" />
+              <Skeleton className="h-4 w-48 mx-auto rounded-full" />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <Skeleton className="h-80 rounded-2xl" />
+            <Skeleton className="h-80 rounded-2xl" />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Skeleton className="h-32 rounded-xl" />
+            <Skeleton className="h-32 rounded-xl" />
+            <Skeleton className="h-32 rounded-xl" />
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  const completedProjects = dashboardData.filter((d) => d.status === "DONE").length
+  const inProgressProjects = dashboardData.filter((d) => d.status === "IN_PROGRESS").length
+  const totalProgress =
+    dashboardData.reduce((acc, curr) => acc + curr.progressPercentage, 0) / dashboardData.length || 0
 
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
       <SidebarProvider>
         <AppSidebar />
         <SidebarInset>
-          <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrProjectPageer:h-12">
-            <div className="flex items-center gap-2 px-4">
-              <SidebarTrigger className="-ml-1" />
-              <Separator orientation="vertical" className="mr-2 h-4" />
+          {/* Enhanced Header with Glass Effect */}
+          <header className="sticky top-0 z-50 flex h-16 shrink-0 items-center gap-2 transition-all duration-300 bg-background/80 backdrop-blur-xl border-b border-border/50 shadow-sm">
+            <div className="flex items-center gap-2 px-6">
+              <SidebarTrigger className="-ml-1 hover:bg-accent/50 transition-colors" />
+              <Separator orientation="vertical" className="mr-2 h-4 opacity-50" />
               <Breadcrumb>
                 <BreadcrumbList>
                   <BreadcrumbItem className="hidden md:block">
-                    <BreadcrumbLink href="/">Dashboard</BreadcrumbLink>
+                    <BreadcrumbLink href="/" className="hover:text-primary transition-colors font-medium">
+                      Dashboard
+                    </BreadcrumbLink>
                   </BreadcrumbItem>
-                  <BreadcrumbSeparator className="hidden md:block" />
+                  <BreadcrumbSeparator className="hidden md:block opacity-50" />
                   <BreadcrumbItem>
-                    <BreadcrumbPage>Báo cáo tổng quan</BreadcrumbPage>
+                    <BreadcrumbPage className="font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                      Báo cáo tổng quan
+                    </BreadcrumbPage>
                   </BreadcrumbItem>
                 </BreadcrumbList>
               </Breadcrumb>
             </div>
           </header>
-          <div className="">
-            <div className="pb-6">
-              <img src="src/assets/imgs/bg.png" alt="" />
-            </div>
-            <div className="p-4 container mx-auto">
-              <h2 className="text-xl font-semibold mb-4">Sơ đồ tổ chức</h2>
-              <div className="overflow-auto border rounded-lg p-4 bg-muted/30 ">
-                <OrgChart data={orgChartData as OrgNode} />
-              </div>
-            </div>
-            <div className="container mx-auto p-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                {/* Zone Monitoring */}
-                <Card className="border shadow-sm p-4">
-                  <div className="mb-2">
-                    <h2 className="text-base font-medium">
-                      Dự án và phần trăm tiến độ dự án{" "}
-                    </h2>
-                    {/* <p className="text-xs text-gray-500">14/5m - Ngày 7 ngày qua</p> */}
-                  </div>
 
-                  <div className="space-y-3 mt-4">
-                    {dashboardData.map((item, index) => (
-                      <div key={index}>
-                        <div className="flex justify-between text-xs mb-1">
-                          <span>{item.projectName}</span>
-                          <span>{item.progressPercentage}</span>
-                        </div>
-                        <div className="flex items-center">
-                          <div className="w-full bg-gray-200 rounded-full h-2.5">
-                            <div
-                              className={`${
-                                COLORS[index % COLORS.length]
-                              } h-2.5 rounded-full`}
-                              style={{ width: `${item.progressPercentage}%` }}
-                            ></div>
+          {/* Main Content with Enhanced Background */}
+          <div className="flex-1 bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-100/50 dark:from-slate-950 dark:via-slate-900/50 dark:to-slate-800 min-h-screen relative overflow-hidden">
+            {/* Enhanced Decorative Elements */}
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.1),transparent_50%)] pointer-events-none" />
+            <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-purple-500/10 via-blue-500/5 to-transparent rounded-full blur-3xl animate-pulse pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-80 h-80 bg-gradient-to-tr from-emerald-500/10 via-teal-500/5 to-transparent rounded-full blur-3xl animate-pulse delay-1000 pointer-events-none" />
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-r from-blue-500/5 via-purple-500/5 to-pink-500/5 rounded-full blur-3xl animate-spin-slow pointer-events-none" />
+
+            <div className="relative z-10">
+              {/* Hero Section */}
+              <div className="px-6 py-12 lg:px-8">
+                <div className="mx-auto max-w-full px-4">
+                  {/* Enhanced Header Section */}
+                  <div className="text-center space-y-8 mb-12">
+                    <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20 backdrop-blur-sm">
+                      <div className="w-2 h-2 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 animate-pulse" />
+                      <span className="text-sm font-medium text-muted-foreground">Dashboard</span>
+                    </div>
+
+                    <div className="space-y-4">
+                      <h1 className="text-4xl md:text-6xl lg:text-7xl font-black tracking-tight">
+                        <span className="bg-gradient-to-r from-slate-900 via-blue-900 to-slate-900 dark:from-white dark:via-blue-100 dark:to-white bg-clip-text text-transparent">
+                          Báo cáo
+                        </span>
+                        <br />
+                        <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 bg-clip-text text-transparent animate-gradient">
+                          Tổng quan
+                        </span>
+                      </h1>
+                      <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+                        Theo dõi hiệu suất, quản lý nhân sự và phân tích dữ liệu toàn diện
+                      </p>
+                    </div>
+
+                    {/* Quick Stats */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+                      <div className="group p-6 rounded-2xl bg-gradient-to-br from-white/50 to-white/30 dark:from-slate-800/50 dark:to-slate-700/30 backdrop-blur-sm border border-white/20 dark:border-slate-700/50 hover:scale-105 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/10">
+                        <div className="flex items-center gap-4">
+                          <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white group-hover:scale-110 transition-transform duration-300">
+                            <BarChart3 className="w-6 h-6" />
                           </div>
-                          {/* <span className="ml-2 text-xs">{item.progressPercentage}%</span> */}
+                          <div className="text-left">
+                            <div className="text-2xl font-bold text-foreground">{dashboardData.length}</div>
+                            <div className="text-sm text-muted-foreground">Tổng dự án</div>
+                          </div>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                </Card>
 
-                {/* Personnel Chart */}
-                <Card className="border shadow-sm p-4">
-                  <div className="mb-2">
-                    <h2 className="text-base font-medium">
-                      Biểu đồ thống kê dự án
-                    </h2>
-                  </div>
-                  <div className="text-center mt-2">
-                    <div className="text-3xl font-bold">
-                      {dashboardData.length}
-                    </div>
-                    <div className="text-xs text-gray-500">Tổng Số Dự Án</div>
-                  </div>
-                  <div className="h-[180px] mt-2">
-                    <PieChart
-                      data={dashboardData.map((item) => ({
-                        name: item.projectName,
-                        value: item.progressPercentage,
-                      }))}
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-2 text-xs mt-2">
-                    <div className="flex items-center justify-center">
-                      <div className="w-3 h-3 rounded-full bg-blue-500 mr-1"></div>
-                      <span>
-                        Hoàn thành:{" "}
-                        {
-                          dashboardData.filter((d) => d.status === "DONE")
-                            .length
-                        }
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-center">
-                      <div className="w-3 h-3 rounded-full bg-orange-500 mr-1"></div>
-                      <span>
-                        Đang tiến hành:{" "}
-                        {
-                          dashboardData.filter(
-                            (d) => d.status === "IN_PROGRESS"
-                          ).length
-                        }
-                      </span>
-                    </div>
-                  </div>
-                </Card>
-              </div>
-
-              <div className="grid grid-cols-1 gap-4 mb-4">
-                <Card className="border shadow-sm p-4 mt-4">
-                  <h2 className="text-base font-medium mb-2">
-                    6 hoạt động gần nhất
-                  </h2>
-                  <div className="overflow-x-auto">
-                    <table className="min-w-full text-sm text-left">
-                      <thead className="bg-gray-100 text-xs uppercase text-gray-700">
-                        <tr>
-                          <th className="px-4 py-2">Người dùng</th>
-                          <th className="px-4 py-2">Hành động</th>
-                          <th className="px-4 py-2">Tài nguyên</th>
-                          <th className="px-4 py-2">Thời gian</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {auditLogs.map((log, index) => (
-                          <tr key={index} className="border border-white">
-                            <td className="px-4 py-2">{log.username}</td>
-                            <td className="px-4 py-2">{log.action}</td>
-                            <td className="px-4 py-2">{log.resource}</td>
-                            <td className="px-4 py-2">{log.createdAt}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </Card>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
-                {/* Recent Activity */}
-                {/* <Card className="border shadow-sm p-4 mt-4">
-                  <h2 className="text-base font-medium mb-2">
-                    6 hoạt động gần nhất
-                  </h2>
-                  <div className="overflow-x-auto">
-                    <table className="min-w-full text-sm text-left">
-                      <thead className="bg-gray-100 text-xs uppercase text-gray-700">
-                        <tr>
-                          <th className="px-4 py-2">Người dùng</th>
-                          <th className="px-4 py-2">Hành động</th>
-                          <th className="px-4 py-2">Tài nguyên</th>
-                          <th className="px-4 py-2">Thời gian</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {auditLogs.map((log, index) => (
-                          <tr key={index} className="border border-white">
-                            <td className="px-4 py-2">{log.username}</td>
-                            <td className="px-4 py-2">{log.action}</td>
-                            <td className="px-4 py-2">{log.resource}</td>
-                            <td className="px-4 py-2">{log.createdAt}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </Card> */}
-
-                {/* Import/Export Chart */}
-                <Card className="border shadow-sm p-4">
-                  <div className="mb-2">
-                    <h2 className="text-base font-medium">
-                      Nhân viên xuất xắc nhất công ty
-                    </h2>
-                  </div>
-                  {excellentStaffs.map((item, index) => (
-                    <div
-                      key={item.id}
-                      className="relative w-full max-w-2xl my-4 md:my-8 flex flex-col items-start space-y-4 sm:flex-row sm:space-y-0 sm:space-x-6 px-4 py-8 border-2 border-dashed border-gray-400 shadow-lg rounded-lg"
-                    >
-                      <span className="absolute text-xs font-medium top-0 left-0 rounded-br-lg rounded-tl-lg px-2 py-1 bg-primary-100 border-gray-400 border-b-2 border-r-2 border-dashed">
-                        Nhân viên xuất sắc {index + 1}
-                      </span>
-
-                      <div className="w-full flex justify-center sm:justify-start sm:w-auto">
-                        <img
-                          className="object-cover w-20 h-20 mt-3 mr-3 rounded-full"
-                          src={item.employee.avatar}
-                          alt={item.employee.fullName}
-                        />
+                      <div className="group p-6 rounded-2xl bg-gradient-to-br from-white/50 to-white/30 dark:from-slate-800/50 dark:to-slate-700/30 backdrop-blur-sm border border-white/20 dark:border-slate-700/50 hover:scale-105 transition-all duration-300 hover:shadow-xl hover:shadow-emerald-500/10">
+                        <div className="flex items-center gap-4">
+                          <div className="p-3 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 text-white group-hover:scale-110 transition-transform duration-300">
+                            <CheckCircle2 className="w-6 h-6" />
+                          </div>
+                          <div className="text-left">
+                            <div className="text-2xl font-bold text-foreground">{completedProjects}</div>
+                            <div className="text-sm text-muted-foreground">Hoàn thành</div>
+                          </div>
+                        </div>
                       </div>
 
-                      <div className="w-full sm:w-auto flex flex-col items-center sm:items-start">
-                        <p className="font-display mb-2 text-2xl font-semibold">
-                          {item.employee.fullName}
-                        </p>
-
-                        <div className="mb-4 md:text-lg text-gray-400">
-                          <p>{item.reason || "Không có mô tả"}</p>
+                      <div className="group p-6 rounded-2xl bg-gradient-to-br from-white/50 to-white/30 dark:from-slate-800/50 dark:to-slate-700/30 backdrop-blur-sm border border-white/20 dark:border-slate-700/50 hover:scale-105 transition-all duration-300 hover:shadow-xl hover:shadow-orange-500/10">
+                        <div className="flex items-center gap-4">
+                          <div className="p-3 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 text-white group-hover:scale-110 transition-transform duration-300">
+                            <Clock className="w-6 h-6" />
+                          </div>
+                          <div className="text-left">
+                            <div className="text-2xl font-bold text-foreground">{Math.round(totalProgress)}%</div>
+                            <div className="text-sm text-muted-foreground">Tiến độ</div>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  ))}
-                </Card>
-
-                {/* Cameras */}
-                <Card className="border shadow-sm p-4">
-                  <div className="mb-2">
-                    <h2 className="text-base font-medium">
-                      Chấm công nhân viên
-                    </h2>
-                    <p className="text-xs text-gray-500">
-                      Tổng quan thông tin nhận diện
-                    </p>
                   </div>
-                  {lateStaff.map((staft, index) => (
-                    <div key={index} className="flex mt-2 items-center">
-                      <div className="w-full flex justify-center sm:justify-start sm:w-auto">
-                        <img
-                          className="object-cover w-20 h-20 mt-3 mr-3 rounded-full"
-                          src={staft.imageUrl}
-                          alt={staft.personName}
-                        />
-                      </div>
-                      <div>
-                        <p className="font-display mb-2 text-md font-semibold dark:text-gray-200">
-                          {staft.personName}
-                        </p>
-                        <div className=""></div>
-                        <p>{staft.time}</p>
-                      </div>
-                    </div>
-                  ))}
-                </Card>
-              </div>
 
-              {/* Event Statistics */}
-              <Card className="border-white shadow-sm p-4 mb-4">
-                <div className="mb-2 flex justify-between items-center">
-                  <h2 className="text-base font-medium">Thống Kê Sự Kiện</h2>
-                  <Button variant="destructive" size="sm" className="text-xs">
-                    Chi tiết
-                  </Button>
-                </div>
-                <div className="overflow-x-auto">
-                  <table className=" min-w-full rounded-xl text-center">
-                    <thead>
-                      <tr className="">
-                        <th
-                          scope="col"
-                          className="p-5 text-sm leading-6 font-semibold capitalize border border-white"
-                        >
-                          {" "}
-                          Company{" "}
-                        </th>
-                        <th
-                          scope="col"
-                          className="p-5 text-sm leading-6 font-semibold capitalize border border-white"
-                        >
-                          {" "}
-                          User ID{" "}
-                        </th>
-                        <th
-                          scope="col"
-                          className="p-5 text-sm leading-6 font-semibold capitalize border border-white"
-                        >
-                          {" "}
-                          Type{" "}
-                        </th>
-                        <th
-                          scope="col"
-                          className="p-5 text-sm leading-6 font-semibold capitalize border border-white"
-                        >
-                          {" "}
-                          Industry Type{" "}
-                        </th>
-                        <th
-                          scope="col"
-                          className="p-5 text-sm leading-6 font-semibold capitalize border border-white"
-                        >
-                          {" "}
-                          Actions{" "}
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-300 ">
-                      {[...Array(5)].map((_, index) => (
-                        <tr
-                          key={index}
-                          className=" transition-all duration-500 "
-                        >
-                          <td className=" border border-white p-5 whitespace-nowrap text-sm leading-6 font-medium ">
-                            {" "}
-                            Louis Vuitton
-                          </td>
-                          <td className=" border border-white p-5 whitespace-nowrap text-sm leading-6 font-medium">
-                            {" "}
-                            20010510{" "}
-                          </td>
-                          <td className=" border border-white p-5 whitespace-nowrap text-sm leading-6 font-medium">
-                            {" "}
-                            Customer
-                          </td>
-                          <td className=" border border-white p-5 whitespace-nowrap text-sm leading-6 font-medium">
-                            {" "}
-                            Accessories
-                          </td>
-                          <td className=" border border-white  p-5 ">
-                            <div className="flex justify-center items-center gap-1">
-                              <button className="p-2   group transition-all duration-500  flex item-center">
-                                <svg
-                                  className="cursor-pointer"
-                                  width="20"
-                                  height="20"
-                                  viewBox="0 0 20 20"
-                                  fill="none"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                >
-                                  <path
-                                    className="fill-indigo-500 "
-                                    d="M9.53414 8.15675L8.96459 7.59496L8.96459 7.59496L9.53414 8.15675ZM13.8911 3.73968L13.3215 3.17789V3.17789L13.8911 3.73968ZM16.3154 3.75892L15.7367 4.31126L15.7367 4.31127L16.3154 3.75892ZM16.38 3.82658L16.9587 3.27423L16.9587 3.27423L16.38 3.82658ZM16.3401 6.13595L15.7803 5.56438L16.3401 6.13595ZM11.9186 10.4658L12.4784 11.0374L11.9186 10.4658ZM11.1223 10.9017L10.9404 10.1226V10.1226L11.1223 10.9017ZM9.07259 10.9951L8.52556 11.5788L8.52556 11.5788L9.07259 10.9951ZM9.09713 8.9664L9.87963 9.1328V9.1328L9.09713 8.9664ZM9.05721 10.9803L8.49542 11.5498H8.49542L9.05721 10.9803ZM17.1679 4.99458L16.368 4.98075V4.98075L17.1679 4.99458ZM15.1107 2.8693L15.1171 2.06932L15.1107 2.8693ZM9.22851 8.51246L8.52589 8.12992L8.52452 8.13247L9.22851 8.51246ZM9.22567 8.51772L8.52168 8.13773L8.5203 8.1403L9.22567 8.51772ZM11.5684 10.7654L11.9531 11.4668L11.9536 11.4666L11.5684 10.7654ZM11.5669 10.7662L11.9507 11.4681L11.9516 11.4676L11.5669 10.7662ZM11.3235 3.30005C11.7654 3.30005 12.1235 2.94188 12.1235 2.50005C12.1235 2.05822 11.7654 1.70005 11.3235 1.70005V3.30005ZM18.3 9.55887C18.3 9.11705 17.9418 8.75887 17.5 8.75887C17.0582 8.75887 16.7 9.11705 16.7 9.55887H18.3ZM3.47631 16.5237L4.042 15.9581H4.042L3.47631 16.5237ZM16.5237 16.5237L15.958 15.9581L15.958 15.9581L16.5237 16.5237ZM10.1037 8.71855L14.4606 4.30148L13.3215 3.17789L8.96459 7.59496L10.1037 8.71855ZM15.7367 4.31127L15.8013 4.37893L16.9587 3.27423L16.8941 3.20657L15.7367 4.31127ZM15.7803 5.56438L11.3589 9.89426L12.4784 11.0374L16.8998 6.70753L15.7803 5.56438ZM10.9404 10.1226C10.3417 10.2624 9.97854 10.3452 9.72166 10.3675C9.47476 10.3888 9.53559 10.3326 9.61962 10.4113L8.52556 11.5788C8.9387 11.966 9.45086 11.9969 9.85978 11.9615C10.2587 11.9269 10.7558 11.8088 11.3042 11.6807L10.9404 10.1226ZM8.31462 8.8C8.19986 9.33969 8.09269 9.83345 8.0681 10.2293C8.04264 10.6393 8.08994 11.1499 8.49542 11.5498L9.619 10.4107C9.70348 10.494 9.65043 10.5635 9.66503 10.3285C9.6805 10.0795 9.75378 9.72461 9.87963 9.1328L8.31462 8.8ZM9.61962 10.4113C9.61941 10.4111 9.6192 10.4109 9.619 10.4107L8.49542 11.5498C8.50534 11.5596 8.51539 11.5693 8.52556 11.5788L9.61962 10.4113ZM15.8013 4.37892C16.0813 4.67236 16.2351 4.83583 16.3279 4.96331C16.4073 5.07234 16.3667 5.05597 16.368 4.98075L17.9678 5.00841C17.9749 4.59682 17.805 4.27366 17.6213 4.02139C17.451 3.78756 17.2078 3.53522 16.9587 3.27423L15.8013 4.37892ZM16.8998 6.70753C17.1578 6.45486 17.4095 6.21077 17.5876 5.98281C17.7798 5.73698 17.9607 5.41987 17.9678 5.00841L16.368 4.98075C16.3693 4.90565 16.4103 4.8909 16.327 4.99749C16.2297 5.12196 16.0703 5.28038 15.7803 5.56438L16.8998 6.70753ZM14.4606 4.30148C14.7639 3.99402 14.9352 3.82285 15.0703 3.71873C15.1866 3.62905 15.1757 3.66984 15.1044 3.66927L15.1171 2.06932C14.6874 2.06591 14.3538 2.25081 14.0935 2.45151C13.8518 2.63775 13.5925 2.9032 13.3215 3.17789L14.4606 4.30148ZM16.8941 3.20657C16.6279 2.92765 16.373 2.65804 16.1345 2.46792C15.8774 2.26298 15.5468 2.07273 15.1171 2.06932L15.1044 3.66927C15.033 3.66871 15.0226 3.62768 15.1372 3.71904C15.2704 3.82522 15.4387 3.999 15.7367 4.31126L16.8941 3.20657ZM8.96459 7.59496C8.82923 7.73218 8.64795 7.90575 8.5259 8.12993L9.93113 8.895C9.92075 8.91406 9.91465 8.91711 9.93926 8.88927C9.97002 8.85445 10.0145 8.80893 10.1037 8.71854L8.96459 7.59496ZM9.87963 9.1328C9.9059 9.00925 9.91925 8.94785 9.93124 8.90366C9.94073 8.86868 9.94137 8.87585 9.93104 8.89515L8.5203 8.1403C8.39951 8.36605 8.35444 8.61274 8.31462 8.8L9.87963 9.1328ZM8.52452 8.13247L8.52168 8.13773L9.92967 8.89772L9.9325 8.89246L8.52452 8.13247ZM11.3589 9.89426C11.27 9.98132 11.2252 10.0248 11.1909 10.055C11.1635 10.0791 11.1658 10.0738 11.1832 10.0642L11.9536 11.4666C12.1727 11.3462 12.3427 11.1703 12.4784 11.0374L11.3589 9.89426ZM11.3042 11.6807C11.4912 11.6371 11.7319 11.5878 11.9507 11.4681L11.1831 10.0643C11.2007 10.0547 11.206 10.0557 11.1697 10.0663C11.1248 10.0793 11.0628 10.0941 10.9404 10.1226L11.3042 11.6807ZM11.1837 10.064L11.1822 10.0648L11.9516 11.4676L11.9531 11.4668L11.1837 10.064ZM16.399 6.10097L13.8984 3.60094L12.7672 4.73243L15.2677 7.23246L16.399 6.10097ZM10.8333 16.7001H9.16667V18.3001H10.8333V16.7001ZM3.3 10.8334V9.16672H1.7V10.8334H3.3ZM9.16667 3.30005H11.3235V1.70005H9.16667V3.30005ZM16.7 9.55887V10.8334H18.3V9.55887H16.7ZM9.16667 16.7001C7.5727 16.7001 6.45771 16.6984 5.61569 16.5851C4.79669 16.475 4.35674 16.2728 4.042 15.9581L2.91063 17.0894C3.5722 17.751 4.40607 18.0369 5.4025 18.1709C6.37591 18.3018 7.61793 18.3001 9.16667 18.3001V16.7001ZM1.7 10.8334C1.7 12.3821 1.6983 13.6241 1.82917 14.5976C1.96314 15.594 2.24905 16.4279 2.91063 17.0894L4.042 15.9581C3.72726 15.6433 3.52502 15.2034 3.41491 14.3844C3.3017 13.5423 3.3 12.4273 3.3 10.8334H1.7ZM10.8333 18.3001C12.3821 18.3001 13.6241 18.3018 14.5975 18.1709C15.5939 18.0369 16.4278 17.751 17.0894 17.0894L15.958 15.9581C15.6433 16.2728 15.2033 16.475 14.3843 16.5851C13.5423 16.6984 12.4273 16.7001 10.8333 16.7001V18.3001ZM16.7 10.8334C16.7 12.4274 16.6983 13.5423 16.5851 14.3844C16.475 15.2034 16.2727 15.6433 15.958 15.9581L17.0894 17.0894C17.7509 16.4279 18.0369 15.594 18.1708 14.5976C18.3017 13.6241 18.3 12.3821 18.3 10.8334H16.7ZM3.3 9.16672C3.3 7.57275 3.3017 6.45776 3.41491 5.61574C3.52502 4.79674 3.72726 4.35679 4.042 4.04205L2.91063 2.91068C2.24905 3.57225 1.96314 4.40612 1.82917 5.40255C1.6983 6.37596 1.7 7.61798 1.7 9.16672H3.3ZM9.16667 1.70005C7.61793 1.70005 6.37591 1.69835 5.4025 1.82922C4.40607 1.96319 3.5722 2.24911 2.91063 2.91068L4.042 4.04205C4.35674 3.72731 4.79669 3.52507 5.61569 3.41496C6.45771 3.30175 7.5727 3.30005 9.16667 3.30005V1.70005Z"
-                                    fill="#818CF8"
-                                  ></path>
-                                </svg>
-                              </button>
-                              <button className="p-2  group transition-all duration-500  flex item-center">
-                                <svg
-                                  className=""
-                                  width="20"
-                                  height="20"
-                                  viewBox="0 0 20 20"
-                                  fill="none"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                >
-                                  <path
-                                    className="fill-red-600"
-                                    d="M4.00031 5.49999V4.69999H3.20031V5.49999H4.00031ZM16.0003 5.49999H16.8003V4.69999H16.0003V5.49999ZM17.5003 5.49999L17.5003 6.29999C17.9421 6.29999 18.3003 5.94183 18.3003 5.5C18.3003 5.05817 17.9421 4.7 17.5003 4.69999L17.5003 5.49999ZM9.30029 9.24997C9.30029 8.80814 8.94212 8.44997 8.50029 8.44997C8.05847 8.44997 7.70029 8.80814 7.70029 9.24997H9.30029ZM7.70029 13.75C7.70029 14.1918 8.05847 14.55 8.50029 14.55C8.94212 14.55 9.30029 14.1918 9.30029 13.75H7.70029ZM12.3004 9.24997C12.3004 8.80814 11.9422 8.44997 11.5004 8.44997C11.0585 8.44997 10.7004 8.80814 10.7004 9.24997H12.3004ZM10.7004 13.75C10.7004 14.1918 11.0585 14.55 11.5004 14.55C11.9422 14.55 12.3004 14.1918 12.3004 13.75H10.7004ZM4.00031 6.29999H16.0003V4.69999H4.00031V6.29999ZM15.2003 5.49999V12.5H16.8003V5.49999H15.2003ZM11.0003 16.7H9.00031V18.3H11.0003V16.7ZM4.80031 12.5V5.49999H3.20031V12.5H4.80031ZM9.00031 16.7C7.79918 16.7 6.97882 16.6983 6.36373 16.6156C5.77165 16.536 5.49093 16.3948 5.29823 16.2021L4.16686 17.3334C4.70639 17.873 5.38104 18.0979 6.15053 18.2013C6.89702 18.3017 7.84442 18.3 9.00031 18.3V16.7ZM3.20031 12.5C3.20031 13.6559 3.19861 14.6033 3.29897 15.3498C3.40243 16.1193 3.62733 16.7939 4.16686 17.3334L5.29823 16.2021C5.10553 16.0094 4.96431 15.7286 4.88471 15.1366C4.80201 14.5215 4.80031 13.7011 4.80031 12.5H3.20031ZM15.2003 12.5C15.2003 13.7011 15.1986 14.5215 15.1159 15.1366C15.0363 15.7286 14.8951 16.0094 14.7024 16.2021L15.8338 17.3334C16.3733 16.7939 16.5982 16.1193 16.7016 15.3498C16.802 14.6033 16.8003 13.6559 16.8003 12.5H15.2003ZM11.0003 18.3C12.1562 18.3 13.1036 18.3017 13.8501 18.2013C14.6196 18.0979 15.2942 17.873 15.8338 17.3334L14.7024 16.2021C14.5097 16.3948 14.229 16.536 13.6369 16.6156C13.0218 16.6983 12.2014 16.7 11.0003 16.7V18.3ZM2.50031 4.69999C2.22572 4.7 2.04405 4.7 1.94475 4.7C1.89511 4.7 1.86604 4.7 1.85624 4.7C1.85471 4.7 1.85206 4.7 1.851 4.7C1.05253 5.50059 1.85233 6.3 1.85256 6.3C1.85273 6.3 1.85297 6.3 1.85327 6.3C1.85385 6.3 1.85472 6.3 1.85587 6.3C1.86047 6.3 1.86972 6.3 1.88345 6.3C1.99328 6.3 2.39045 6.3 2.9906 6.3C4.19091 6.3 6.2032 6.3 8.35279 6.3C10.5024 6.3 12.7893 6.3 14.5387 6.3C15.4135 6.3 16.1539 6.3 16.6756 6.3C16.9364 6.3 17.1426 6.29999 17.2836 6.29999C17.3541 6.29999 17.4083 6.29999 17.4448 6.29999C17.4631 6.29999 17.477 6.29999 17.4863 6.29999C17.4909 6.29999 17.4944 6.29999 17.4968 6.29999C17.498 6.29999 17.4988 6.29999 17.4994 6.29999C17.4997 6.29999 17.4999 6.29999 17.5001 6.29999C17.5002 6.29999 17.5003 6.29999 17.5003 5.49999C17.5003 4.69999 17.5002 4.69999 17.5001 4.69999C17.4999 4.69999 17.4997 4.69999 17.4994 4.69999C17.4988 4.69999 17.498 4.69999 17.4968 4.69999C17.4944 4.69999 17.4909 4.69999 17.4863 4.69999C17.477 4.69999 17.4631 4.69999 17.4448 4.69999C17.4083 4.69999 17.3541 4.69999 17.2836 4.69999C17.1426 4.7 16.9364 4.7 16.6756 4.7C16.1539 4.7 15.4135 4.7 14.5387 4.7C12.7893 4.7 10.5024 4.7 8.35279 4.7C6.2032 4.7 4.19091 4.7 2.9906 4.7C2.39044 4.7 1.99329 4.7 1.88347 4.7C1.86974 4.7 1.86051 4.7 1.85594 4.7C1.8548 4.7 1.85396 4.7 1.85342 4.7C1.85315 4.7 1.85298 4.7 1.85288 4.7C1.85284 4.7 2.65253 5.49941 1.85408 6.3C1.85314 6.3 1.85296 6.3 1.85632 6.3C1.86608 6.3 1.89511 6.3 1.94477 6.3C2.04406 6.3 2.22573 6.3 2.50031 6.29999L2.50031 4.69999ZM7.05028 5.49994V4.16661H5.45028V5.49994H7.05028ZM7.91695 3.29994H12.0836V1.69994H7.91695V3.29994ZM12.9503 4.16661V5.49994H14.5503V4.16661H12.9503ZM12.0836 3.29994C12.5623 3.29994 12.9503 3.68796 12.9503 4.16661H14.5503C14.5503 2.8043 13.4459 1.69994 12.0836 1.69994V3.29994ZM7.05028 4.16661C7.05028 3.68796 7.4383 3.29994 7.91695 3.29994V1.69994C6.55465 1.69994 5.45028 2.8043 5.45028 4.16661H7.05028ZM2.50031 6.29999C4.70481 6.29998 6.40335 6.29998 8.1253 6.29997C9.84725 6.29996 11.5458 6.29995 13.7503 6.29994L13.7503 4.69994C11.5458 4.69995 9.84724 4.69996 8.12529 4.69997C6.40335 4.69998 4.7048 4.69998 2.50031 4.69999L2.50031 6.29999ZM13.7503 6.29994L17.5003 6.29999L17.5003 4.69999L13.7503 4.69994L13.7503 6.29994ZM7.70029 9.24997V13.75H9.30029V9.24997H7.70029ZM10.7004 9.24997V13.75H12.3004V9.24997H10.7004Z"
-                                    fill="#F87171"
-                                  ></path>
-                                </svg>
-                              </button>
+                  {/* Main Content Grid */}
+                  <div className="space-y-8">
+                    {/* Org Chart Section - Full Width */}
+                    <Card className="group border-0 bg-gradient-to-br from-white/60 to-white/40 dark:from-slate-800/60 dark:to-slate-700/40 backdrop-blur-xl shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-[1.01] overflow-hidden">
+                      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                      <CardHeader className="relative z-10 bg-gradient-to-r from-transparent via-blue-500/5 to-transparent border-b border-border/50">
+                        <CardTitle className="flex items-center gap-4 text-2xl p-3">
+                          <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg group-hover:scale-110 transition-transform duration-300">
+                            <Users className="w-6 h-6" />
+                          </div>
+                          <div>
+                            <span className="bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent font-bold">
+                              Sơ đồ tổ chức
+                            </span>
+                            <p className="text-sm text-muted-foreground font-normal mt-1">Cấu trúc tổ chức công ty</p>
+                          </div>
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="relative z-10 p-8">
+                        <div className="w-full overflow-x-auto border border-border/50 rounded-2xl p-8 bg-gradient-to-br from-muted/20 to-muted/10 backdrop-blur-sm">
+                          <div className="min-w-[1200px]">
+                            <OrgChart data={orgChartData as OrgNode} />
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Projects and Statistics Grid */}
+                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                      {/* Project Progress Card */}
+                      <Card className="group border-0 bg-gradient-to-br from-white/60 to-white/40 dark:from-slate-800/60 dark:to-slate-700/40 backdrop-blur-xl shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-[1.02] overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 via-transparent to-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                        <CardHeader className="relative z-10 bg-gradient-to-r from-transparent via-emerald-500/5 to-transparent border-b border-border/50">
+                          <CardTitle className="flex items-center gap-4 text-2xl p-3">
+                            <div className="p-3 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-lg group-hover:scale-110 transition-transform duration-300">
+                              <Target className="w-6 h-6" />
                             </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                            <div>
+                              <span className="bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent font-bold">
+                                Dự án và tiến độ
+                              </span>
+                              <p className="text-sm text-muted-foreground font-normal mt-1">
+                                Theo dõi chi tiết từng dự án
+                              </p>
+                            </div>
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="relative z-10 p-8 space-y-6">
+                          {dashboardData.map((item, index) => (
+                            <div
+                              key={index}
+                              className="group/item space-y-3 p-4 rounded-xl bg-gradient-to-r from-background/50 to-background/30 hover:from-background/70 hover:to-background/50 transition-all duration-300 border border-border/30 hover:border-border/50"
+                            >
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                  <div
+                                    className={`w-3 h-3 rounded-full bg-gradient-to-r ${COLORS[index % COLORS.length]} shadow-lg`}
+                                  />
+                                  <span className="font-semibold text-foreground group-hover/item:text-emerald-600 transition-colors">
+                                    {item.projectName}
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Badge variant={item.status === "DONE" ? "default" : "secondary"} className="text-xs">
+                                    {item.status === "DONE" ? "Hoàn thành" : "Đang thực hiện"}
+                                  </Badge>
+                                  <span className="font-bold text-emerald-600 text-lg">
+                                    {Math.floor(item.progressPercentage)}.
+                                    {item.progressPercentage.toString().split(".")[1]?.charAt(0) ?? "0"}%
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="relative">
+                                <Progress value={item.progressPercentage} className="h-3 bg-muted/50" />
+                              </div>
+                            </div>
+                          ))}
+                        </CardContent>
+                      </Card>
+
+                      {/* Statistics Chart Card */}
+                      <Card className="group border-0 bg-gradient-to-br from-white/60 to-white/40 dark:from-slate-800/60 dark:to-slate-700/40 backdrop-blur-xl shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-[1.02] overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                        <CardHeader className="relative z-10 bg-gradient-to-r from-transparent via-blue-500/5 to-transparent border-b border-border/50">
+                          <CardTitle className="flex items-center gap-4 text-2xl p-3">
+                            <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 text-white shadow-lg group-hover:scale-110 transition-transform duration-300">
+                              <TrendingUp className="w-6 h-6" />
+                            </div>
+                            <div>
+                              <span className="bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent font-bold">
+                                Biểu đồ thống kê dự án
+                              </span>
+                              <p className="text-sm text-muted-foreground font-normal mt-1">Phân tích dữ liệu dự án</p>
+                            </div>
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="relative z-10 p-8">
+                          <div className="text-center mb-8 space-y-2">
+                            <div className="text-5xl font-black bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 bg-clip-text text-transparent">
+                              {dashboardData.length}
+                            </div>
+                            <div className="text-muted-foreground font-medium">Tổng số dự án đang quản lý</div>
+                          </div>
+
+                          <div className="h-[200px] mb-8 p-4 rounded-xl bg-gradient-to-br from-muted/20 to-muted/10">
+                            <PieChart
+                              data={dashboardData.map((item) => ({
+                                name: item.projectName,
+                                value: item.progressPercentage,
+                              }))}
+                            />
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="group/stat p-4 rounded-xl bg-gradient-to-br from-emerald-500/10 to-emerald-500/5 border border-emerald-500/20 hover:border-emerald-500/40 transition-all duration-300 hover:scale-105">
+                              <div className="flex items-center gap-3">
+                                <CheckCircle2 className="w-5 h-5 text-emerald-500 group-hover/stat:scale-110 transition-transform duration-300" />
+                                <div>
+                                  <div className="text-2xl font-bold text-emerald-600">{completedProjects}</div>
+                                  <div className="text-xs text-muted-foreground">Hoàn thành</div>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="group/stat p-4 rounded-xl bg-gradient-to-br from-orange-500/10 to-orange-500/5 border border-orange-500/20 hover:border-orange-500/40 transition-all duration-300 hover:scale-105">
+                              <div className="flex items-center gap-3">
+                                <AlertCircle className="w-5 h-5 text-orange-500 group-hover/stat:scale-110 transition-transform duration-300" />
+                                <div>
+                                  <div className="text-2xl font-bold text-orange-600">{inProgressProjects}</div>
+                                  <div className="text-xs text-muted-foreground">Đang thực hiện</div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+
+                    {/* Company Images Slider */}
+                    <Card className="group border-0 bg-gradient-to-br from-white/60 to-white/40 dark:from-slate-800/60 dark:to-slate-700/40 backdrop-blur-xl shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-[1.01] overflow-hidden">
+                      <div className="absolute inset-0 bg-gradient-to-br from-pink-500/5 via-transparent to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                      {/* <CardHeader className="relative z-10 bg-gradient-to-r from-transparent via-pink-500/5 to-transparent border-b border-border/50">
+                        <CardTitle className="flex items-center gap-4 text-2xl">
+                          <div className="p-3 rounded-xl bg-gradient-to-br from-pink-500 to-pink-600 text-white shadow-lg group-hover:scale-110 transition-transform duration-300">
+                            <ImageIcon className="w-6 h-6" />
+                          </div>
+                          <div>
+                            <span className="bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent font-bold">
+                              Hình ảnh công ty
+                            </span>
+                            <p className="text-sm text-muted-foreground font-normal mt-1">
+                              Không gian làm việc và thương hiệu
+                            </p>
+                          </div>
+                        </CardTitle>
+                      </CardHeader> */}
+                      <CardContent className="relative z-10 p-8">
+                        <div className="relative">
+                          {/* Main Image Display */}
+                          <div className="relative aspect-video rounded-2xl overflow-hidden bg-gradient-to-br from-muted/20 to-muted/10">
+                            <img
+                              src={companyImages[currentImageIndex]?.url || "/placeholder.svg"}
+                              alt={companyImages[currentImageIndex]?.title}
+                              className="w-full h-full object-cover transition-all duration-500 ease-in-out"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+
+                            {/* Navigation Buttons */}
+                            <button
+                              onClick={prevImage}
+                              className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition-all duration-300 hover:scale-110"
+                            >
+                              <ChevronLeft className="w-6 h-6 text-white" />
+                            </button>
+                            <button
+                              onClick={nextImage}
+                              className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition-all duration-300 hover:scale-110"
+                            >
+                              <ChevronRight className="w-6 h-6 text-white" />
+                            </button>
+
+                            {/* Image Info */}
+                            <div className="absolute bottom-6 left-6 right-6 text-white">
+                              <h4 className="font-bold text-xl mb-2">{companyImages[currentImageIndex]?.title}</h4>
+                              <p className="text-white/90">{companyImages[currentImageIndex]?.description}</p>
+                            </div>
+                          </div>
+
+                          {/* Thumbnail Navigation */}
+                          <div className="flex justify-center gap-3 mt-6">
+                            {companyImages.map((image, index) => (
+                              <button
+                                key={index}
+                                onClick={() => setCurrentImageIndex(index)}
+                                className={`relative w-20 h-20 rounded-xl overflow-hidden transition-all duration-300 ${index === currentImageIndex
+                                    ? "ring-2 ring-pink-500 scale-110"
+                                    : "hover:scale-105 opacity-70 hover:opacity-100"
+                                  }`}
+                              >
+                                <img
+                                  src={image.url || "/placeholder.svg"}
+                                  alt={image.title}
+                                  className="w-full h-full object-cover"
+                                />
+                                {index === currentImageIndex && <div className="absolute inset-0 bg-pink-500/20" />}
+                              </button>
+                            ))}
+                          </div>
+
+                          {/* Dots Indicator */}
+                          <div className="flex justify-center gap-2 mt-4">
+                            {companyImages.map((_, index) => (
+                              <button
+                                key={index}
+                                onClick={() => setCurrentImageIndex(index)}
+                                className={`w-3 h-3 rounded-full transition-all duration-300 ${index === currentImageIndex
+                                    ? "bg-pink-500 scale-125"
+                                    : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
+                                  }`}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Activity Log, Employees, and Attendance Grid */}
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                      {/* Recent Activity */}
+                      <Card className="lg:col-span-2 group border-0 bg-gradient-to-br from-white/60 to-white/40 dark:from-slate-800/60 dark:to-slate-700/40 backdrop-blur-xl shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-[1.01] overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 via-transparent to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                        <CardHeader className="relative z-10 bg-gradient-to-r from-transparent via-indigo-500/5 to-transparent border-b border-border/50">
+                          <CardTitle className="flex items-center gap-4 text-2xl p-3">
+                            <div className="p-3 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 text-white shadow-lg group-hover:scale-110 transition-transform duration-300">
+                              <Activity className="w-6 h-6" />
+                            </div>
+                            <div>
+                              <span className="bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent font-bold">
+                                6 hoạt động gần nhất
+                              </span>
+                              <p className="text-sm text-muted-foreground font-normal mt-1">
+                                Lịch sử hoạt động hệ thống
+                              </p>
+                            </div>
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="relative z-10 p-8">
+                          <div className="overflow-x-auto">
+                            <table className="min-w-full text-sm">
+                              <thead className="bg-muted/30 rounded-lg">
+                                <tr>
+                                  <th className="px-4 py-3 text-left font-semibold">Người dùng</th>
+                                  <th className="px-4 py-3 text-left font-semibold">Hành động</th>
+                                  <th className="px-4 py-3 text-left font-semibold">Tài nguyên</th>
+                                  <th className="px-4 py-3 text-left font-semibold">Thời gian</th>
+                                </tr>
+                              </thead>
+                              <tbody className="space-y-2">
+                                {auditLogs.map((log, index) => (
+                                  <tr
+                                    key={index}
+                                    className="border-b border-border/30 hover:bg-muted/20 transition-colors"
+                                  >
+                                    <td className="px-4 py-3 font-medium">{log.username}</td>
+                                    <td className="px-4 py-3">{log.action}</td>
+                                    <td className="px-4 py-3">{log.resource}</td>
+                                    <td className="px-4 py-3 text-muted-foreground">{log.createdAt}</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      {/* Attendance */}
+                      <Card className="group border-0 bg-gradient-to-br from-white/60 to-white/40 dark:from-slate-800/60 dark:to-slate-700/40 backdrop-blur-xl shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-[1.02] overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-br from-teal-500/5 via-transparent to-teal-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                        <CardHeader className="relative z-10 bg-gradient-to-r from-transparent via-teal-500/5 to-transparent border-b border-border/50">
+                          <CardTitle className="flex items-center gap-4 text-xl p-3">
+                            <div className="p-3 rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 text-white shadow-lg group-hover:scale-110 transition-transform duration-300">
+                              <Clock className="w-5 h-5" />
+                            </div>
+                            <div>
+                              <span className="bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent font-bold">
+                                Chấm công nhân viên
+                              </span>
+                              <p className="text-sm text-muted-foreground font-normal mt-1">Thông tin nhận diện</p>
+                            </div>
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="relative z-10 p-6 space-y-4">
+                          {lateStaff.map((staff, index) => (
+                            <div
+                              key={index}
+                              className="flex items-center gap-4 p-3 rounded-xl bg-gradient-to-r from-background/50 to-background/30 hover:from-background/70 hover:to-background/50 transition-all duration-300 border border-border/30 hover:border-border/50"
+                            >
+                              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-teal-500/20 to-teal-600/20 flex items-center justify-center">
+                                <Users className="w-6 h-6 text-teal-600" />
+                              </div>
+                              <div className="flex-1">
+                                <p className="font-semibold text-foreground">{staff.personName}</p>
+                                <p className="text-sm text-muted-foreground">{staff.time}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </CardContent>
+                      </Card>
+                    </div>
+
+                    {/* Excellent Employees */}
+                    <Card className="group border-0 bg-gradient-to-br from-white/60 to-white/40 dark:from-slate-800/60 dark:to-slate-700/40 backdrop-blur-xl shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-[1.01] overflow-hidden">
+                      <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/5 via-transparent to-yellow-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                      <CardHeader className="relative z-10 bg-gradient-to-r from-transparent via-yellow-500/5 to-transparent border-b border-border/50">
+                        <CardTitle className="flex items-center gap-4 text-2xl p-3">
+                          <div className="p-3 rounded-xl bg-gradient-to-br from-yellow-500 to-yellow-600 text-white shadow-lg group-hover:scale-110 transition-transform duration-300">
+                            <Award className="w-6 h-6" />
+                          </div>
+                          <div>
+                            <span className="bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent font-bold">
+                              Nhân viên xuất sắc nhất công ty
+                            </span>
+                            <p className="text-sm text-muted-foreground font-normal mt-1">
+                              Ghi nhận thành tích xuất sắc
+                            </p>
+                          </div>
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="relative z-10 p-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {excellentStaffs.map((item, index) => (
+                            <div
+                              key={item.id}
+                              className="group/employee relative p-6 rounded-2xl bg-gradient-to-br from-yellow-500/10 to-yellow-600/5 border-2 border-dashed border-yellow-500/30 hover:border-yellow-500/50 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-yellow-500/10"
+                            >
+                              <div className="absolute top-0 left-0 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white text-xs font-medium px-3 py-1 rounded-br-lg rounded-tl-lg">
+                                Nhân viên xuất sắc {index + 1}
+                              </div>
+
+                              <div className="flex items-center gap-4 mt-4">
+                                <div className="relative">
+                                  <img
+                                    className="w-16 h-16 rounded-full object-cover border-2 border-yellow-500/30 group-hover/employee:border-yellow-500/50 transition-colors duration-300"
+                                    src={item.employee.avatar || "/placeholder.svg"}
+                                    alt={item.employee.fullName}
+                                  />
+                                  <div className="absolute -top-1 -right-1 w-6 h-6 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-full flex items-center justify-center">
+                                    <Star className="w-3 h-3 text-white" />
+                                  </div>
+                                </div>
+
+                                <div className="flex-1">
+                                  <h4 className="font-bold text-lg text-foreground group-hover/employee:text-yellow-600 transition-colors duration-300">
+                                    {item.employee.fullName}
+                                  </h4>
+                                  <p className="text-sm text-muted-foreground mt-1">
+                                    {item.reason || "Không có mô tả"}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Project Management Section */}
+                    
+                  </div>
                 </div>
-              </Card>
+              </div>
             </div>
           </div>
         </SidebarInset>
       </SidebarProvider>
     </ThemeProvider>
-  );
+  )
 }
 
-export default DashboardPage;
+export default DashboardPage

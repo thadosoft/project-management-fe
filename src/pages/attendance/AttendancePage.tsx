@@ -334,9 +334,9 @@ function AttendancePage() {
               <div className="flex items-center justify-between mb-8">
                 <div className="space-y-2">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20">
+                    {/* <div className="p-2 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20">
                       <Clock className="w-6 h-6 text-primary" />
-                    </div>
+                    </div> */}
                     <div>
                       <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight leading-normal">
                         Bảng <span className="text-indigo-600">chấm công</span>
