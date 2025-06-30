@@ -25,38 +25,39 @@ import AuditLogPage from "./pages/AuditLog/ẠuditLogPage";
 import DashboardTechnical from "./components/ui/DashboardTechnical";
 import EmployeeOfMonthPage from "./pages/employee-of-month-page";
 import WarehouseOutryPage from "./pages/warehouse/WarehouseOutryPage";
+import { ProtectedRoute } from "@/components/ProtectedRoute"
 
 export const router = createBrowserRouter([
   // {path: "/", element: <App/>},
   { path: "/", element: <LoginPage /> },
-  { path: "/home", element: <DashboardPage /> },
-  { path: "/login", element: <LoginPage /> },  
+  { path: "/home", element: <ProtectedRoute><DashboardPage /></ProtectedRoute> },
+  { path: "/login", element: <LoginPage /> },
   { path: "/forgot-password", element: <ForgotPasswordPage /> },
 
 
 
 
   // hrm
-  { path: "/create-employee", element: <CreateEmployeePage /> },
-  { path: "/detail-employee/:id", element: <DetailEmployeePage /> },
-  { path: "/search-employee", element: <SearchEmployeePage /> },
-  { path: "/attendance-sheet", element: <AttendancePage /> },
-  { path: "/create-attendance-sheet", element: <CreateAttendancePage /> },
-  { path: "/search-attendance-sheet", element: <SearchAttandancePage /> },
-  { path: "/attandance-month-detail/:id", element: <AttendancePageMonthDetail /> },
-  
+  { path: "/create-employee", element: <ProtectedRoute><CreateEmployeePage /></ProtectedRoute> },
+  { path: "/detail-employee/:id", element: <ProtectedRoute><DetailEmployeePage /></ProtectedRoute> },
+  { path: "/search-employee", element: <ProtectedRoute><SearchEmployeePage /></ProtectedRoute> },
+  { path: "/attendance-sheet", element: <ProtectedRoute><AttendancePage /></ProtectedRoute> },
+  { path: "/create-attendance-sheet", element: <ProtectedRoute><CreateAttendancePage /></ProtectedRoute> },
+  { path: "/search-attendance-sheet", element: <ProtectedRoute><SearchAttandancePage /></ProtectedRoute> },
+  { path: "/attandance-month-detail/:id", element: <ProtectedRoute><AttendancePageMonthDetail /></ProtectedRoute> },
+
   // coordinate
-  { path: "/project", element: <ProjectPage /> },
-  { path: "/project/task/:projectId", element: <TaskPage /> },
+  { path: "/project", element: <ProtectedRoute><ProjectPage /></ProtectedRoute> },
+  { path: "/project/task/:projectId", element: <ProtectedRoute><TaskPage /></ProtectedRoute> },
 
   // reference profile
-  { path: "/profile", element: <ProfilePage /> },
-  { path: "/profile/:id", element: <ReferenceProfileDetail /> },
+  { path: "/profile", element: <ProtectedRoute><ProfilePage /></ProtectedRoute> },
+  { path: "/profile/:id", element: <ProtectedRoute><ReferenceProfileDetail /></ProtectedRoute> },
 
   // material
-  { path: "/create-material-categories", element: <CreateMaterialCategoryPage /> },
-  { path: "/create-material", element: <CreateMaterialPage /> },
-  { path: "/search-material", element: <SearchMaterialPage /> },
+  { path: "/create-material-categories", element: <ProtectedRoute><CreateMaterialCategoryPage /></ProtectedRoute> },
+  { path: "/create-material", element: <ProtectedRoute><CreateMaterialPage /></ProtectedRoute> },
+  { path: "/search-material", element: <ProtectedRoute><SearchMaterialPage /></ProtectedRoute> },
 
   // business
   { path: "/create-bom", element: < CreateBOMPage /> },
@@ -64,21 +65,23 @@ export const router = createBrowserRouter([
   { path: "/search-bom", element: < SearchBOMPage /> },
 
   // kho
-  { path: "/warehouse-entry", element: < WarehouseEntryPage /> },  
-  { path: "/warehouse-outry", element: < WarehouseOutryPage /> },
+  { path: "/warehouse-entry", element: <ProtectedRoute><WarehouseEntryPage /></ProtectedRoute> },
+  { path: "/warehouse-outry", element: <ProtectedRoute><WarehouseOutryPage /></ProtectedRoute> },
 
-  { path: "/search-warehouse", element: < SearchWarehousePage /> },
-  { path: "/warehouse-update/:id", element: < WarehouseEntryPage /> },
-  
+  { path: "/search-warehouse", element: <ProtectedRoute><SearchWarehousePage /></ProtectedRoute> },
+  { path: "/warehouse-update/:id", element: <ProtectedRoute><WarehouseEntryPage /></ProtectedRoute> },
+
   //whiteboard
-  { path: "/white-boards", element: <WhiteBoardPage /> },
+  { path: "/white-boards", element: <ProtectedRoute><WhiteBoardPage /></ProtectedRoute> },
 
   //audit-log
-  { path: "/audit-log", element: <AuditLogPage /> },
+  { path: "/audit-log", element: <ProtectedRoute><AuditLogPage /></ProtectedRoute> },
 
-    //technical-dash
-  { path: "/technical-dashboard", element: <DashboardTechnical /> },
+  //technical-dash
+  { path: "/technical-dashboard", element: <ProtectedRoute><DashboardTechnical /></ProtectedRoute> },
 
-  { path: "/employee-of-month", element: <EmployeeOfMonthPage /> },
+  { path: "/employee-of-month", element: <ProtectedRoute><EmployeeOfMonthPage /></ProtectedRoute> },
 
-]);
+],
+  { basename: "/" }
+);

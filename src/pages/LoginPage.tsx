@@ -76,21 +76,19 @@ export default function LoginPage() {
 };
 
   useEffect(() => {
-    const userId = localStorage.getItem("id");
+  const userId = localStorage.getItem("id");
+  const accessToken = localStorage.getItem("accessToken");
 
-    if (!userId) {
-      navigate("/");
-      return;
-    }
+  if (!userId || !accessToken) {
+    return; // Không navigate về đâu cả, để user ở login page
+  }
 
-    if (tokenService.accessToken) {
-      isTokenValidate(tokenService.accessToken).then(response => {
-        if (response) {
-          navigate("/home");
-        }
-      });
+  isTokenValidate(accessToken).then((response) => {
+    if (response) {
+      navigate("/home");
     }
-  }, [tokenService.accessToken]);
+  });
+}, []);
 
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
