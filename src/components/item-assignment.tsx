@@ -329,74 +329,86 @@ export function ItemAssignment({
   const [isEditing, setIsEditing] = useState(false);
   const [users, setUsers] = useState<User[]>([]);
   const [isAssignmentOpen, setIsAssignmentOpen] = useState(false);
-  const editorConfig = useMemo(
-    () => ({
-      readonly: false,
-      height: 300,
-      imageDefaultWidth: 200,
-      toolbarSticky: true,
-      toolbarAdaptive: true,
-      showCharsCounter: false,
-      showWordsCounter: false,
-      showXPathInStatusbar: false,
-      theme: "dark",
-      enableDragAndDropFileToEditor: true,
-      uploader: {
-        headers: {
-          Authorization: `Bearer ${tokenService.accessToken}`,
-        },
-        url: `${BASE_API_URL}medias`,
-        prepareData: function (formData: FormData) {
-          formData.append("assignmentId", assignment.id);
-          formData.append("projectName", assignment.task.project.name);
-          formData.append("isContent", "true");
-          return formData;
-        },
-        filesVariableName: () => "file",
-        isSuccess: function (response: any) {
-          return response && typeof response === "object" && response.fileName;
-        },
-        getMessage: function (response: any) {
-          return response.message || "Upload error";
-        },
-        process: async function (response: any) {
-          if (!response || !response.fileName) {
-            console.error("Invalid response:", response);
-            return { files: [] };
-          }
+  const editorConfig = useMemo(() => ({
+  readonly: false,
+  height: 300,
+  imageDefaultWidth: 200,
+  toolbarSticky: true,
+  toolbarAdaptive: true,
+  showCharsCounter: false,
+  showWordsCounter: false,
+  showXPathInStatusbar: false,
+  theme: "dark",
+  enableDragAndDropFileToEditor: true,
+  buttons: [
+    "bold", "italic", "underline", "|",
+    "ul", "ol", "|",
+    "outdent", "indent", "|",
+    "font", "fontsize", "brush", "paragraph", "|",
+    "image", "video", "table", "link", "|",
+    "left", "center", "right", "justify", "|",
+    "undo", "redo", "|",
+    "hr", "eraser", "fullsize"
+  ],
+  controls: {
+    ul: { list: undefined },
+    ol: { list: undefined }
+  },
+  uploader: {
+    headers: {
+      Authorization: `Bearer ${tokenService.accessToken}`,
+    },
+    url: `${BASE_API_URL}medias`,
+    prepareData: function (formData: FormData) {
+      formData.append("assignmentId", assignment.id);
+      formData.append("projectName", assignment.task.project.name);
+      formData.append("isContent", "true");
+      return formData;
+    },
+    filesVariableName: () => "file",
+    isSuccess: function (response: any) {
+      return response && typeof response === "object" && response.fileName;
+    },
+    getMessage: function (response: any) {
+      return response.message || "Upload error";
+    },
+    process: async function (response: any) {
+      if (!response || !response.fileName) {
+        console.error("Invalid response:", response);
+        return { files: [] };
+      }
 
-          const mediaRequest: MediaRequest = {
-            projectName: assignment.task.project.name,
-            fileName: response.fileName,
-          };
+      const mediaRequest: MediaRequest = {
+        projectName: assignment.task.project.name,
+        fileName: response.fileName,
+      };
 
-          const blob = await download(mediaRequest);
-          const url = URL.createObjectURL(blob!);
+      const blob = await download(mediaRequest);
+      const url = URL.createObjectURL(blob!);
 
-          setFileNames((prev) => [
-            ...prev,
-            { name: mediaRequest.fileName!, blob: url },
-          ]);
+      setFileNames((prev) => [
+        ...prev,
+        { name: mediaRequest.fileName!, blob: url },
+      ]);
 
-          setContent(
-            (prev) =>
-              prev +
-              `<img src=${url} alt=${response.fileName
-                .split("_")
-                .slice(1)
-                .join()} >`
-          );
+      setContent(
+        (prev) =>
+          prev +
+          `<img src="${url}" alt="${response.fileName
+            .split("_")
+            .slice(1)
+            .join(" ")}" >`
+      );
 
-          return {
-            files: [],
-            baseurl: "",
-            isImages: [true],
-          };
-        },
-      },
-    }),
-    []
-  );
+      return {
+        files: [],
+        baseurl: "",
+        isImages: [true],
+      };
+    },
+  },
+}), [assignment.id, assignment.task.project.name, tokenService.accessToken]);
+
 
   useEffect(() => {
     const parser = new DOMParser();
@@ -585,10 +597,10 @@ export function ItemAssignment({
         : undefined,
       end_date: endDate ? format(endDate, "dd/MM/yyyy HH:mm:ss") : undefined,
     };
-    console.log("Sending assignmentRequest:", assignmentRequest);
-    console.log("Access token:", tokenService.accessToken);
-    console.log("Current status before update:", status);
-    console.log("Updating status to:", value);
+    // console.log("Sending assignmentRequest:", assignmentRequest);
+    // console.log("Access token:", tokenService.accessToken);
+    // console.log("Current status before update:", status);
+    // console.log("Updating status to:", value);
 
     updateAssignment(localAssignment.id, assignmentRequest)
       .then(() => {
@@ -792,14 +804,14 @@ export function ItemAssignment({
                   <ResizablePanel defaultSize={90}>
                     <ScrollArea className="h-full w-full p-4">
                       <div>
-                        <Button
+                        {/* <Button
                           variant="secondary"
                           size="sm"
                           className="mb-4"
                           onClick={handleAddButton}
                         >
                           + Add
-                        </Button>
+                        </Button> */}
                         <input
                           type="file"
                           ref={fileInputRef}

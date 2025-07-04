@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
+import { fetchData } from "@/utils/api.ts";
 import { ItemTask, BoardContainer } from "@/components/item-task.tsx";
 import {
   DndContext,
@@ -23,6 +24,7 @@ import { createTask, getTasksByProjectId, updateTask } from "@/services/taskServ
 import { useParams } from "react-router";
 import { getAssignmentsByProjectId, updateAssignment } from "@/services/assignmentService.ts";
 import { Task, TaskRequest } from "@/models/Task.ts";
+import { User } from "@/models/User";
 import { Assignment, AssignmentRequest } from "@/models/Assignment.ts";
 import { AppSidebar } from "@/components/app-sidebar.tsx";
 import { ThemeProvider } from "@/components/theme-provider.tsx";
@@ -42,6 +44,8 @@ export default function TaskPage() {
 
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [activeAssignment, setActiveAssignment] = useState<Assignment | null>(null);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+
   const sensors = useSensors(
     useSensor(MouseSensor),
     useSensor(TouchSensor),
@@ -162,6 +166,25 @@ export default function TaskPage() {
   //   .catch((error) => console.error("Error in fetchTasks:", error));
   // }, [projectId]);
 
+  useEffect(() => {
+    const fetchUser = async () => {
+      const accessToken = localStorage.getItem("accessToken");
+      // console.log("Token đã nhận:",accessToken);
+
+      const userId = localStorage.getItem("id");
+      if (!userId) return;
+
+      try {
+        const user = await fetchData(`users/${userId}`, "GET", accessToken) as User;
+        setCurrentUser(user);
+      } catch (error) {
+        console.error("Không thể fetch user hiện tại", error);
+      }
+    };
+
+    fetchUser();
+  }, []);
+
   const [isNewTaskEditing, setIsNewTaskEditing] = useState(false);
   const [newTaskTitle, setNewTaskTitle] = useState("");
 
@@ -224,7 +247,7 @@ export default function TaskPage() {
           ...prev,
           taskId: active.data.current?.assignment.task.id,
           oldAssignmentOrder: active.data.current?.assignment.assignmentOrder,
-          assignmentOrder: over.data.current?.sortable.index + 1
+          assignmentOrder: Math.max(1, (over.data.current?.sortable.index ?? 0) + 1)
         }));
         const { assignmentsInTask, assignmentPosition, task } = getDraggingAssignmentData(
           over.id as string,
@@ -260,17 +283,29 @@ export default function TaskPage() {
         over.data.current?.type === "Assignment"
       ) {
         if (activeAssignment?.id && assignmentUpdated) {
-          if (assignmentUpdated.taskId !== assignmentUpdated.oldTaskId ||
-            assignmentUpdated.assignmentOrder !== assignmentUpdated.oldAssignmentOrder) {
+          if (
+            assignmentUpdated.taskId !== assignmentUpdated.oldTaskId ||
+            assignmentUpdated.assignmentOrder !== assignmentUpdated.oldAssignmentOrder
+          ) {
             assignmentUpdated.title = activeAssignment.title;
+            assignmentUpdated.status_type = assignmentUpdated.status_type ?? activeAssignment.status_type;
+            assignmentUpdated.receiverId = activeAssignment.receiver?.id ?? assignmentUpdated.receiverId ?? null;
+            assignmentUpdated.description = activeAssignment.description ?? "";
+            assignmentUpdated.start_date = activeAssignment.start_date;
+            assignmentUpdated.end_date = activeAssignment.end_date;
 
-            Object.assign(activeAssignment, assignmentUpdated);
+            Object.assign(activeAssignment, {
+              ...assignmentUpdated,
+              status_type: assignmentUpdated.status_type ?? activeAssignment.status_type,
+              receiver: assignmentUpdated.receiverId ?? activeAssignment.receiver
+            });
 
             updateAssignment(activeAssignment.id, assignmentUpdated)
               .then(() => console.log("Assignment updated successfully"))
               .catch((error) => console.error("Error in update Assignment:", error));
           }
         }
+
         const { assignmentsInTask, assignmentPosition, task } = getDraggingAssignmentData(
           over.id as string,
           over.data.current.assignment.task.id
@@ -342,6 +377,14 @@ export default function TaskPage() {
                         removeTask={handleDeleteTask}
                         addAssignment={handleAddNewAssignment}
                         removeAssignment={handleDeleteAssignment}
+                        currentUser={currentUser}
+                        onAssignmentUpdate={(updatedAssignment) => {
+                          setAssignments(prev =>
+                            prev.map(a =>
+                              a.id === updatedAssignment.id ? updatedAssignment : a
+                            )
+                          );
+                        }}
                       />
                     ))
                   }
@@ -404,6 +447,7 @@ export default function TaskPage() {
                           removeTask={handleDeleteTask}
                           addAssignment={handleAddNewAssignment}
                           removeAssignment={handleDeleteAssignment}
+                          currentUser={currentUser}
                         />
                       )
                     }
@@ -475,8 +519,17 @@ export default function TaskPage() {
         if (assignmentUpdated.taskId !== assignmentUpdated.oldTaskId ||
           assignmentUpdated.assignmentOrder !== assignmentUpdated.oldAssignmentOrder) {
           assignmentUpdated.title = activeAssignment.title;
+          assignmentUpdated.status_type = assignmentUpdated.status_type ?? activeAssignment.status_type;
+          assignmentUpdated.receiverId = activeAssignment.receiver?.id ?? assignmentUpdated.receiverId ?? null;
+          assignmentUpdated.description = activeAssignment.description ?? "";
+          assignmentUpdated.start_date = activeAssignment.start_date;
+          assignmentUpdated.end_date = activeAssignment.end_date;
 
-          Object.assign(activeAssignment, assignmentUpdated);
+          Object.assign(activeAssignment, {
+              ...assignmentUpdated,
+              status_type: assignmentUpdated.status_type ?? activeAssignment.status_type,
+              receiver: assignmentUpdated.receiverId ?? activeAssignment.receiver
+            });
 
           updateAssignment(activeAssignment.id, assignmentUpdated)
             .then(() => console.log("Assignment updated successfully"))
@@ -543,7 +596,7 @@ export default function TaskPage() {
         ...prev,
         taskId: over.data.current?.task.id,
         oldAssignmentOrder: active.data.current?.assignment.assignmentOrder,
-        assignmentOrder: over.data.current?.sortable.index - 1
+        assignmentOrder: Math.max(1, (over.data.current?.sortable.index ?? 0) + 1)
       }));
 
       setAssignments((assignments) => {

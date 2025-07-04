@@ -1,5 +1,5 @@
 export const BASE_API_URL = "http://localhost:8080/api/v1/";
-// export const BASE_API_URL = "https://headphones-political-planning-hungarian.trycloudflare.com/api/v1/";
+// export const BASE_API_URL = "https://parker-software-embedded-optimum.trycloudflare.com/api/v1/";
 
 export const fetchData = async <T, B = unknown>(
     url: string,
@@ -10,12 +10,13 @@ export const fetchData = async <T, B = unknown>(
 ): Promise<T | null> => {
     try {
         const isFormData = body instanceof FormData;
+        const tokenFromStorage = localStorage.getItem("token");
         const headers: HeadersInit = {
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            ...(token || tokenFromStorage ? { Authorization: `Bearer ${token || tokenFromStorage}` } : {}),
             ...(!isFormData && method !== "GET" ? { "Content-Type": "application/json" } : {}),
         };
 
-        console.log("Headers sent:", headers);
+        // console.log("Headers sent:", headers);
         const response = await fetch(BASE_API_URL + url, {
             method: method,
             headers: {

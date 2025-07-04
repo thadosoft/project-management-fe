@@ -780,7 +780,7 @@ export default function EmployeeOfMonthPage() {
                         </tr>
                       </thead>
                       <tbody className="bg-white divide-y divide-gray-200">
-                        {employeeOfMonth.map((employee, index) => (
+                        {employeeOfMonth.map((employee) => (
                           <tr key={employee.id} className="hover:bg-muted/50 transition-colors">
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                               {employee.id}
