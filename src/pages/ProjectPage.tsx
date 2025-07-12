@@ -49,6 +49,13 @@ function ProjectPage() {
     }
   }, [navigate])
 
+  useEffect(() => {
+  if (!isDialogOpen) {
+    setNewProjectName("")
+    setNewProjectDescription("")
+  }
+}, [isDialogOpen])
+
   const handleCreateProject = async () => {
     const projectRequest: ProjectRequest = {
       name: newProjectName,
