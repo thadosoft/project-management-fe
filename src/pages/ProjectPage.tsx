@@ -1,5 +1,3 @@
-"use client"
-
 import { ThemeProvider } from "@/components/theme-provider"
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/app-sidebar"

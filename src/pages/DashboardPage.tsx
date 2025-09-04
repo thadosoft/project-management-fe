@@ -1,5 +1,3 @@
-"use client"
-
 import { ThemeProvider } from "@/components/theme-provider"
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/app-sidebar"
@@ -197,7 +195,7 @@ function DashboardPage() {
                 <BreadcrumbList>
                   <BreadcrumbItem className="hidden md:block">
                     <BreadcrumbLink href="/" className="hover:text-primary transition-colors font-medium">
-                      Dashboard
+                      Trang chủ
                     </BreadcrumbLink>
                   </BreadcrumbItem>
                   <BreadcrumbSeparator className="hidden md:block opacity-50" />

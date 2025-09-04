@@ -140,7 +140,6 @@ function SearchBOMPage() {
                                                 value={searchParams.title}
                                                 onChange={handleInputChange}
                                                 className="h-[50px] rounded-[5px] text-xs xs:text-sm border text-black border-[#D1D5DB] w-full px-2 pl-4 font-light"
-                                                placeholder="Nguyễn Trung Dũng"
                                             />
                                         </div>
                                         <div>
@@ -151,7 +150,6 @@ function SearchBOMPage() {
                                                 value={searchParams.requesterName}
                                                 onChange={handleInputChange}
                                                 className="h-[50px] rounded-[5px] text-xs xs:text-sm border text-black border-[#D1D5DB] w-full px-2 pl-4 font-light"
-                                                placeholder="Nguyễn Trung Dũng"
                                             />
                                         </div>
                                         <div>
@@ -162,7 +160,6 @@ function SearchBOMPage() {
                                                 value={searchParams.receiverName}
                                                 onChange={handleInputChange}
                                                 className="h-[50px] rounded-[5px] text-xs xs:text-sm border text-black border-[#D1D5DB] w-full px-2 pl-4 font-light"
-                                                placeholder="Nguyễn Trung Dũng"
                                             />
                                         </div>
                                         <div>

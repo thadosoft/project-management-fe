@@ -89,9 +89,9 @@ const TimelineItem: React.FC<TimelineItemProps> = ({ id, number, title, descript
                     <div className="z-20 flex items-center bg-gray-800 shadow-xl w-12 h-12 rounded-full">
                         <h1 className="mx-auto font-semibold text-lg text-white">{number}</h1>
                     </div>
-                    <div className="bg-gray-400 rounded-lg shadow-xl w-5/12 px-6 py-4">
+                    <div className="rounded-lg shadow-xl w-5/12 px-6 py-4 border-2 border-opacity-20 border-gray-700 bg-white/80 dark:bg-gray-900/80">
                         <div className="flex justify-between items-center">
-                            <h3 className="mb-3 font-bold text-gray-800 text-xl">{title}</h3>
+                            <h3 className="mb-3 font-bold text-xl">{title}</h3>
                             <button onClick={handleViewDetail} className="text-indigo-700 border border-indigo-600 hover:bg-indigo-400 hover:text-white py-2 px-3 gap-2 rounded inline-flex items-center">Xem thêm</button>
                         </div>
                         <div className="flex items-center justify-center">
@@ -121,14 +121,14 @@ const TimelineItem: React.FC<TimelineItemProps> = ({ id, number, title, descript
                             )}
                         </div>
 
-                        <p className="text-gray-700 leading-tight font-semibold text-lg">{description}</p>
+                        <p className="leading-tight font-semibold text-lg">{description}</p>
                     </div>
                 </>
             ) : (
                 <>
-                    <div className="bg-gray-400 rounded-lg shadow-xl w-5/12 px-6 py-4">
+                    <div className="rounded-lg shadow-xl w-5/12 px-6 py-4 bg-white/80 dark:bg-gray-900/80">
                         <div className="flex justify-between items-center">
-                            <h3 className="mb-3 font-bold text-gray-800 text-xl">{title}</h3>
+                            <h3 className="mb-3 font-bold text-xl">{title}</h3>
                             <button onClick={handleViewDetail} className="text-indigo-700 border border-indigo-600 hover:bg-indigo-400 hover:text-white py-2 px-3 gap-2 rounded inline-flex items-center">Xem thêm</button>
                         </div>
                         <div className="flex items-center justify-center">
@@ -156,7 +156,7 @@ const TimelineItem: React.FC<TimelineItemProps> = ({ id, number, title, descript
                                 </button>
                             )}
                         </div>
-                        <p className="text-gray-700 leading-tight font-semibold text-lg">{description}</p>
+                        <p className="leading-tight font-semibold text-lg">{description}</p>
                     </div>
                     <div className="z-20 flex items-center bg-gray-800 shadow-xl w-12 h-12 rounded-full">
                         <h1 className="mx-auto font-semibold text-lg text-white">{number}</h1>

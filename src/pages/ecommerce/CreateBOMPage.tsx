@@ -149,7 +149,7 @@ function CreateBOMPage() {
                                 <BreadcrumbList>
                                     <BreadcrumbItem className="hidden md:block">
                                         <BreadcrumbLink href="/home">
-                                            Home
+                                            Tổng quan
                                         </BreadcrumbLink>
                                     </BreadcrumbItem>
                                     <BreadcrumbSeparator className="hidden md:block" />

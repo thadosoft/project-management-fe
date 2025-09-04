@@ -41,7 +41,7 @@ function ProjectPage() {
     fetchData();
   }, []);
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <p>Đang tải...</p>;
   if (error) return <p>Error: {error}</p>;
 
 
@@ -63,7 +63,7 @@ function ProjectPage() {
                   </BreadcrumbItem>
                   <BreadcrumbSeparator className="hidden md:block" />
                   <BreadcrumbItem>
-                    <BreadcrumbPage>Upload File</BreadcrumbPage>
+                    <BreadcrumbPage>Tải lên file</BreadcrumbPage>
                   </BreadcrumbItem>
                 </BreadcrumbList>
               </Breadcrumb>
@@ -72,8 +72,8 @@ function ProjectPage() {
           <div className="">
             <section className="relative overflow-hidden">
               <div className="mt-2 md:mt-0 py-12 pb-6 sm:py-16 lg:pb-24 overflow-hidden">
-                <h3 className="text-3xl px-8 sm:text-5xl leading-normal font-extrabold tracking-tight text-white">
-                  How it <span className="text-indigo-600">Works?</span>
+                <h3 className="text-3xl px-8 sm:text-5xl leading-normal font-extrabold tracking-tight">
+                  Cách <span className="text-indigo-600">hoạt động ?</span>
                 </h3>
                 <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8 relative">
                   <div className="relative mt-12 lg:mt-20">
@@ -94,10 +94,10 @@ function ProjectPage() {
                         </div>
                         <h3
                           className="mt-4 sm:mt-6 text-xl font-semibold leading-tight text-gray-900 dark:text-white md:mt-10">
-                          Choose module
+                          Chọn thư mục
                         </h3>
                         <p className="mt-3 sm:mt-4 text-base text-gray-600 dark:text-gray-400">
-                          Select a module to get started.
+                          Lựa chọn file và bắt đầu.
                         </p>
                       </div>
                       <div>
@@ -107,10 +107,10 @@ function ProjectPage() {
                         </div>
                         <h3
                           className="mt-4 sm:mt-6 text-xl font-semibold leading-tight text-gray-900 dark:text-white md:mt-10">
-                          Upload
+                          Tải lên
                         </h3>
                         <p className="mt-3 sm:mt-4 text-base text-gray-600 dark:text-gray-400">
-                          Upload the selected file for processing.
+                          Tải lên file đã chọn.
                         </p>
                       </div>
                       <div>
@@ -120,11 +120,11 @@ function ProjectPage() {
                         </div>
                         <h3
                           className="mt-4 sm:mt-6 text-xl font-semibold leading-tight text-gray-900 dark:text-white md:mt-10">
-                          Review & Submit
+                          Hoàn tất quá trình
 
                         </h3>
                         <p className="mt-3 sm:mt-4 text-base text-gray-600 dark:text-gray-400">
-                          Review your uploaded file and submit it for approval.
+                          Quá trình hoàn tất.
                         </p>
                       </div>
                     </div>

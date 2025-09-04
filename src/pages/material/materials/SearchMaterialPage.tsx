@@ -1,5 +1,3 @@
-"use client"
-
 import type React from "react"
 
 import { ThemeProvider } from "@/components/theme-provider"
@@ -20,6 +18,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { getImage, uploadMultipleMaterialImages } from "@/services/material/uploadFileService";
 import {
   Dialog,
   DialogContent,
@@ -63,6 +62,10 @@ function SearchMaterialPage() {
     name: "",
     sku: "",
   })
+  const [imageViewerVisible, setImageViewerVisible] = useState(false);
+  const [currentMaterial, setCurrentMaterial] = useState<Material | null>(null);
+  const [imageUrls, setImageUrls] = useState<Record<string, string>>({});
+
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -100,8 +103,13 @@ function SearchMaterialPage() {
     try {
       const data = await searchMaterials(searchRequest, currentPage, size)
       if (data) {
-        setMaterials(data.content)
-        setTotalPages(data.totalPages)
+        setMaterials(data.content);
+        setTotalPages(data.totalPages);
+        data.content.forEach(material => {
+          if (material.id && material.images && material.images.length > 0) {
+            loadImage(material.id, material.images[0].accessUrl);
+          }
+        });
       }
     } catch (error) {
       console.error("Error fetching materials:", error)
@@ -135,10 +143,51 @@ function SearchMaterialPage() {
   }
 
   const getStockStatus = (quantity: number) => {
-    if (quantity < 10) return { variant: "destructive" as const, label: "Hết hàng", color: "text-red-600" }
-    if (quantity < 50) return { variant: "secondary" as const, label: "Sắp hết", color: "text-yellow-600" }
+    if (quantity < 2) return { variant: "destructive" as const, label: "Số lượng ít", color: "text-red-600" }
     return { variant: "default" as const, label: "Còn hàng", color: "text-green-600" }
   }
+
+  const loadImage = async (materialId: number, accessUrl: string, index: number = 0) => {
+    try {
+      const filename = accessUrl.split('/').pop();
+      if (filename) {
+        const blob = await getImage(filename);
+        const objectUrl = URL.createObjectURL(blob);
+        setImageUrls(prev => ({ ...prev, [`${materialId}_${index}`]: objectUrl }));
+      }
+    } catch (error) {
+      console.error(`Error loading image for material ${materialId}:`, error);
+    }
+  };
+
+  const loadMultipleImages = async (material: Material) => {
+    if (!material || !material.images || material.images.length === 0) return;
+
+    const newImageUrls: { [key: string]: string } = {};
+
+    for (let i = 0; i < material.images.length; i++) {
+      const image = material.images[i];
+      try {
+        const filename = image.fileName || image.accessUrl.split('/').pop();
+        if (filename) {
+          const blob = await getImage(filename);
+          const objectUrl = URL.createObjectURL(blob);
+          const key = `${material.id}_${i}`;
+          newImageUrls[key] = objectUrl;
+        }
+      } catch (error) {
+        console.error(`Error loading image ${i} for material ${material.id}:`, error);
+      }
+    }
+
+    setImageUrls(prev => ({ ...prev, ...newImageUrls }));
+  };
+
+  const openImageViewer = (material: Material) => {
+    setCurrentMaterial(material);
+    setImageViewerVisible(true);
+    loadMultipleImages(material);
+  };
 
   // Pagination component
   const PaginationControls = () => {
@@ -212,13 +261,12 @@ function SearchMaterialPage() {
                 size="sm"
                 onClick={() => typeof pageNum === "number" && setPage(pageNum)}
                 disabled={pageNum === "..."}
-                className={`min-w-[32px] ${
-                  pageNum === page
-                    ? "bg-primary text-primary-foreground shadow-md"
-                    : pageNum === "..."
-                      ? "cursor-default"
-                      : "hover:bg-muted"
-                }`}
+                className={`min-w-[32px] ${pageNum === page
+                  ? "bg-primary text-primary-foreground shadow-md"
+                  : pageNum === "..."
+                    ? "cursor-default"
+                    : "hover:bg-muted"
+                  }`}
               >
                 {typeof pageNum === "number" ? pageNum + 1 : pageNum}
               </Button>
@@ -267,7 +315,7 @@ function SearchMaterialPage() {
                 <BreadcrumbList>
                   <BreadcrumbItem className="hidden md:block">
                     <BreadcrumbLink href="/home" className="hover:text-primary transition-colors">
-                      Home
+                      Tổng quan
                     </BreadcrumbLink>
                   </BreadcrumbItem>
                   <BreadcrumbSeparator className="hidden md:block" />
@@ -439,7 +487,7 @@ function SearchMaterialPage() {
                               Số lượng
                             </th>
                             <th className="px-4 py-4 text-center text-sm font-semibold text-muted-foreground">
-                              Nguồn g���c
+                              Nguồn gốc
                             </th>
                             <th className="px-4 py-4 text-center text-sm font-semibold text-muted-foreground">
                               Giá mua
@@ -465,10 +513,13 @@ function SearchMaterialPage() {
                                 </td>
                                 <td className="px-4 py-4 text-center">
                                   {material.images && material.images.length > 0 ? (
-                                    <div className="relative inline-block group/image">
+                                    <div
+                                      className="relative inline-block group/image cursor-pointer"
+                                      onClick={() => openImageViewer(material)}
+                                    >
                                       <Avatar className="w-12 h-12 mx-auto ring-2 ring-transparent group-hover/image:ring-primary/20 transition-all duration-300">
                                         <AvatarImage
-                                          src={material.images[0].accessUrl || "/placeholder.svg"}
+                                          src={imageUrls[`${material.id}_0`] || "/placeholder.svg"}
                                           alt="Material"
                                           className="object-cover"
                                         />
@@ -620,6 +671,31 @@ function SearchMaterialPage() {
             </div>
           </div>
         </SidebarInset>
+        <Dialog open={imageViewerVisible} onOpenChange={setImageViewerVisible}>
+          <DialogContent className="sm:max-w-4xl">
+            <DialogHeader>
+              <DialogTitle>Hình ảnh vật tư: {currentMaterial?.name}</DialogTitle>
+            </DialogHeader>
+            {currentMaterial && currentMaterial.images && currentMaterial.images.length > 0 ? (
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {currentMaterial.images.map((image, index) => {
+                  const key = `${currentMaterial.id}_${index}`;
+                  return (
+                    <div key={index} className="border p-2 rounded">
+                      <img
+                        src={imageUrls[key] || `api/v1/file-uploads/images/${image.fileName}`}
+                        alt={`${currentMaterial.name} - ${index + 1}`}
+                        className="w-full h-auto object-contain max-h-[200px]"
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="text-center py-6 text-gray-500">Không có hình ảnh nào.</p>
+            )}
+          </DialogContent>
+        </Dialog>
       </SidebarProvider>
     </ThemeProvider>
   )

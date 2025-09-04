@@ -1,5 +1,3 @@
-"use client";
-
 import { ChevronRight, type LucideIcon } from "lucide-react";
 import {
   Collapsible,
@@ -48,7 +46,7 @@ export function NavMain({ items }: { items: NavItem[] }) {
 
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Platform</SidebarGroupLabel>
+      <SidebarGroupLabel>Tiện ích</SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item) => (
           <NavItemComponent

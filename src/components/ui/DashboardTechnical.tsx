@@ -1,5 +1,3 @@
-"use client"
-
 import { ThemeProvider } from "@/components/theme-provider"
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/app-sidebar"
@@ -120,11 +118,11 @@ function DashboardTechnical() {
   }, [])
 
   useEffect(() => {
-  if (!isDialogOpen) {
-    setNewProjectName("")
-    setNewProjectDescription("")
-  }
-}, [isDialogOpen])
+    if (!isDialogOpen) {
+      setNewProjectName("")
+      setNewProjectDescription("")
+    }
+  }, [isDialogOpen])
 
   if (loading) {
     return (
@@ -183,7 +181,7 @@ function DashboardTechnical() {
                 <BreadcrumbList>
                   <BreadcrumbItem className="hidden md:block">
                     <BreadcrumbLink href="/" className="hover:text-primary transition-colors font-medium">
-                      Dashboard
+                      Trang chủ
                     </BreadcrumbLink>
                   </BreadcrumbItem>
                   <BreadcrumbSeparator className="hidden md:block opacity-50" />
@@ -193,7 +191,7 @@ function DashboardTechnical() {
                     </BreadcrumbPage>
                   </BreadcrumbItem>
                 </BreadcrumbList>
-              </Breadcrumb>
+              </Breadcrumb>              
             </div>
           </header>
 
@@ -600,7 +598,7 @@ function DashboardTechnical() {
                                       </CardContent>
                                       <CardFooter className="flex justify-center pb-8">
                                         {newProjectName !== "" &&
-                                        !projects.some((p) => p.name.toLowerCase() === newProjectName.toLowerCase()) ? (
+                                          !projects.some((p) => p.name.toLowerCase() === newProjectName.toLowerCase()) ? (
                                           <Button
                                             onClick={handleCreateProject}
                                             size="lg"

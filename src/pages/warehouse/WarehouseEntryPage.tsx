@@ -173,7 +173,7 @@ function WarehouseEntryPage() {
                                 <BreadcrumbList>
                                     <BreadcrumbItem className="hidden md:block">
                                         <BreadcrumbLink href="/home">
-                                            Home
+                                            Tổng quan
                                         </BreadcrumbLink>
                                     </BreadcrumbItem>
                                     <BreadcrumbSeparator className="hidden md:block" />
@@ -192,7 +192,7 @@ function WarehouseEntryPage() {
                         <form onSubmit={handleSubmit}>
                             <div className="p-10">
                                 <div className="flex justify-between items-center">
-                                    <h3 className="text-3xl mb-8 sm:text-5xl leading-normal font-extrabold tracking-tight text-white">
+                                    <h3 className="text-3xl mb-8 sm:text-5xl leading-normal font-extrabold tracking-tight">
                                         {isUpdate ? "Cập nhật" : "Tạo mới"} phiếu <span className="text-indigo-600">nhập kho</span>
                                     </h3>
                                     <div>

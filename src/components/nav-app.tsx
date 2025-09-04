@@ -19,7 +19,7 @@ export function NavApp({
 }) {
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-      <SidebarGroupLabel>Application</SidebarGroupLabel>
+      <SidebarGroupLabel>Trang chủ</SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item) => (
           <SidebarMenuItem key={item.title}>

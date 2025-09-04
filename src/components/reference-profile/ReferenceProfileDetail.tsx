@@ -145,12 +145,12 @@ function ReferenceProfileDetail() {
                                 <BreadcrumbList>
                                     <BreadcrumbItem className="hidden md:block">
                                         <BreadcrumbLink href="#">
-                                            Building Your Application
+                                            Hồ sơ tham khảo
                                         </BreadcrumbLink>
                                     </BreadcrumbItem>
                                     <BreadcrumbSeparator className="hidden md:block" />
                                     <BreadcrumbItem>
-                                        <BreadcrumbPage>Data Fetching</BreadcrumbPage>
+                                        <BreadcrumbPage>Tải lên</BreadcrumbPage>
                                     </BreadcrumbItem>
                                 </BreadcrumbList>
                             </Breadcrumb>

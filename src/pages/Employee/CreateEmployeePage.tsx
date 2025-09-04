@@ -1,5 +1,3 @@
-"use client"
-
 import type React from "react"
 
 import { ThemeProvider } from "@/components/theme-provider"
@@ -315,7 +313,6 @@ function CreateEmployeePage() {
                         name="fullName"
                         value={employee.fullName}
                         onChange={handleChange}
-                        placeholder="Nguyễn Trung Dũng"
                         className={`transition-all duration-300 h-12 bg-background/50 border-2 focus:border-primary/50 focus:bg-background ${
                           errors.fullName ? "border-destructive/50 bg-destructive/5" : "hover:border-primary/30"
                         }`}
@@ -337,7 +334,7 @@ function CreateEmployeePage() {
                         name="username"
                         value={employee.username}
                         onChange={handleChange}
-                        placeholder="dungnt"
+                        placeholder="Tên đăng nhập"
                         className={`transition-all duration-300 h-12 bg-background/50 border-2 focus:border-primary/50 focus:bg-background ${
                           errors.username ? "border-destructive/50 bg-destructive/5" : "hover:border-primary/30"
                         }`}
@@ -472,7 +469,7 @@ function CreateEmployeePage() {
                         type="email"
                         value={employee.email}
                         onChange={handleChange}
-                        placeholder="dung.nt@gmail.com"
+                        placeholder=""
                         className={`transition-all duration-300 h-12 bg-background/50 border-2 focus:border-primary/50 focus:bg-background ${
                           errors.email ? "border-destructive/50 bg-destructive/5" : "hover:border-primary/30"
                         }`}
@@ -495,7 +492,7 @@ function CreateEmployeePage() {
                         type="email"
                         value={employee.companyEmail}
                         onChange={handleChange}
-                        placeholder="dung.nt@thadosoft.com"
+                        placeholder=""
                         className={`transition-all duration-300 h-12 bg-background/50 border-2 focus:border-primary/50 focus:bg-background ${
                           errors.companyEmail ? "border-destructive/50 bg-destructive/5" : "hover:border-primary/30"
                         }`}
@@ -518,7 +515,6 @@ function CreateEmployeePage() {
                         name="phone"
                         value={employee.phone}
                         onChange={handleChange}
-                        placeholder="0942597170"
                         className="transition-all duration-300 h-12 bg-background/50 border-2 hover:border-primary/30 focus:border-primary/50 focus:bg-background"
                       />
                     </div>
@@ -532,7 +528,6 @@ function CreateEmployeePage() {
                         name="emergencyContact"
                         value={employee.emergencyContact}
                         onChange={handleChange}
-                        placeholder="Nguyễn Trung Dũng - 0942597170"
                         className="transition-all duration-300 h-12 bg-background/50 border-2 hover:border-primary/30 focus:border-primary/50 focus:bg-background"
                       />
                     </div>
@@ -626,7 +621,6 @@ function CreateEmployeePage() {
                         name="tax"
                         value={employee.tax}
                         onChange={handleChange}
-                        placeholder="123456789"
                         className={`transition-all duration-300 h-12 bg-background/50 border-2 focus:border-primary/50 focus:bg-background ${
                           errors.tax ? "border-destructive/50 bg-destructive/5" : "hover:border-primary/30"
                         }`}

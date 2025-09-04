@@ -90,7 +90,7 @@ function SearchWarehousePage() {
                                 <BreadcrumbList>
                                     <BreadcrumbItem className="hidden md:block">
                                         <BreadcrumbLink href="/home">
-                                            Home
+                                            Tổng quan
                                         </BreadcrumbLink>
                                     </BreadcrumbItem>
                                     <BreadcrumbSeparator className="hidden md:block" />
@@ -102,7 +102,7 @@ function SearchWarehousePage() {
                         </div>
                     </header>
                     <div className="p-10">
-                        <h3 className="text-3xl mb-8 sm:text-5xl leading-normal font-extrabold tracking-tight text-white">Tìm kiếm phiếu <span className="text-indigo-600">nhập / xuất kho</span></h3>
+                        <h3 className="text-3xl mb-8 sm:text-5xl leading-normal font-extrabold tracking-tight">Tìm kiếm phiếu <span className="text-indigo-600">nhập / xuất kho</span></h3>
                         <section className="mx-auto border border-[#4D7C0F] rounded-lg p-8">
                             <form onSubmit={handleSearch}>
                                 <div className="space-y-6">

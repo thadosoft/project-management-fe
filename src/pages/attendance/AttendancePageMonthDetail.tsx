@@ -119,7 +119,7 @@ function CreateAttendancePage() {
                                 <BreadcrumbList>
                                     <BreadcrumbItem className="hidden md:block">
                                         <BreadcrumbLink href="/">
-                                            Home
+                                            Tổng quan
                                         </BreadcrumbLink>
                                     </BreadcrumbItem>
                                     <BreadcrumbSeparator className="hidden md:block" />

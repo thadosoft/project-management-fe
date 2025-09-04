@@ -50,7 +50,7 @@ function SearchAttandancePage() {
                                 <BreadcrumbList>
                                     <BreadcrumbItem className="hidden md:block">
                                         <BreadcrumbLink href="/">
-                                            Home
+                                            Tổng quan
                                         </BreadcrumbLink>
                                     </BreadcrumbItem>
                                     <BreadcrumbSeparator className="hidden md:block" />
@@ -62,7 +62,7 @@ function SearchAttandancePage() {
                         </div>
                     </header>
                     <div className="p-10">
-                        <h3 className="text-3xl mb-8 sm:text-5xl leading-normal font-extrabold tracking-tight text-white">Tìm kiếm bảng <span className="text-indigo-600">chấm công</span></h3>
+                        <h3 className="text-3xl mb-8 sm:text-5xl leading-normal font-extrabold tracking-tight">Tìm kiếm bảng <span className="text-indigo-600">chấm công</span></h3>
 
                         <table className="min-w-full divide-y divide-gray-200 overflow-x-auto mt-12 text-center text-black">
                             <thead className="bg-gray-50">

@@ -1,5 +1,3 @@
-"use client"
-
 import { ThemeProvider } from "@/components/theme-provider"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -466,11 +464,11 @@ export default function LoginPage() {
                   isSignUpMode ? "opacity-0 -translate-x-full" : "opacity-100 translate-x-0"
                 }`}
               >
-                <div className="w-20 h-20 rounded-full overflow-hidden bg-white p-1 mb-4">
+                <div className="w-20 h-20 rounded-full overflow-hidden bg-transparent p-1 mb-4">
                   <img
                     src="/img/logo-bg.png"
                     alt="ThaDo Logo"
-                    className=" object-cover"
+                    className=" object-cover "
                   />
                 </div>
                 <h2 className="text-3xl font-bold mb-4">Xin chào!</h2>

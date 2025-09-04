@@ -2,9 +2,15 @@ import * as React from "react"
 import {
   Frame,
   GalleryVerticalEnd,
+  HistoryIcon,
+  LucideWarehouse,
   Map,
   PieChart,
+  Settings2Icon,
+  Warehouse,
+  WarehouseIcon,
 } from "lucide-react"
+import { useLocation } from "react-router-dom";
 
 import { NavMain } from "@/components/nav-main"
 import { NavUser } from "@/components/nav-user"
@@ -19,14 +25,16 @@ import {
 import { NavApp } from "@/components/nav-app.tsx";
 import { Home } from "lucide-react"
 import { CgProfile } from "react-icons/cg";
-import { SiAudiotechnica } from "react-icons/si";
-import { PiFinnTheHuman } from "react-icons/pi";
+import { SiAudiotechnica, SiGoodreads } from "react-icons/si";
 import { useEffect, useRef } from "react";
+import { ModeToggle } from "./mode-toggle"
+import { BsDeviceHdd, BsDeviceSsd, BsPeople } from "react-icons/bs";
+import { useSidebar } from "@/components/ui/sidebar"
 
 const data = {
   user: {
-    name: "Trung Dũng",
-    email: "dung.nt@thadosoft.com",
+    name: "",
+    email: "",
     avatar: "/avatars/shadcn.jpg",
   },
   teams: [
@@ -38,7 +46,7 @@ const data = {
   ],
   navApp: [
     {
-      title: "Trang chủ",
+      title: "Tổng quan",
       url: "/home",
       icon: Home,
     },
@@ -47,7 +55,7 @@ const data = {
     {
       title: "Hành chính nhân sự",
       url: "#",
-      icon: PiFinnTheHuman,
+      icon: BsPeople,
       isActive: true,
       items: [
         {
@@ -135,7 +143,7 @@ const data = {
     // },
     {
       title: "Khối kỹ thuật",
-      icon: SiAudiotechnica,
+      icon: Settings2Icon,
       url: "/technical-dashboard",
       isActive: true,
       items: [
@@ -159,13 +167,13 @@ const data = {
 
     {
       title: "Kho công ty",
-      icon: SiAudiotechnica,
+      icon: Warehouse,
       url: "#",
       isActive: true,
       items: [
         {
           title: "Quản lý vật tư",
-          icon: SiAudiotechnica,
+          icon: BsDeviceHdd,
           url: "",
           isActive: true,
           items: [
@@ -187,7 +195,7 @@ const data = {
 
         {
           title: "Quản lý kho",
-          icon: SiAudiotechnica,
+          icon: LucideWarehouse,
           url: "",
           isActive: true,
           items: [
@@ -258,7 +266,7 @@ const data = {
     {
       title: "Nhật ký hoạt động",
       url: "/audit-log",
-      icon: CgProfile,
+      icon: HistoryIcon,
     },
   ],
   projects: [
@@ -281,41 +289,55 @@ const data = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const scrollRef = useRef<HTMLDivElement | null>(null);
-  // const userRole = localStorage.getItem("role") || "USER";
+  const { state } = useSidebar()
+  const isCollapsed = state === "collapsed"
 
-  // const rolePermissions: { [key: string]: string[] } = {
-  //   TECHNICAL: ["Kho công ty", "Hồ sơ lưu trữ"],
-  //   INVENTORY: ["Kho công ty"],
-  //   USER: ["Hồ sơ lưu trữ"],
-  //   OFM: ["Hành chính nhân sự", "Thông tin nhân viên", "Kinh doanh", "Hồ sơ lưu trữ"],
-  //   SALE: ["Kinh doanh", "Hồ sơ lưu trữ"],
-  //   PM: ["Khối kỹ thuật", "Hồ sơ lưu trữ"]
-  // };
+  const scrollRef = useRef<HTMLDivElement | null>(null)
+  const location = useLocation()
+  const SCROLL_KEY = "sidebar-scroll-position"
 
-  // const allowedMenus = rolePermissions[userRole.toUpperCase()] || [];
+  // lưu scroll position
+  useEffect(() => {
+    const ref = scrollRef.current
+    if (!ref) return
+    const handleScroll = () => {
+      sessionStorage.setItem(SCROLL_KEY, String(ref.scrollTop))
+    }
+    ref.addEventListener("scroll", handleScroll)
+    return () => ref.removeEventListener("scroll", handleScroll)
+  }, [])
 
-  // const filteredNavMain = data.navMain.filter((item) => {
-  //   if (allowedMenus.length > 0) {
-  //     return allowedMenus.includes(item.title);
-  //   }
-  //   return true;
-  // });
-
+  // khôi phục scroll position
+  useEffect(() => {
+    const ref = scrollRef.current
+    if (!ref) return
+    const pos = Number(sessionStorage.getItem(SCROLL_KEY) || "0")
+    setTimeout(() => {
+      ref.scrollTop = pos
+    }, 0)
+  }, [location.pathname])
 
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <TeamSwitcher teams={data.teams} />
       </SidebarHeader>
-      <SidebarContent className="sidebar-scroll">
+
+      <SidebarContent className="sidebar-scroll" ref={scrollRef}>
         <NavApp items={data.navApp} />
         <NavMain items={data.navMain} />
       </SidebarContent>
+
       <SidebarFooter>
-        <NavUser />
+        {!isCollapsed && (
+          <div className="mt-4 flex flex-row items-center justify-center gap-3">
+            <NavUser />
+            <ModeToggle />
+          </div>
+        )}
       </SidebarFooter>
+
       <SidebarRail />
     </Sidebar>
-  );
+  )
 }

@@ -111,7 +111,7 @@ export default function WhiteBoardPage() {
           </header>
 
           <main className="p-10">
-            <h3 className="text-3xl mb-8 sm:text-5xl leading-normal font-extrabold tracking-tight text-white">
+            <h3 className="text-3xl mb-8 sm:text-5xl leading-normal font-extrabold tracking-tight">
               Quản lý <span className="text-indigo-600">WhiteBoard</span>
             </h3>
 

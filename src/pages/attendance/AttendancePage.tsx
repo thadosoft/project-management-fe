@@ -1,5 +1,3 @@
-"use client"
-
 import type React from "react"
 
 import { ThemeProvider } from "@/components/theme-provider"
@@ -310,7 +308,7 @@ function AttendancePage() {
                 <BreadcrumbList>
                   <BreadcrumbItem className="hidden md:block">
                     <BreadcrumbLink href="/" className="hover:text-primary transition-colors">
-                      Home
+                      Tổng quan
                     </BreadcrumbLink>
                   </BreadcrumbItem>
                   <BreadcrumbSeparator className="hidden md:block" />

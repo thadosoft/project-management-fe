@@ -182,7 +182,6 @@ function CreateMaterialPage() {
                         location: data.location || "",
                         purchasePrice: data.purchasePrice || 0,
                     });
-                    // Thay setImageFile thành setImageFiles với một mảng rỗng
                     setImageFiles([]);
                     setImagePreview(null);
                     setEditingMaterialId(material.id);
@@ -453,53 +452,53 @@ function CreateMaterialPage() {
                             <Breadcrumb>
                                 <BreadcrumbList>
                                     <BreadcrumbItem className="hidden md:block">
-                                        <BreadcrumbLink href="/home">Home</BreadcrumbLink>
+                                        <BreadcrumbLink href="/home">Tổng quan</BreadcrumbLink>
                                     </BreadcrumbItem>
                                     <BreadcrumbSeparator className="hidden md:block" />
                                     <BreadcrumbItem>
-                                        <BreadcrumbPage>Quản lý vật tư</BreadcrumbPage>
+                                        <BreadcrumbPage>Thêm vật tư</BreadcrumbPage>
                                     </BreadcrumbItem>
                                 </BreadcrumbList>
                             </Breadcrumb>
                         </div>
                     </header>
                     <div className="p-10">
-                        <h3 className="text-3xl mb-8 sm:text-5xl leading-normal font-extrabold tracking-tight text-white">
-                            Quản lý <span className="text-indigo-600">vật tư</span>
+                        <h3 className="text-3xl mb-8 sm:text-5xl leading-normal font-extrabold tracking-tight">
+                            Thêm <span className="text-indigo-600">vật tư</span>
                         </h3>
-                        <section className="mx-auto border border-[#4D7C0F] rounded-lg p-8 bg-gray-800">
+                        <section className="mx-auto border border-[#4D7C0F] rounded-lg p-8">
                             <form onSubmit={handleSubmit}>
                                 <div className="space-y-6">
                                     <div className="grid sm:grid-cols-3 grid-cols-1 gap-6">
                                         <div>
-                                            <label className="text-xs xs:text-sm font-medium mb-1 text-gray-200">Tên vật tư</label>
+                                            <label className="text-xs xs:text-sm font-medium mb-1">Tên vật tư</label>
                                             <input
                                                 type="text"
                                                 name="name"
                                                 value={material.name || ""}
                                                 onChange={handleInputChange}
-                                                className="h-[50px] rounded-[5px] text-xs xs:text-sm border text-black border-[#D1D5DB] w-full px-2 pl-4 font-light bg-white"
+                                                className="h-[50px] rounded-[5px] text-xs xs:text-sm border text-black border-[#D1D5DB] w-full px-2 pl-4 font-light"
                                             />
                                             {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
                                         </div>
                                         <div>
-                                            <label className="text-xs xs:text-sm font-medium mb-1 text-gray-200">Mã serial</label>
+                                            <label className="text-xs xs:text-sm font-medium mb-1">Mã serial</label>
                                             <input
                                                 type="text"
                                                 name="sku"
                                                 value={material.sku || ""}
                                                 onChange={handleInputChange}
-                                                className="h-[50px] rounded-[5px] text-xs xs:text-sm border text-black border-[#D1D5DB] w-full px-2 pl-4 font-light bg-white"
+                                                className="h-[50px] rounded-[5px] text-xs xs:text-sm border text-black border-[#D1D5DB] w-full px-2 pl-4 font-light"
                                             />
                                             {errors.sku && <p className="text-red-500 text-sm">{errors.sku}</p>}
                                         </div>
                                         <div>
-                                            <label className="text-xs xs:text-sm font-medium mb-1 text-gray-200">Nhóm vật tư</label>
+                                            <label className="text-xs xs:text-sm font-medium mb-1">Nhóm vật tư</label>
                                             <select
                                                 name="inventoryCategoryId"
                                                 value={material.inventoryCategoryId ?? ""}
                                                 onChange={handleInputChange}
-                                                className="h-[50px] rounded-[5px] text-xs xs:text-sm border text-black border-[#D1D5DB] w-full px-2 pl-4 font-light bg-white"
+                                                className="h-[50px] rounded-[5px] text-xs xs:text-sm border text-black border-[#D1D5DB] w-full px-2 pl-4 font-light"
                                             >
                                                 <option value="">Chọn danh mục</option>
                                                 {categories.map((category) => (
@@ -511,50 +510,50 @@ function CreateMaterialPage() {
                                             {errors.category && <p className="text-red-500 text-sm">{errors.category}</p>}
                                         </div>
                                         <div>
-                                            <label className="text-xs xs:text-sm font-medium mb-1 text-gray-200">Đơn vị</label>
+                                            <label className="text-xs xs:text-sm font-medium mb-1">Đơn vị</label>
                                             <input
                                                 type="text"
                                                 name="unit"
                                                 value={material.unit || ""}
                                                 onChange={handleInputChange}
-                                                className="h-[50px] rounded-[5px] text-xs xs:text-sm border text-black border-[#D1D5DB] w-full px-2 pl-4 font-light bg-white"
+                                                className="h-[50px] rounded-[5px] text-xs xs:text-sm border text-black border-[#D1D5DB] w-full px-2 pl-4 font-light"
                                             />
                                             {errors.unit && <p className="text-red-500 text-sm">{errors.unit}</p>}
                                         </div>
                                         <div>
-                                            <label className="text-xs xs:text-sm font-medium mb-1 text-gray-200">Số lượng</label>
+                                            <label className="text-xs xs:text-sm font-medium mb-1">Số lượng</label>
                                             <input
                                                 type="number"
                                                 name="quantityInStock"
                                                 value={material.quantityInStock || 0}
                                                 onChange={handleInputChange}
-                                                className="h-[50px] rounded-[5px] text-xs xs:text-sm border text-black border-[#D1D5DB] w-full px-2 pl-4 font-light bg-white"
+                                                className="h-[50px] rounded-[5px] text-xs xs:text-sm border text-black border-[#D1D5DB] w-full px-2 pl-4 font-light"
                                             />
                                         </div>
                                         <div>
-                                            <label className="text-xs xs:text-sm font-medium mb-1 text-gray-200">Nguồn gốc</label>
+                                            <label className="text-xs xs:text-sm font-medium mb-1">Nguồn gốc</label>
                                             <input
                                                 type="text"
                                                 name="location"
                                                 value={material.location || ""}
                                                 onChange={handleInputChange}
-                                                className="h-[50px] rounded-[5px] text-xs xs:text-sm border text-black border-[#D1D5DB] w-full px-2 pl-4 font-light bg-white"
+                                                className="h-[50px] rounded-[5px] text-xs xs:text-sm border text-black border-[#D1D5DB] w-full px-2 pl-4 font-light"
                                             />
                                         </div>
                                         <div>
-                                            <label className="text-xs xs:text-sm font-medium mb-1 text-gray-200">Giá mua</label>
+                                            <label className="text-xs xs:text-sm font-medium mb-1">Giá mua</label>
                                             <input
                                                 type="number"
                                                 name="purchasePrice"
                                                 value={material.purchasePrice || 0}
                                                 onChange={handleInputChange}
-                                                className="h-[50px] rounded-[5px] text-xs xs:text-sm border text-black border-[#D1D5DB] w-full px-2 pl-4 font-light bg-white"
+                                                className="h-[50px] rounded-[5px] text-xs xs:text-sm border text-black border-[#D1D5DB] w-full px-2 pl-4 font-light"
                                             />
                                         </div>
                                         <div className="mb-4">
-                                            <label className="block text-gray-700 font-bold mb-2">Hình ảnh</label>
+                                            <label className="block font-bold mb-2">Hình ảnh</label>
                                             <div className="flex items-center">
-                                                <label className="cursor-pointer bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+                                                <label className="cursor-pointer bg-[#4D7C0F] hover:bg-[#79ac37] text-white px-4 py-2 rounded">
                                                     {imageFiles.length > 0 ? `Đã chọn ${imageFiles.length} hình` : "Chọn hình"}
                                                     <input
                                                         type="file"
@@ -606,7 +605,7 @@ function CreateMaterialPage() {
                             </form>
                         </section>
 
-                        <div className="mt-12">
+                        {/* <div className="mt-12">
                             <Table
                                 columns={columns}
                                 dataSource={materials}
@@ -616,10 +615,10 @@ function CreateMaterialPage() {
                                 className={`${styles.table} shadow-xl rounded-lg bg-gray-200 text-gray-900 border-2 border-gray-400`}
                                 scroll={{ x: 'max-content' }}
                             />
-                        </div>
+                        </div> */}
                     </div>
                 </SidebarInset>
-                <Modal
+                {/* <Modal
                     title={`Hình ảnh vật tư: ${currentMaterial?.name || ''}`}
                     open={imageViewerVisible}
                     onCancel={() => setImageViewerVisible(false)}
@@ -644,7 +643,7 @@ function CreateMaterialPage() {
                     ) : (
                         <p className="text-center py-6 text-gray-500">Không có hình ảnh nào.</p>
                     )}
-                </Modal>
+                </Modal> */}
             </SidebarProvider>
         </ThemeProvider>
     );

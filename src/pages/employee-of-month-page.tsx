@@ -1,5 +1,3 @@
-"use client"
-
 import type React from "react"
 
 import { useState, useEffect } from "react"
@@ -485,7 +483,7 @@ export default function EmployeeOfMonthPage() {
                 <BreadcrumbList>
                   <BreadcrumbItem className="hidden md:block">
                     <BreadcrumbLink href="/home" className="hover:text-primary transition-colors">
-                      Home
+                      Tổng quan
                     </BreadcrumbLink>
                   </BreadcrumbItem>
                   <BreadcrumbSeparator className="hidden md:block" />
@@ -803,7 +801,9 @@ export default function EmployeeOfMonthPage() {
                               </div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-center">
-                              <Badge  className="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-900">
+                              <Badge
+                                className="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-900 bg-transparent dark:bg-primary/10"
+                              >
                                 {employee.monthYear || `${employee.month}/${employee.year}`}
                               </Badge>
                             </td>

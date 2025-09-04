@@ -1,5 +1,3 @@
-"use client"
-
 import {
   ChevronsUpDown,
   LogOut,
@@ -130,7 +128,7 @@ export function NavUser() {
               <DropdownMenuSeparator/>
               <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
                 <LogOut/>
-                Log out
+                Đăng xuất
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

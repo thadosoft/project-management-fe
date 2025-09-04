@@ -104,7 +104,7 @@ function CreateMaterialCategoryPage() {
                                 <BreadcrumbList>
                                     <BreadcrumbItem className="hidden md:block">
                                         <BreadcrumbLink href="/">
-                                            Home
+                                            Tổng quan
                                         </BreadcrumbLink>
                                     </BreadcrumbItem>
                                     <BreadcrumbSeparator className="hidden md:block" />
@@ -116,7 +116,7 @@ function CreateMaterialCategoryPage() {
                         </div>
                     </header>
                     <div className="p-10">
-                        <h3 className="text-3xl mb-8 sm:text-5xl leading-normal font-extrabold tracking-tight text-white">Quản lý <span className="text-indigo-600">loại vật tư</span></h3>
+                        <h3 className="text-3xl mb-8 sm:text-5xl leading-normal font-extrabold tracking-tight">Quản lý <span className="text-indigo-600">loại vật tư</span></h3>
                         <section className="mx-auto border border-[#4D7C0F] rounded-lg p-8">
                             <form onSubmit={handleSubmit}>
                                 <div className="space-y-6">
@@ -177,7 +177,7 @@ function CreateMaterialCategoryPage() {
                                         Mô tả
                                     </th>
                                     <th scope="col" className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        #
+                                        Thao tác
                                     </th>
                                 </tr>
                             </thead>
@@ -190,8 +190,8 @@ function CreateMaterialCategoryPage() {
                                         <td className="px-6 py-4 whitespace-nowrap">{category.description}</td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <td className="px-6 py-4 whitespace-nowrap flex justify-center">
-                                                <button onClick={() => handleEdit(category)} className="text-blue-600 hover:text-blue-900">Edit</button>
-                                                <button onClick={() => category.id && handleDelete(category.id)} className="text-red-600 hover:text-red-900 ml-4">Delete</button>
+                                                <button onClick={() => handleEdit(category)} className="text-blue-600 hover:text-blue-900">Sửa</button>
+                                                <button onClick={() => category.id && handleDelete(category.id)} className="text-red-600 hover:text-red-900 ml-4">Xóa</button>
                                             </td>
                                         </td>
                                     </tr>
