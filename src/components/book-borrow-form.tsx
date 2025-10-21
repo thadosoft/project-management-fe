@@ -71,7 +71,7 @@ export function BookBorrowForm({ onSubmit, isLoading = false }: BookBorrowFormPr
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button className="gap-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-300">
-          <Plus className="w-4 h-4" />
+          <Plus className="w-4 h-4 " />
           Đăng ký mượn sách
         </Button>
       </DialogTrigger>

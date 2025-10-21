@@ -1,12 +1,21 @@
 import { fetchData } from "@/utils/api"
 import type { Book, BookRequest } from "@/models/Book"
+import tokenService from "@/services/tokenService.ts";
 
-const API_URL = "books"
+
+const API_URL = "book-loans"
 
 export const getBooks = async (): Promise<Book[]> => {
   try {
-    const response = await fetchData<{ data: Book[] }>(API_URL)
-    return response?.data || []
+    const requestBody = {
+      title: "",
+      startDate: "",
+      endDate: ""
+    }
+    const response = await fetchData<{ content: Book[] }>(`${API_URL}/search`, "POST", tokenService.accessToken,requestBody )
+    console.log("Books fetched:", response?.content) 
+    return response?.content || []
+  
   } catch (error) {
     console.error("Error fetching books:", error)
     return []

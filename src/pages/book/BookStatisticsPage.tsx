@@ -1,10 +1,14 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { ThemeProvider } from "@/components/theme-provider"
-import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
-import { AppSidebar } from "@/components/app-sidebar"
-import { Separator } from "@/components/ui/separator"
+import { useState, useEffect } from "react";
+import { ThemeProvider } from "@/components/theme-provider";
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/app-sidebar";
+import { Separator } from "@/components/ui/separator";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -12,22 +16,32 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Skeleton } from "@/components/ui/skeleton"
-import { BookBorrowForm } from "@/components/book-borrow-form"
-import type { Book, BookRequest } from "@/models/Book"
-import { BookOpen, CheckCircle2, Clock, AlertCircle, Eye } from "lucide-react"
+} from "@/components/ui/breadcrumb";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { BookBorrowForm } from "@/components/book-borrow-form";
+import type { Book, BookRequest } from "@/models/Book";
+import { BookOpen, CheckCircle2, Clock, AlertCircle, Eye } from "lucide-react";
+import { getBooks } from "@/services/bookService";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 function BookStatisticsPage() {
-  const [books, setBooks] = useState<Book[]>([])
-  const [loading, setLoading] = useState(true)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [selectedBook, setSelectedBook] = useState<Book | null>(null)
+  const [books, setBooks] = useState<Book[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedBook, setSelectedBook] = useState<Book | null>(null);
+  const [open, setOpen] = useState(false);
 
-  const mockBooks: Book[] = [
+  /*const mockBooks: Book[] = [
     {
       id: 1,
       bookTitle: "Lập trình React",
@@ -85,31 +99,26 @@ function BookStatisticsPage() {
       createdAt: "2024-10-05",
       updatedAt: "2024-10-05",
     },
-  ]
+  ]; */
 
   useEffect(() => {
     const fetchBooks = async () => {
-      setLoading(true)
+      setLoading(true);
       try {
-        // Uncomment when API is ready
-        // const data = await getBooks();
-        // setBooks(data);
-
-        // Using mock data for now
-        setBooks(mockBooks)
+        const response = await getBooks();
+        setBooks(response);
       } catch (error) {
-        console.error("Error fetching books:", error)
-        setBooks(mockBooks)
+        console.error("Error fetching books:", error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchBooks()
-  }, [])
+    fetchBooks();
+  }, []);
 
   const handleAddBook = async (formData: BookRequest) => {
-    setIsSubmitting(true)
+    setIsSubmitting(true);
     try {
       // Uncomment when API is ready
       // const newBook = await createBook(formData);
@@ -119,24 +128,29 @@ function BookStatisticsPage() {
 
       // Mock implementation
       const newBook: Book = {
-        id: (books.length + 1),
+        id: books.length + 1,
         ...formData,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-      }
-      setBooks([...books, newBook])
+      };
+      setBooks([...books, newBook]);
     } catch (error) {
-      console.error("Error adding book:", error)
+      console.error("Error adding book:", error);
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   const handleViewDetails = (book: Book) => {
-    setSelectedBook(book)
+    setSelectedBook(book);
     // You can add a modal or drawer here to show book details
-    console.log("View details for book:", book)
-  }
+    console.log("borrowdate:", book.borrowDate);
+    console.log("duedate:", book.dueDate);
+  };
+
+  const handleReturnBook = async () => {
+
+  };
 
   const getStatusBadge = (status: string) => {
     const statusConfig: Record<string, { label: string; variant: any }> = {
@@ -148,17 +162,17 @@ function BookStatisticsPage() {
         label: "Đang mượn",
         variant: "secondary",
       },
-    }
+    };
 
-    const config = statusConfig[status] || statusConfig.AVAILABLE
-    return <Badge variant={config.variant}>{config.label}</Badge>
-  }
+    const config = statusConfig[status] || statusConfig.AVAILABLE;
+    return <Badge variant={config.variant}>{config.label}</Badge>;
+  };
 
   const stats = {
     total: books.length,
     available: books.filter((b) => b.status === "AVAILABLE").length,
     borrowed: books.filter((b) => b.status === "BORROWED").length,
-  }
+  };
 
   if (loading) {
     return (
@@ -173,7 +187,7 @@ function BookStatisticsPage() {
           <Skeleton className="h-80 rounded-lg" />
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -184,11 +198,17 @@ function BookStatisticsPage() {
           <header className="sticky top-0 z-50 flex h-16 shrink-0 items-center gap-2 transition-all duration-300 bg-background/80 backdrop-blur-xl border-b border-border/50 shadow-sm">
             <div className="flex items-center gap-2 px-6">
               <SidebarTrigger className="-ml-1 hover:bg-accent/50 transition-colors" />
-              <Separator orientation="vertical" className="mr-2 h-4 opacity-50" />
+              <Separator
+                orientation="vertical"
+                className="mr-2 h-4 opacity-50"
+              />
               <Breadcrumb>
                 <BreadcrumbList>
                   <BreadcrumbItem className="hidden md:block">
-                    <BreadcrumbLink href="/home" className="hover:text-primary transition-colors font-medium">
+                    <BreadcrumbLink
+                      href="/home"
+                      className="hover:text-primary transition-colors font-medium"
+                    >
                       Trang chủ
                     </BreadcrumbLink>
                   </BreadcrumbItem>
@@ -215,7 +235,9 @@ function BookStatisticsPage() {
                 <div className="text-center space-y-8 mb-12">
                   <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20 backdrop-blur-sm">
                     <div className="w-2 h-2 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 animate-pulse" />
-                    <span className="text-sm font-medium text-muted-foreground">Quản lý thư viện</span>
+                    <span className="text-sm font-medium text-muted-foreground">
+                      Quản lý thư viện
+                    </span>
                   </div>
 
                   <div className="space-y-4">
@@ -229,9 +251,9 @@ function BookStatisticsPage() {
                       </span>
                     </h1>
                     <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-                      Quản lý và theo dõi thông tin sách trong thư viện công ty <br /> Mrs.Tien (+84 853552097)
+                      Quản lý và theo dõi thông tin sách trong thư viện công ty{" "}
+                      <br /> Mrs.Tien (+84 853552097)
                     </p>
-
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
@@ -241,8 +263,12 @@ function BookStatisticsPage() {
                           <BookOpen className="w-6 h-6" />
                         </div>
                         <div className="text-left">
-                          <div className="text-2xl font-bold text-foreground">{stats.total}</div>
-                          <div className="text-sm text-muted-foreground">Tổng sách</div>
+                          <div className="text-2xl font-bold text-foreground">
+                            {stats.total}
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            Tổng sách
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -253,8 +279,12 @@ function BookStatisticsPage() {
                           <CheckCircle2 className="w-6 h-6" />
                         </div>
                         <div className="text-left">
-                          <div className="text-2xl font-bold text-foreground">{stats.available}</div>
-                          <div className="text-sm text-muted-foreground">Có sẵn</div>
+                          <div className="text-2xl font-bold text-foreground">
+                            {stats.available}
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            Có sẵn
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -265,54 +295,243 @@ function BookStatisticsPage() {
                           <Clock className="w-6 h-6" />
                         </div>
                         <div className="text-left">
-                          <div className="text-2xl font-bold text-foreground">{stats.borrowed}</div>
-                          <div className="text-sm text-muted-foreground">Đang mượn</div>
+                          <div className="text-2xl font-bold text-foreground">
+                            {stats.borrowed}
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            Đang mượn
+                          </div>
                         </div>
                       </div>
                     </div>
-
                   </div>
                 </div>
 
                 <Card className="border-0 bg-card/50 backdrop-blur-sm">
-                  <CardHeader className="pb-3 border-b border-border/50 justify-between items-center flex flex-col sm:flex-row gap-4">
-                    <CardTitle className="text-lg font-semibold">Danh sách sách</CardTitle>
-                    <BookBorrowForm onSubmit={handleAddBook} isLoading={isSubmitting} />
+                  <CardHeader className="px-3 pb-3 border-b border-border/50 justify-between items-center flex flex-col sm:flex-row gap-4">
+                    <CardTitle className="text-lg font-semibold">
+                      Danh sách sách
+                    </CardTitle>
+                    <BookBorrowForm
+                      onSubmit={handleAddBook}
+                      isLoading={isSubmitting}
+                    />
                   </CardHeader>
                   <CardContent className="p-0">
                     <div className="overflow-x-auto">
                       <table className="w-full text-sm">
                         <thead className="bg-muted/30 border-b border-border/50">
                           <tr>
-                            <th className="px-4 py-3 text-left font-semibold text-foreground">Tên sách</th>
-                            <th className="px-4 py-3 text-left font-semibold text-foreground">Tác giả</th>
-                            <th className="px-4 py-3 text-left font-semibold text-foreground">Người mượn</th>
-                            <th className="px-4 py-3 text-left font-semibold text-foreground">Chủ sở hữu</th>
-                            <th className="px-4 py-3 text-left font-semibold text-foreground">Ngày mượn</th>
-                            <th className="px-4 py-3 text-left font-semibold text-foreground">Tình trạng</th>
-                            <th className="px-4 py-3 text-center font-semibold text-foreground">Hành động</th>
+                            <th className="px-4 py-3 text-left font-semibold text-foreground">
+                              Tên sách
+                            </th>
+                            <th className="px-4 py-3 text-left font-semibold text-foreground">
+                              Tác giả
+                            </th>
+                            <th className="px-4 py-3 text-left font-semibold text-foreground">
+                              Người mượn
+                            </th>
+                            <th className="px-4 py-3 text-left font-semibold text-foreground">
+                              Chủ sở hữu
+                            </th>
+                            <th className="px-4 py-3 text-left font-semibold text-foreground">
+                              Ngày mượn
+                            </th>
+                            <th className="px-4 py-3 text-left font-semibold text-foreground">
+                              Tình trạng
+                            </th>
+                            <th className="px-4 py-3 text-center font-semibold text-foreground">
+                              Xem chi tiết
+                            </th>
+                            <th className="px-4 py-3 text-center font-semibold text-foreground">
+                              Trả sách
+                            </th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-border/30">
                           {books.map((book) => (
-                            <tr key={book.id} className="hover:bg-muted/20 transition-colors">
-                              <td className="px-4 py-3 font-medium text-foreground">{book.bookTitle}</td>
-                              <td className="px-4 py-3 text-muted-foreground">{book.approverName}</td>
-                              <td className="px-4 py-3 text-muted-foreground">{book.borrowerName}</td>
-                              <td className="px-4 py-3 text-muted-foreground">{book.bookOwner}</td>
-                              <td className="px-4 py-3 text-muted-foreground">
-                                {new Date(book.borrowDate).toLocaleDateString("vi-VN")}
+                            <tr
+                              key={book.id}
+                              className="hover:bg-muted/20 transition-colors"
+                            >
+                              <td className="px-4 py-3 font-medium text-foreground">
+                                {book.bookTitle}
                               </td>
-                              <td className="px-4 py-3">{getStatusBadge(book.status)}</td>
+                              <td className="px-4 py-3 text-muted-foreground">
+                                {book.approverName}
+                              </td>
+                              <td className="px-4 py-3 text-muted-foreground">
+                                {book.borrowerName}
+                              </td>
+                              <td className="px-4 py-3 text-muted-foreground">
+                                {book.bookOwner}
+                              </td>
+                              <td className="px-4 py-3 text-muted-foreground">
+                                {new Date(book.borrowDate).toLocaleDateString(
+                                  "vi-VN"
+                                )}
+                              </td>
+                              <td className="px-4 py-3">
+                                {getStatusBadge(book.status)}
+                              </td>
+
+                              {/* View Details Action */}
                               <td className="px-4 py-3 text-center">
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => handleViewDetails(book)}
-                                  className="h-8 w-8 p-0 hover:bg-primary/10"
-                                >
-                                  <Eye className="w-4 h-4 text-primary" />
-                                </Button>
+                                <Dialog open={open} onOpenChange={setOpen}>
+                                  <DialogTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => handleViewDetails(book)}
+                                      className="h-8 w-8 p-0 hover:bg-primary/10"
+                                    >
+                                      <Eye className="w-4 h-4 text-primary" />
+                                    </Button>
+                                  </DialogTrigger>
+                                  <DialogContent className="sm:max-w-[550px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xl">
+                                    <DialogHeader className="space-y-3 pb-4 border-b border-slate-200 dark:border-slate-700">
+                                      <div className="flex items-center gap-3">
+                                        <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 text-white">
+                                          <BookOpen className="w-5 h-5" />
+                                        </div>
+                                        <div>
+                                          <DialogTitle className="text-xl font-bold text-slate-900 dark:text-white">
+                                            Thông tin chi tiết
+                                          </DialogTitle>
+                                          <DialogDescription className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                                            Hiển thị thông tin chi tiết sách
+                                          </DialogDescription>
+                                        </div>
+                                      </div>
+                                    </DialogHeader>
+
+                                    {/* Book Details */}
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 text-sm text-foreground">
+                                      {/** Từng field bọc trong card nhỏ với shadow nhẹ */}
+                                      <div className="p-4 rounded-lg bg-white dark:bg-slate-800 shadow-sm hover:shadow-md transition-shadow duration-300">
+                                        <p className="font-semibold text-gray-700 dark:text-gray-200">
+                                          Tên sách
+                                        </p>
+                                        <p className="text-muted-foreground mt-1">
+                                          {selectedBook?.bookTitle || "-"}
+                                        </p>
+                                      </div>
+
+                                      <div className="p-4 rounded-lg bg-white dark:bg-slate-800 shadow-sm hover:shadow-md transition-shadow duration-300">
+                                        <p className="font-semibold text-gray-700 dark:text-gray-200">
+                                          Chủ sở hữu
+                                        </p>
+                                        <p className="text-muted-foreground mt-1">
+                                          {selectedBook?.bookOwner || "-"}
+                                        </p>
+                                      </div>
+
+                                      <div className="p-4 rounded-lg bg-white dark:bg-slate-800 shadow-sm hover:shadow-md transition-shadow duration-300">
+                                        <p className="font-semibold text-gray-700 dark:text-gray-200">
+                                          Người mượn
+                                        </p>
+                                        <p className="text-muted-foreground mt-1">
+                                          {selectedBook?.borrowerName || "-"}
+                                        </p>
+                                      </div>
+
+                                      <div className="p-4 rounded-lg bg-white dark:bg-slate-800 shadow-sm hover:shadow-md transition-shadow duration-300">
+                                        <p className="font-semibold text-gray-700 dark:text-gray-200">
+                                          Người duyệt
+                                        </p>
+                                        <p className="text-muted-foreground mt-1">
+                                          {selectedBook?.approverName || "-"}
+                                        </p>
+                                      </div>
+
+                                      <div className="p-4 rounded-lg bg-white dark:bg-slate-800 shadow-sm hover:shadow-md transition-shadow duration-300">
+                                        <p className="font-semibold text-gray-700 dark:text-gray-200">
+                                          Ngày mượn
+                                        </p>
+                                        <p className="text-muted-foreground mt-1">
+                                          {selectedBook?.borrowDate
+                                            ? new Date(
+                                                selectedBook?.borrowDate
+                                              ).toLocaleString("vi-VN")
+                                            : "-"}
+                                        </p>
+                                      </div>
+
+                                      <div className="p-4 rounded-lg bg-white dark:bg-slate-800 shadow-sm hover:shadow-md transition-shadow duration-300">
+                                        <p className="font-semibold text-gray-700 dark:text-gray-200">
+                                          Ngày đến hạn
+                                        </p>
+                                        <p className="text-muted-foreground mt-1">
+                                          {selectedBook?.dueDate
+                                            ? new Date(
+                                                selectedBook?.dueDate
+                                              ).toLocaleString("vi-VN")
+                                            : "-"}
+                                        </p>
+                                      </div>
+
+                                      <div className="p-4 rounded-lg bg-white dark:bg-slate-800 shadow-sm hover:shadow-md transition-shadow duration-300">
+                                        <p className="font-semibold text-gray-700 dark:text-gray-200">
+                                          Ngày trả
+                                        </p>
+                                        <p className="text-muted-foreground mt-1">
+                                          {selectedBook?.returnedAt
+                                            ? new Date(
+                                                selectedBook?.returnedAt
+                                              ).toLocaleString("vi-VN")
+                                            : "-"}
+                                        </p>
+                                      </div>
+
+                                      <div className="p-4 rounded-lg bg-white dark:bg-slate-800 shadow-sm hover:shadow-md transition-shadow duration-300">
+                                        <p className="font-semibold text-gray-700 dark:text-gray-200">
+                                          Tình trạng sách
+                                        </p>
+                                        <p className="text-muted-foreground mt-1">
+                                          {selectedBook?.bookCondition || "-"}
+                                        </p>
+                                      </div>
+
+                                      <div className="p-4 rounded-lg bg-white dark:bg-slate-800 shadow-sm hover:shadow-md transition-shadow duration-300">
+                                        <p className="font-semibold text-gray-700 dark:text-gray-200">
+                                          Trạng thái
+                                        </p>
+                                        <p className="text-muted-foreground mt-1">
+                                          {selectedBook?.status === "AVAILABLE"
+                                            ? "Có sẵn"
+                                            : selectedBook?.status ===
+                                              "BORROWED"
+                                            ? "Đang mượn"
+                                            : selectedBook?.status === "OVERDUE"
+                                            ? "Quá hạn"
+                                            : "Đã trả"}
+                                        </p>
+                                      </div>
+
+                                      <div className="md:col-span-2 p-4 rounded-lg bg-white dark:bg-slate-800 shadow-sm hover:shadow-md transition-shadow duration-300">
+                                        <p className="font-semibold text-gray-700 dark:text-gray-200">
+                                          Ghi chú
+                                        </p>
+                                        <p className="text-muted-foreground mt-1">
+                                          {selectedBook?.remarks || "-"}
+                                        </p>
+                                      </div>
+                                    </div>
+                                  </DialogContent>
+                                </Dialog>
+                              </td>
+
+                              <td className="px-4 py-3 text-center">
+                                  {(book.status === "BORROWED" || book.status === "OVERDUE") ? (
+                                    <Button 
+                                      onClick={handleReturnBook}
+                                      variant="ghost"
+                                      size="sm"
+                                      className="h-8 w-8 p-0 hover:bg-primary/10"
+                                    >
+
+                                    </Button>) : (<></>)
+                                  }
                               </td>
                             </tr>
                           ))}
@@ -323,7 +542,9 @@ function BookStatisticsPage() {
                     {books.length === 0 && (
                       <div className="text-center py-12">
                         <BookOpen className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
-                        <p className="text-muted-foreground">Chưa có sách nào trong hệ thống</p>
+                        <p className="text-muted-foreground">
+                          Chưa có sách nào trong hệ thống
+                        </p>
                       </div>
                     )}
                   </CardContent>
@@ -334,7 +555,7 @@ function BookStatisticsPage() {
         </SidebarInset>
       </SidebarProvider>
     </ThemeProvider>
-  )
+  );
 }
 
-export default BookStatisticsPage
+export default BookStatisticsPage;
