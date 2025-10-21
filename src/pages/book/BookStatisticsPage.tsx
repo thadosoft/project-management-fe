@@ -1,0 +1,340 @@
+"use client"
+
+import { useState, useEffect } from "react"
+import { ThemeProvider } from "@/components/theme-provider"
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
+import { AppSidebar } from "@/components/app-sidebar"
+import { Separator } from "@/components/ui/separator"
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Skeleton } from "@/components/ui/skeleton"
+import { BookBorrowForm } from "@/components/book-borrow-form"
+import type { Book, BookRequest } from "@/models/Book"
+import { BookOpen, CheckCircle2, Clock, AlertCircle, Eye } from "lucide-react"
+
+function BookStatisticsPage() {
+  const [books, setBooks] = useState<Book[]>([])
+  const [loading, setLoading] = useState(true)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [selectedBook, setSelectedBook] = useState<Book | null>(null)
+
+  const mockBooks: Book[] = [
+    {
+      id: 1,
+      bookTitle: "Lập trình React",
+      approverName: "Nguyễn Văn A",
+      borrowerName: "Trần Thị B",
+      bookOwner: "Thư viện công ty",
+      status: "BORROWED",
+      borrowDate: "2024-10-15",
+      returnedAt: "2024-10-25",
+      createdAt: "2024-10-15",
+      updatedAt: "2024-10-15",
+    },
+    {
+      id: 2,
+      bookTitle: "JavaScript Nâng cao",
+      approverName: "Lê Văn C",
+      borrowerName: "Phạm Minh D",
+      bookOwner: "Thư viện công ty",
+      status: "AVAILABLE",
+      borrowDate: "2024-10-10",
+      createdAt: "2024-10-10",
+      updatedAt: "2024-10-10",
+    },
+    {
+      id: 3,
+      bookTitle: "TypeScript Cơ bản",
+      approverName: "Hoàng Văn E",
+      borrowerName: "Vũ Thị F",
+      bookOwner: "Thư viện công ty",
+      status: "BORROWED",
+      borrowDate: "2024-10-12",
+      returnedAt: "2024-10-22",
+      createdAt: "2024-10-12",
+      updatedAt: "2024-10-12",
+    },
+    {
+      id: 4,
+      bookTitle: "Web Development Toàn tập",
+      approverName: "Đặng Văn G",
+      borrowerName: "Ngô Thị H",
+      bookOwner: "Thư viện công ty",
+      status: "BORROWED",
+      borrowDate: "2024-10-18",
+      createdAt: "2024-10-18",
+      updatedAt: "2024-10-18",
+    },
+    {
+      id: 5,
+      bookTitle: "CSS Grid & Flexbox",
+      approverName: "Bùi Văn I",
+      borrowerName: "Tô Thị J",
+      bookOwner: "Thư viện công ty",
+      status: "BORROWED",
+      borrowDate: "2024-10-05",
+      createdAt: "2024-10-05",
+      updatedAt: "2024-10-05",
+    },
+  ]
+
+  useEffect(() => {
+    const fetchBooks = async () => {
+      setLoading(true)
+      try {
+        // Uncomment when API is ready
+        // const data = await getBooks();
+        // setBooks(data);
+
+        // Using mock data for now
+        setBooks(mockBooks)
+      } catch (error) {
+        console.error("Error fetching books:", error)
+        setBooks(mockBooks)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchBooks()
+  }, [])
+
+  const handleAddBook = async (formData: BookRequest) => {
+    setIsSubmitting(true)
+    try {
+      // Uncomment when API is ready
+      // const newBook = await createBook(formData);
+      // if (newBook) {
+      //   setBooks([...books, newBook]);
+      // }
+
+      // Mock implementation
+      const newBook: Book = {
+        id: (books.length + 1),
+        ...formData,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }
+      setBooks([...books, newBook])
+    } catch (error) {
+      console.error("Error adding book:", error)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleViewDetails = (book: Book) => {
+    setSelectedBook(book)
+    // You can add a modal or drawer here to show book details
+    console.log("View details for book:", book)
+  }
+
+  const getStatusBadge = (status: string) => {
+    const statusConfig: Record<string, { label: string; variant: any }> = {
+      AVAILABLE: {
+        label: "Có sẵn",
+        variant: "default",
+      },
+      BORROWED: {
+        label: "Đang mượn",
+        variant: "secondary",
+      },
+    }
+
+    const config = statusConfig[status] || statusConfig.AVAILABLE
+    return <Badge variant={config.variant}>{config.label}</Badge>
+  }
+
+  const stats = {
+    total: books.length,
+    available: books.filter((b) => b.status === "AVAILABLE").length,
+    borrowed: books.filter((b) => b.status === "BORROWED").length,
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-background">
+        <div className="space-y-4 w-full max-w-6xl mx-auto p-6">
+          <Skeleton className="h-8 w-48 rounded" />
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {[...Array(4)].map((_, i) => (
+              <Skeleton key={i} className="h-24 rounded-lg" />
+            ))}
+          </div>
+          <Skeleton className="h-80 rounded-lg" />
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+      <SidebarProvider>
+        <AppSidebar />
+        <SidebarInset>
+          <header className="sticky top-0 z-50 flex h-16 shrink-0 items-center gap-2 transition-all duration-300 bg-background/80 backdrop-blur-xl border-b border-border/50 shadow-sm">
+            <div className="flex items-center gap-2 px-6">
+              <SidebarTrigger className="-ml-1 hover:bg-accent/50 transition-colors" />
+              <Separator orientation="vertical" className="mr-2 h-4 opacity-50" />
+              <Breadcrumb>
+                <BreadcrumbList>
+                  <BreadcrumbItem className="hidden md:block">
+                    <BreadcrumbLink href="/home" className="hover:text-primary transition-colors font-medium">
+                      Trang chủ
+                    </BreadcrumbLink>
+                  </BreadcrumbItem>
+                  <BreadcrumbSeparator className="hidden md:block opacity-50" />
+                  <BreadcrumbItem>
+                    <BreadcrumbPage className="font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                      Thống kê sách
+                    </BreadcrumbPage>
+                  </BreadcrumbItem>
+                </BreadcrumbList>
+              </Breadcrumb>
+            </div>
+          </header>
+
+          {/* Main Content */}
+          <div className="flex-1 bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-100/50 dark:from-slate-950 dark:via-slate-900/50 dark:to-slate-800 min-h-screen relative overflow-hidden">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.1),transparent_50%)] pointer-events-none" />
+            <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-purple-500/10 via-blue-500/5 to-transparent rounded-full blur-3xl animate-pulse pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-80 h-80 bg-gradient-to-tr from-emerald-500/10 via-teal-500/5 to-transparent rounded-full blur-3xl animate-pulse delay-1000 pointer-events-none" />
+
+            <div className="relative z-10 px-6 py-12 lg:px-8">
+              <div className="mx-auto max-w-full">
+                {/* Hero Section */}
+                <div className="text-center space-y-8 mb-12">
+                  <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20 backdrop-blur-sm">
+                    <div className="w-2 h-2 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 animate-pulse" />
+                    <span className="text-sm font-medium text-muted-foreground">Quản lý thư viện</span>
+                  </div>
+
+                  <div className="space-y-4">
+                    <h1 className="text-4xl md:text-6xl lg:text-7xl font-black tracking-tight">
+                      <span className="bg-gradient-to-r from-slate-900 via-blue-900 to-slate-900 dark:from-white dark:via-blue-100 dark:to-white bg-clip-text text-transparent">
+                        Thư viện
+                      </span>
+                      <br />
+                      <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 bg-clip-text text-transparent animate-gradient">
+                        Sách AITS
+                      </span>
+                    </h1>
+                    <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+                      Quản lý và theo dõi thông tin sách trong thư viện công ty <br /> Mrs.Tien (+84 853552097)
+                    </p>
+
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+                    <div className="group p-6 rounded-2xl bg-gradient-to-br from-white/50 to-white/30 dark:from-slate-800/50 dark:to-slate-700/30 backdrop-blur-sm border border-white/20 dark:border-slate-700/50 hover:scale-105 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/10">
+                      <div className="flex items-center gap-4">
+                        <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white group-hover:scale-110 transition-transform duration-300">
+                          <BookOpen className="w-6 h-6" />
+                        </div>
+                        <div className="text-left">
+                          <div className="text-2xl font-bold text-foreground">{stats.total}</div>
+                          <div className="text-sm text-muted-foreground">Tổng sách</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="group p-6 rounded-2xl bg-gradient-to-br from-white/50 to-white/30 dark:from-slate-800/50 dark:to-slate-700/30 backdrop-blur-sm border border-white/20 dark:border-slate-700/50 hover:scale-105 transition-all duration-300 hover:shadow-xl hover:shadow-emerald-500/10">
+                      <div className="flex items-center gap-4">
+                        <div className="p-3 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 text-white group-hover:scale-110 transition-transform duration-300">
+                          <CheckCircle2 className="w-6 h-6" />
+                        </div>
+                        <div className="text-left">
+                          <div className="text-2xl font-bold text-foreground">{stats.available}</div>
+                          <div className="text-sm text-muted-foreground">Có sẵn</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="group p-6 rounded-2xl bg-gradient-to-br from-white/50 to-white/30 dark:from-slate-800/50 dark:to-slate-700/30 backdrop-blur-sm border border-white/20 dark:border-slate-700/50 hover:scale-105 transition-all duration-300 hover:shadow-xl hover:shadow-orange-500/10">
+                      <div className="flex items-center gap-4">
+                        <div className="p-3 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 text-white group-hover:scale-110 transition-transform duration-300">
+                          <Clock className="w-6 h-6" />
+                        </div>
+                        <div className="text-left">
+                          <div className="text-2xl font-bold text-foreground">{stats.borrowed}</div>
+                          <div className="text-sm text-muted-foreground">Đang mượn</div>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+
+                <Card className="border-0 bg-card/50 backdrop-blur-sm">
+                  <CardHeader className="pb-3 border-b border-border/50 justify-between items-center flex flex-col sm:flex-row gap-4">
+                    <CardTitle className="text-lg font-semibold">Danh sách sách</CardTitle>
+                    <BookBorrowForm onSubmit={handleAddBook} isLoading={isSubmitting} />
+                  </CardHeader>
+                  <CardContent className="p-0">
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead className="bg-muted/30 border-b border-border/50">
+                          <tr>
+                            <th className="px-4 py-3 text-left font-semibold text-foreground">Tên sách</th>
+                            <th className="px-4 py-3 text-left font-semibold text-foreground">Tác giả</th>
+                            <th className="px-4 py-3 text-left font-semibold text-foreground">Người mượn</th>
+                            <th className="px-4 py-3 text-left font-semibold text-foreground">Chủ sở hữu</th>
+                            <th className="px-4 py-3 text-left font-semibold text-foreground">Ngày mượn</th>
+                            <th className="px-4 py-3 text-left font-semibold text-foreground">Tình trạng</th>
+                            <th className="px-4 py-3 text-center font-semibold text-foreground">Hành động</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-border/30">
+                          {books.map((book) => (
+                            <tr key={book.id} className="hover:bg-muted/20 transition-colors">
+                              <td className="px-4 py-3 font-medium text-foreground">{book.bookTitle}</td>
+                              <td className="px-4 py-3 text-muted-foreground">{book.approverName}</td>
+                              <td className="px-4 py-3 text-muted-foreground">{book.borrowerName}</td>
+                              <td className="px-4 py-3 text-muted-foreground">{book.bookOwner}</td>
+                              <td className="px-4 py-3 text-muted-foreground">
+                                {new Date(book.borrowDate).toLocaleDateString("vi-VN")}
+                              </td>
+                              <td className="px-4 py-3">{getStatusBadge(book.status)}</td>
+                              <td className="px-4 py-3 text-center">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleViewDetails(book)}
+                                  className="h-8 w-8 p-0 hover:bg-primary/10"
+                                >
+                                  <Eye className="w-4 h-4 text-primary" />
+                                </Button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {books.length === 0 && (
+                      <div className="text-center py-12">
+                        <BookOpen className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
+                        <p className="text-muted-foreground">Chưa có sách nào trong hệ thống</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
+    </ThemeProvider>
+  )
+}
+
+export default BookStatisticsPage

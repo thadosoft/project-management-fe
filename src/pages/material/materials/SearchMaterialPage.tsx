@@ -31,6 +31,7 @@ import {
 import { useEffect, useState } from "react"
 import { deleteMaterial, searchMaterials } from "@/services/material/materialService"
 import type { Material } from "@/models/Material"
+import { useNavigate } from "react-router-dom";
 import {
   Search,
   Package,
@@ -48,6 +49,8 @@ import {
   Filter,
   RefreshCw,
   Barcode,
+  PlusCircle,
+  PlusIcon,
 } from "lucide-react"
 
 function SearchMaterialPage() {
@@ -65,6 +68,7 @@ function SearchMaterialPage() {
   const [imageViewerVisible, setImageViewerVisible] = useState(false);
   const [currentMaterial, setCurrentMaterial] = useState<Material | null>(null);
   const [imageUrls, setImageUrls] = useState<Record<string, string>>({});
+  const navigate = useNavigate();
 
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -408,15 +412,15 @@ function SearchMaterialPage() {
                       </div>
                     </div>
 
-                    <div className="flex justify-between items-center pt-6 border-t">
+                    <div className="flex justify-between items-center pt-6 pb-3 border-t">
                       <Button
                         type="button"
                         variant="outline"
-                        onClick={handleReset}
+                        onClick={() => navigate("/create-material")}
                         className="h-12 px-8 bg-transparent"
                       >
-                        <RefreshCw className="w-4 h-4 mr-2" />
-                        Đặt lại
+                        <PlusIcon className="w-4 h-4 mr-2" />
+                        Thêm mới
                       </Button>
                       <Button
                         type="submit"

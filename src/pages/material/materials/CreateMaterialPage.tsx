@@ -11,6 +11,7 @@ import { MaterialCategory } from "@/models/MaterialCategory";
 import { getImage, uploadMultipleMaterialImages } from "@/services/material/uploadFileService";
 import { Table, Button, Space, Modal } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
+import { useNavigate } from "react-router-dom";
 import styles from '../../../css/CreateMaterialPage.module.css';
 
 function CreateMaterialPage() {
@@ -39,6 +40,8 @@ function CreateMaterialPage() {
     const [imageFiles, setImageFiles] = useState<File[]>([]);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
+    const navigate = useNavigate();
+
 
     const loadImage = async (materialId: number, accessUrl: string) => {
         try {
@@ -55,9 +58,9 @@ function CreateMaterialPage() {
 
     const loadMultipleImages = async (material: Material) => {
         if (!material || !material.images || material.images.length === 0) return;
-        
+
         const newImageUrls: { [key: string]: string } = {};
-        
+
         for (let i = 0; i < material.images.length; i++) {
             const image = material.images[i];
             try {
@@ -69,21 +72,21 @@ function CreateMaterialPage() {
                     newImageUrls[key] = objectUrl;
                 }
             } catch (error) {
-                console.error(`Error loading image ${i} for material ${material.id}:`, error);
+                console.error(`Lỗi khi load ảnh ${i} cho vật tư ${material.id}:`, error);
             }
         }
-        
+
         setImageUrls(prev => ({ ...prev, ...newImageUrls }));
     };
 
     const validateForm = () => {
         let newErrors: { [key: string]: string } = {};
-    
+
         if (!material.name) newErrors.name = "Tên vật tư không được để trống";
         if (!material.sku) newErrors.sku = "Mã serial không được để trống";
         if (!material.inventoryCategoryId) newErrors.category = "Loại vật tư không được để trống";
         if (!material.unit) newErrors.unit = "Đơn vị không được để trống";
-        
+
         // Kiểm tra từng file trong danh sách
         for (const file of imageFiles) {
             if (!file.type.startsWith("image/")) {
@@ -95,7 +98,7 @@ function CreateMaterialPage() {
                 break;
             }
         }
-    
+
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
@@ -115,15 +118,15 @@ function CreateMaterialPage() {
             setImagePreview(null);
             return;
         }
-        
+
         // Lưu tất cả các file được chọn
         const newFiles: File[] = [];
         for (let i = 0; i < files.length; i++) {
             newFiles.push(files[i]);
         }
-        
+
         setImageFiles(newFiles);
-        
+
         // Chỉ hiển thị preview của hình ảnh đầu tiên
         const firstFile = files[0];
         const previewUrl = URL.createObjectURL(firstFile);
@@ -182,9 +185,30 @@ function CreateMaterialPage() {
                         location: data.location || "",
                         purchasePrice: data.purchasePrice || 0,
                     });
-                    setImageFiles([]);
-                    setImagePreview(null);
+
                     setEditingMaterialId(material.id);
+
+                    // --- Load hình ảnh cũ ---
+                    if (data.images && data.images.length > 0) {
+                        const firstImage = data.images[0];
+                        const filename = firstImage.fileName || firstImage.accessUrl.split("/").pop();
+                        if (filename) {
+                            try {
+                                const blob = await getImage(filename);
+                                const objectUrl = URL.createObjectURL(blob);
+                                setImagePreview(objectUrl);
+
+                                // Nếu bạn muốn có cả danh sách File[] để re-upload:
+                                const file = new File([blob], filename, { type: blob.type });
+                                setImageFiles([file]);
+                            } catch (err) {
+                                console.error("Lỗi khi load ảnh của vật tư:", err);
+                            }
+                        }
+                    } else {
+                        setImagePreview(null);
+                        setImageFiles([]);
+                    }
                 } else {
                     alert("Không tìm thấy vật tư!");
                 }
@@ -195,14 +219,15 @@ function CreateMaterialPage() {
         }
     };
 
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-    
+
         if (!validateForm()) {
             console.warn("Có lỗi nhập liệu");
             return;
         }
-    
+
         const payload = {
             name: material.name,
             sku: material.sku,
@@ -212,7 +237,7 @@ function CreateMaterialPage() {
             location: material.location,
             purchasePrice: material.purchasePrice,
         };
-    
+
         try {
             let materialId: number;
             if (editingMaterialId) {
@@ -234,7 +259,7 @@ function CreateMaterialPage() {
                 }
                 alert("Thêm vật tư thành công!");
             }
-    
+
             // Upload nhiều hình ảnh nếu có
             if (imageFiles.length > 0) {
                 try {
@@ -245,7 +270,7 @@ function CreateMaterialPage() {
                     alert("Tải hình ảnh thất bại!");
                 }
             }
-    
+
             // Reset form
             setMaterial({
                 name: "",
@@ -260,7 +285,7 @@ function CreateMaterialPage() {
             setImagePreview(null);
             setEditingMaterialId(null);
             setErrors({});
-    
+
             // Refresh materials list
             const data = await getAllMaterial();
             if (data) {
@@ -335,8 +360,8 @@ function CreateMaterialPage() {
             render: (id: number, record: Material) => {
                 if (id && record.images && record.images.length > 0) {
                     return (
-                        <div 
-                            className="relative cursor-pointer" 
+                        <div
+                            className="relative cursor-pointer"
                             onClick={() => openImageViewer(record)}
                         >
                             <img
@@ -564,8 +589,8 @@ function CreateMaterialPage() {
                                                     />
                                                 </label>
                                                 {imageFiles.length > 0 && (
-                                                    <button 
-                                                        type="button" 
+                                                    <button
+                                                        type="button"
                                                         className="ml-2 text-red-500 hover:text-red-700"
                                                         onClick={() => {
                                                             setImageFiles([]);
@@ -594,7 +619,23 @@ function CreateMaterialPage() {
                                         </div>
                                     </div>
                                 </div>
+                                {/* <div className="mt-8 pt-6 border-t border-gray-600 flex justify-between">
+                                    <button
+                                        type="submit"
+                                        className="bg-[#4D7C0F] hover:bg-[#79ac37] rounded-[5px] p-[13px_25px] text-white"
+                                    >
+                                        {editingMaterialId ? "Cập nhật" : "Thêm"}
+                                    </button>
+                                </div> */}
                                 <div className="mt-8 pt-6 border-t border-gray-600 flex justify-between">
+                                    <button
+                                        type="button"
+                                        onClick={() => navigate("/search-material")}
+                                        className="bg-gray-500 hover:bg-gray-600 rounded-[5px] p-[13px_25px] text-white"
+                                    >
+                                        Quay lại
+                                    </button>
+
                                     <button
                                         type="submit"
                                         className="bg-[#4D7C0F] hover:bg-[#79ac37] rounded-[5px] p-[13px_25px] text-white"
@@ -602,10 +643,11 @@ function CreateMaterialPage() {
                                         {editingMaterialId ? "Cập nhật" : "Thêm"}
                                     </button>
                                 </div>
+
                             </form>
                         </section>
 
-                        {/* <div className="mt-12">
+                        <div className="mt-12">
                             <Table
                                 columns={columns}
                                 dataSource={materials}
@@ -615,10 +657,10 @@ function CreateMaterialPage() {
                                 className={`${styles.table} shadow-xl rounded-lg bg-gray-200 text-gray-900 border-2 border-gray-400`}
                                 scroll={{ x: 'max-content' }}
                             />
-                        </div> */}
+                        </div>
                     </div>
                 </SidebarInset>
-                {/* <Modal
+                <Modal
                     title={`Hình ảnh vật tư: ${currentMaterial?.name || ''}`}
                     open={imageViewerVisible}
                     onCancel={() => setImageViewerVisible(false)}
@@ -643,7 +685,7 @@ function CreateMaterialPage() {
                     ) : (
                         <p className="text-center py-6 text-gray-500">Không có hình ảnh nào.</p>
                     )}
-                </Modal> */}
+                </Modal>
             </SidebarProvider>
         </ThemeProvider>
     );
