@@ -7,7 +7,7 @@ export interface BookLoan {
   bookTitle: string;
   borrowerName: string;
   borrowerId?: number;
-  borrowDate: string;       // LocalDateTime BE => string ISO
+  borrowDate: string;       // LocalDateTime BE là string ISO
   dueDate?: string;
   status: LoanStatus;
   approverName?: string;
@@ -27,7 +27,7 @@ export interface CreateBookLoanRequest {
   bookTitle: string;
   borrowerName: string;
   borrowerId?: number;
-  borrowDate: string;       // gửi ISO string
+  borrowDate: string;
   dueDate?: string;
   status: LoanStatus;
   approverName?: string;
@@ -48,7 +48,7 @@ export interface BookLoanRequest {
 
 // Thống kê
 export interface BookLoanStatsResponse {
-  totalBorrowed: number;
-  totalReturned: number;
-  totalOverdue: number;
+  borrowedCount: number;
+  returnedCount: number;
+  overdueCount: number;
 }

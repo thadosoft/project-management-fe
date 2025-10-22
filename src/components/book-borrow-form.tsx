@@ -16,16 +16,16 @@ import {
 } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Plus, BookOpen } from "lucide-react"
-import type { BookRequest } from "@/models/BookLoan"
+import type { CreateBookLoanRequest } from "@/models/BookLoan"
 
 interface BookBorrowFormProps {
-  onSubmit: (data: BookRequest) => Promise<void>
+  onSubmit: (data: CreateBookLoanRequest) => Promise<void>
   isLoading?: boolean
 }
 
 export function BookBorrowForm({ onSubmit, isLoading = false }: BookBorrowFormProps) {
   const [open, setOpen] = useState(false)
-  const [formData, setFormData] = useState<BookRequest>({
+  const [formData, setFormData] = useState<CreateBookLoanRequest>({
     bookTitle: "",
     approverName: "",
     borrowerName: "",
