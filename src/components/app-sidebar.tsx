@@ -215,10 +215,20 @@ const data = {
           ],
         },
         {
-          title: "Thống kê sách",
-          icon: BsDeviceHdd,
-          url: "/book-statistics",
+          title: "Tủ sách AITS",
+          icon: LucideWarehouse,
+          url: "",
           isActive: true,
+          items: [
+            {
+              title: "Thống kê đầu sách",
+              url: "",
+            },
+            {
+              title: "Thống kê mượn sách",
+              url: "/book-statistics",
+            },
+          ],
         },
       ],
     },
