@@ -22,9 +22,17 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BookBorrowForm } from "@/components/book-borrow-form";
-import type { Book, BookRequest } from "@/models/Book";
-import { BookOpen, CheckCircle2, Clock, AlertCircle, Eye } from "lucide-react";
-import { getBooks } from "@/services/bookService";
+import type { BookLoan, BookLoanRequest } from "@/models/BookLoan";
+import {
+  BookOpen,
+  CheckCircle2,
+  Clock,
+  AlertCircle,
+  Eye,
+  Undo2,
+  AlarmClockMinus,
+} from "lucide-react";
+import { checkOverdueLoans, getBooksLoans, returnBook } from "@/services/bookLoanService";
 import {
   Dialog,
   DialogContent,
@@ -33,79 +41,21 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { parseVNDate } from "@/utils/dateUtils";
 
 function BookStatisticsPage() {
-  const [books, setBooks] = useState<Book[]>([]);
+  const [books, setBooks] = useState<BookLoan[]>([]);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [selectedBook, setSelectedBook] = useState<Book | null>(null);
+  const [selectedBook, setSelectedBook] = useState<BookLoan | null>(null);
   const [open, setOpen] = useState(false);
-
-  /*const mockBooks: Book[] = [
-    {
-      id: 1,
-      bookTitle: "Lập trình React",
-      approverName: "Nguyễn Văn A",
-      borrowerName: "Trần Thị B",
-      bookOwner: "Thư viện công ty",
-      status: "BORROWED",
-      borrowDate: "2024-10-15",
-      returnedAt: "2024-10-25",
-      createdAt: "2024-10-15",
-      updatedAt: "2024-10-15",
-    },
-    {
-      id: 2,
-      bookTitle: "JavaScript Nâng cao",
-      approverName: "Lê Văn C",
-      borrowerName: "Phạm Minh D",
-      bookOwner: "Thư viện công ty",
-      status: "AVAILABLE",
-      borrowDate: "2024-10-10",
-      createdAt: "2024-10-10",
-      updatedAt: "2024-10-10",
-    },
-    {
-      id: 3,
-      bookTitle: "TypeScript Cơ bản",
-      approverName: "Hoàng Văn E",
-      borrowerName: "Vũ Thị F",
-      bookOwner: "Thư viện công ty",
-      status: "BORROWED",
-      borrowDate: "2024-10-12",
-      returnedAt: "2024-10-22",
-      createdAt: "2024-10-12",
-      updatedAt: "2024-10-12",
-    },
-    {
-      id: 4,
-      bookTitle: "Web Development Toàn tập",
-      approverName: "Đặng Văn G",
-      borrowerName: "Ngô Thị H",
-      bookOwner: "Thư viện công ty",
-      status: "BORROWED",
-      borrowDate: "2024-10-18",
-      createdAt: "2024-10-18",
-      updatedAt: "2024-10-18",
-    },
-    {
-      id: 5,
-      bookTitle: "CSS Grid & Flexbox",
-      approverName: "Bùi Văn I",
-      borrowerName: "Tô Thị J",
-      bookOwner: "Thư viện công ty",
-      status: "BORROWED",
-      borrowDate: "2024-10-05",
-      createdAt: "2024-10-05",
-      updatedAt: "2024-10-05",
-    },
-  ]; */
 
   useEffect(() => {
     const fetchBooks = async () => {
       setLoading(true);
       try {
-        const response = await getBooks();
+        await checkOverdueLoans(); // Check and update overdue loans on load
+        const response = await getBooksLoans();
         setBooks(response);
       } catch (error) {
         console.error("Error fetching books:", error);
@@ -117,7 +67,7 @@ function BookStatisticsPage() {
     fetchBooks();
   }, []);
 
-  const handleAddBook = async (formData: BookRequest) => {
+  const handleAddBook = async (formData: BookLoanRequest) => {
     setIsSubmitting(true);
     try {
       // Uncomment when API is ready
@@ -127,7 +77,7 @@ function BookStatisticsPage() {
       // }
 
       // Mock implementation
-      const newBook: Book = {
+      const newBook: BookLoan = {
         id: books.length + 1,
         ...formData,
         createdAt: new Date().toISOString(),
@@ -141,15 +91,33 @@ function BookStatisticsPage() {
     }
   };
 
-  const handleViewDetails = (book: Book) => {
+  const handleViewDetails = (book: BookLoan) => {
     setSelectedBook(book);
     // You can add a modal or drawer here to show book details
-    console.log("borrowdate:", book.borrowDate);
-    console.log("duedate:", book.dueDate);
   };
 
-  const handleReturnBook = async () => {
+  const handleReturnBook = async (book: BookLoan) => {
+    console.log("Returning book:", book);
+    if (!book.id) return;
+    if (!confirm(`Xác nhận trả sách "${book.bookTitle}"?`)) return;
 
+    const success = await returnBook(book.id);
+    if (success) {
+      alert("✅ Trả sách thành công!");
+      setBooks((prev) =>
+        prev.map((b) =>
+          b.id === book.id
+            ? {
+                ...b,
+                status: "AVAILABLE",
+                returnedAt: new Date().toISOString(),
+              }
+            : b
+        )
+      );
+    } else {
+      alert("❌ Lỗi khi trả sách, vui lòng thử lại!");
+    }
   };
 
   const getStatusBadge = (status: string) => {
@@ -162,16 +130,37 @@ function BookStatisticsPage() {
         label: "Đang mượn",
         variant: "secondary",
       },
+      OVERDUE: {
+        label: "Quá hạn",
+        variant: "destructive", 
+      },
     };
 
     const config = statusConfig[status] || statusConfig.AVAILABLE;
     return <Badge variant={config.variant}>{config.label}</Badge>;
   };
 
+  const getStatusText = (status: string | null | undefined): string => {
+    switch (status) {
+      case "AVAILABLE":
+      case "RETURNED":
+        return "Có sẵn";
+      case "BORROWED":
+        return "Đang mượn";
+      case "OVERDUE":
+        return "Quá hạn";
+      default:
+        return "-";
+    }
+  };
+
   const stats = {
     total: books.length,
-    available: books.filter((b) => b.status === "AVAILABLE").length,
+    available: books.filter(
+      (b) => b.status === "AVAILABLE" || b.status === "RETURNED"
+    ).length,
     borrowed: books.filter((b) => b.status === "BORROWED").length,
+    overdue: books.filter((b) => b.status === "OVERDUE").length,
   };
 
   if (loading) {
@@ -215,7 +204,7 @@ function BookStatisticsPage() {
                   <BreadcrumbSeparator className="hidden md:block opacity-50" />
                   <BreadcrumbItem>
                     <BreadcrumbPage className="font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                      Thống kê sách
+                      Thống kê mượn trả sách
                     </BreadcrumbPage>
                   </BreadcrumbItem>
                 </BreadcrumbList>
@@ -252,11 +241,11 @@ function BookStatisticsPage() {
                     </h1>
                     <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
                       Quản lý và theo dõi thông tin sách trong thư viện công ty{" "}
-                      <br /> Mrs.Tien (+84 853552097)
+                      <br /> Ms.Tien (+84 853552097)
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-6 max-w-5xl mx-auto">
                     <div className="group p-6 rounded-2xl bg-gradient-to-br from-white/50 to-white/30 dark:from-slate-800/50 dark:to-slate-700/30 backdrop-blur-sm border border-white/20 dark:border-slate-700/50 hover:scale-105 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/10">
                       <div className="flex items-center gap-4">
                         <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white group-hover:scale-110 transition-transform duration-300">
@@ -304,13 +293,30 @@ function BookStatisticsPage() {
                         </div>
                       </div>
                     </div>
+
+                    <div className="group p-6 rounded-2xl bg-gradient-to-br from-white/50 to-white/30 dark:from-slate-800/50 dark:to-slate-700/30 backdrop-blur-sm border border-white/20 dark:border-slate-700/50 hover:scale-105 transition-all duration-300 hover:shadow-xl hover:shadow-red-500/10">
+                      <div className="flex items-center gap-4">
+                        <div className="p-3 rounded-xl bg-gradient-to-br from-red-500 to-red-600 text-white group-hover:scale-110 transition-transform duration-300">
+                          <AlarmClockMinus className="w-6 h-6" />
+                        </div>
+                        <div className="text-left">
+                          <div className="text-2xl font-bold text-foreground">
+                            {stats.overdue}
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            Quá hạn
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
                   </div>
                 </div>
 
                 <Card className="border-0 bg-card/50 backdrop-blur-sm">
                   <CardHeader className="px-3 pb-3 border-b border-border/50 justify-between items-center flex flex-col sm:flex-row gap-4">
                     <CardTitle className="text-lg font-semibold">
-                      Danh sách sách
+                      Danh sách phiếu mượn
                     </CardTitle>
                     <BookBorrowForm
                       onSubmit={handleAddBook}
@@ -367,9 +373,11 @@ function BookStatisticsPage() {
                                 {book.bookOwner}
                               </td>
                               <td className="px-4 py-3 text-muted-foreground">
-                                {new Date(book.borrowDate).toLocaleDateString(
-                                  "vi-VN"
-                                )}
+                                {book.borrowDate
+                                  ? parseVNDate(book.borrowDate)
+                                      ?.toLocaleString("vi-VN")
+                                      .replace(",", "")
+                                  : "-"}
                               </td>
                               <td className="px-4 py-3">
                                 {getStatusBadge(book.status)}
@@ -396,10 +404,10 @@ function BookStatisticsPage() {
                                         </div>
                                         <div>
                                           <DialogTitle className="text-xl font-bold text-slate-900 dark:text-white">
-                                            Thông tin chi tiết
+                                            Chi tiết phiếu mượn
                                           </DialogTitle>
                                           <DialogDescription className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-                                            Hiển thị thông tin chi tiết sách
+                                            Hiển thị thông tin chi tiết phiếu mượn
                                           </DialogDescription>
                                         </div>
                                       </div>
@@ -450,9 +458,11 @@ function BookStatisticsPage() {
                                         </p>
                                         <p className="text-muted-foreground mt-1">
                                           {selectedBook?.borrowDate
-                                            ? new Date(
+                                            ? parseVNDate(
                                                 selectedBook?.borrowDate
-                                              ).toLocaleString("vi-VN")
+                                              )
+                                                ?.toLocaleString("vi-VN")
+                                                .replace(",", "")
                                             : "-"}
                                         </p>
                                       </div>
@@ -463,9 +473,11 @@ function BookStatisticsPage() {
                                         </p>
                                         <p className="text-muted-foreground mt-1">
                                           {selectedBook?.dueDate
-                                            ? new Date(
+                                            ? parseVNDate(
                                                 selectedBook?.dueDate
-                                              ).toLocaleString("vi-VN")
+                                              )
+                                                ?.toLocaleString("vi-VN")
+                                                .replace(",", "")
                                             : "-"}
                                         </p>
                                       </div>
@@ -476,9 +488,11 @@ function BookStatisticsPage() {
                                         </p>
                                         <p className="text-muted-foreground mt-1">
                                           {selectedBook?.returnedAt
-                                            ? new Date(
+                                            ? parseVNDate(
                                                 selectedBook?.returnedAt
-                                              ).toLocaleString("vi-VN")
+                                              )
+                                                ?.toLocaleString("vi-VN")
+                                                .replace(",", "")
                                             : "-"}
                                         </p>
                                       </div>
@@ -497,14 +511,7 @@ function BookStatisticsPage() {
                                           Trạng thái
                                         </p>
                                         <p className="text-muted-foreground mt-1">
-                                          {selectedBook?.status === "AVAILABLE"
-                                            ? "Có sẵn"
-                                            : selectedBook?.status ===
-                                              "BORROWED"
-                                            ? "Đang mượn"
-                                            : selectedBook?.status === "OVERDUE"
-                                            ? "Quá hạn"
-                                            : "Đã trả"}
+                                          {getStatusText(selectedBook?.status)}
                                         </p>
                                       </div>
 
@@ -522,16 +529,19 @@ function BookStatisticsPage() {
                               </td>
 
                               <td className="px-4 py-3 text-center">
-                                  {(book.status === "BORROWED" || book.status === "OVERDUE") ? (
-                                    <Button 
-                                      onClick={handleReturnBook}
-                                      variant="ghost"
-                                      size="sm"
-                                      className="h-8 w-8 p-0 hover:bg-primary/10"
-                                    >
-
-                                    </Button>) : (<></>)
-                                  }
+                                {book.status === "BORROWED" ||
+                                book.status === "OVERDUE" ? (
+                                  <Button
+                                    onClick={() => handleReturnBook(book)}
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-8 w-8 p-0 hover:bg-primary/10"
+                                  >
+                                    <Undo2 />
+                                  </Button>
+                                ) : (
+                                  <></>
+                                )}
                               </td>
                             </tr>
                           ))}

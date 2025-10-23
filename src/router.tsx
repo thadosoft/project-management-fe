@@ -27,6 +27,7 @@ import EmployeeOfMonthPage from "./pages/employee-of-month-page"
 import WarehouseOutryPage from "./pages/warehouse/WarehouseOutryPage"
 import { ProtectedRoute } from "@/components/ProtectedRoute"
 import BookStatisticsPage from "./pages/book/BookStatisticsPage"
+import BookPage from "./pages/book/BookPage"
 
 export const router = createBrowserRouter(
   [
@@ -241,7 +242,7 @@ export const router = createBrowserRouter(
         </ProtectedRoute>
       ),
     },
-
+    // librart
     {
       path: "/book-statistics",
       element: (
@@ -250,6 +251,17 @@ export const router = createBrowserRouter(
         </ProtectedRoute>
       ),
     },
+
+    {
+      path: "/book",
+      element: (
+        <ProtectedRoute>
+          <BookPage/>
+        </ProtectedRoute>
+      ),
+    },
+
+   
   ],
   { basename: "/" },
 )

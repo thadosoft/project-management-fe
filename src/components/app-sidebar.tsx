@@ -1,4 +1,4 @@
-import * as React from "react"
+import * as React from "react";
 import {
   Frame,
   GalleryVerticalEnd,
@@ -9,28 +9,30 @@ import {
   PieChart,
   Settings2Icon,
   Warehouse,
+  LibraryBig,
   WarehouseIcon,
-} from "lucide-react"
+} from "lucide-react";
 import { useLocation } from "react-router-dom";
 
-import { NavMain } from "@/components/nav-main"
-import { NavUser } from "@/components/nav-user"
-import { TeamSwitcher } from "@/components/team-switcher"
+import { NavMain } from "@/components/nav-main";
+import { NavUser } from "@/components/nav-user";
+import { TeamSwitcher } from "@/components/team-switcher";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
   SidebarRail,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
 import { NavApp } from "@/components/nav-app.tsx";
-import { Home } from "lucide-react"
+import { Home } from "lucide-react";
 import { CgProfile } from "react-icons/cg";
 import { SiAudiotechnica, SiGoodreads } from "react-icons/si";
 import { useEffect, useRef } from "react";
-import { ModeToggle } from "./mode-toggle"
+import { ModeToggle } from "./mode-toggle";
 import { BsDeviceHdd, BsDeviceSsd, BsPeople } from "react-icons/bs";
-import { useSidebar } from "@/components/ui/sidebar"
+import { useSidebar } from "@/components/ui/sidebar";
+import { url } from "inspector";
 
 const data = {
   user: {
@@ -76,7 +78,7 @@ const data = {
               title: "Tìm kiếm bảng chấm công",
               url: "/search-attendance-sheet",
             },
-          ]
+          ],
         },
         {
           title: "Thông tin nhân viên",
@@ -91,7 +93,7 @@ const data = {
               title: "Tìm kiếm tài khoản",
               url: "/search-employee",
             },
-          ]
+          ],
         },
         {
           title: "Thông tin Hành chính & nhân sự",
@@ -155,7 +157,8 @@ const data = {
         {
           title: "Các sản phẩm đóng gói",
           url: "/project",
-        }, {
+        },
+        {
           title: "Bảng trắng",
           url: "/white-boards",
         },
@@ -214,9 +217,20 @@ const data = {
             },
           ],
         },
+      ],
+    },
+    {
+      title: "Tủ sách AITS",
+      icon: LibraryBig,
+      url: "#",
+      isActive: true,
+      items: [
         {
-          title: "Thống kê sách",
-          icon: BsDeviceHdd,
+          title: "Quản lý kho sách",
+          url: "/book",
+        },
+        {
+          title: "Thống kê mượn trả sách",
           url: "/book-statistics",
           isActive: true,
         },
@@ -293,36 +307,36 @@ const data = {
       icon: Map,
     },
   ],
-}
+};
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { state } = useSidebar()
-  const isCollapsed = state === "collapsed"
+  const { state } = useSidebar();
+  const isCollapsed = state === "collapsed";
 
-  const scrollRef = useRef<HTMLDivElement | null>(null)
-  const location = useLocation()
-  const SCROLL_KEY = "sidebar-scroll-position"
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const location = useLocation();
+  const SCROLL_KEY = "sidebar-scroll-position";
 
   // lưu scroll position
   useEffect(() => {
-    const ref = scrollRef.current
-    if (!ref) return
+    const ref = scrollRef.current;
+    if (!ref) return;
     const handleScroll = () => {
-      sessionStorage.setItem(SCROLL_KEY, String(ref.scrollTop))
-    }
-    ref.addEventListener("scroll", handleScroll)
-    return () => ref.removeEventListener("scroll", handleScroll)
-  }, [])
+      sessionStorage.setItem(SCROLL_KEY, String(ref.scrollTop));
+    };
+    ref.addEventListener("scroll", handleScroll);
+    return () => ref.removeEventListener("scroll", handleScroll);
+  }, []);
 
   // khôi phục scroll position
   useEffect(() => {
-    const ref = scrollRef.current
-    if (!ref) return
-    const pos = Number(sessionStorage.getItem(SCROLL_KEY) || "0")
+    const ref = scrollRef.current;
+    if (!ref) return;
+    const pos = Number(sessionStorage.getItem(SCROLL_KEY) || "0");
     setTimeout(() => {
-      ref.scrollTop = pos
-    }, 0)
-  }, [location.pathname])
+      ref.scrollTop = pos;
+    }, 0);
+  }, [location.pathname]);
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -346,5 +360,5 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
       <SidebarRail />
     </Sidebar>
-  )
+  );
 }

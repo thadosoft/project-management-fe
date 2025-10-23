@@ -1,29 +1,24 @@
 export interface Book {
   id: number
-  bookTitle: string
-  borrowerName: string
-  bookOwner: string
-  approverName?: string
-  bookCondition?: string
-  status: "AVAILABLE" | "BORROWED" | "OVERDUE" | "RETURNED"
-  borrowDate: string
-  dueDate?: string
-  returnedAt?: string
-  remarks?: string
+  title: string
+  author?: string
+  category?: string
+  publisher?: string
+  publicationYear?: number
+  quantity_total?: number
+  quantity_available?: number
+  location?: string
   createdAt?: string
   updatedAt?: string
 }
 
 export interface BookRequest {
-  bookTitle: string
-  borrowerName: string
-  borrowerId?: number
-  bookOwner: string
-  approverName?: string
-  bookCondition?: string
-  status: "AVAILABLE" | "BORROWED" | "OVERDUE" | "RETURNED"
-  borrowDate: string
-  dueDate?: string
-  returnedAt?: string
-  remarks?: string
+  title: string
+  author?: string
+  category?: string
+  publisher?: string
+  publicationYear?: number
+  quantity_total?: number
+  quantity_available?: number
+  location?: string
 }
