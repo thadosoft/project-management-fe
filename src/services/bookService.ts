@@ -100,3 +100,15 @@ export const deleteBook = async (id: string): Promise<boolean> => {
     return false;
   }
 };
+
+// Lấy sách theo ID
+export const getBookById = async (id: string) => {
+  const response = await fetchData<Book>(
+    `${API_URL}/${id}`,
+    "GET",
+    tokenService.accessToken
+  );
+  console.log("getBookById response:", response);
+  return response;
+};
+

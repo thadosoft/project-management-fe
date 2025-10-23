@@ -13,7 +13,6 @@ import {
   CardTitle,
   CardContent,
   Card,
-  CardFooter,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
@@ -23,34 +22,29 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Book, BookRequest } from "@/models/Book";
-import { Dialog, DialogContent, DialogTrigger } from "@radix-ui/react-dialog";
+
 import { Separator } from "@radix-ui/react-separator";
 import {
   Activity,
-  Calendar,
   ChevronLeft,
   ChevronRight,
   FolderOpen,
   Plus,
-  Sparkles,
-  Star,
-  Zap,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { ItemBook } from "@/components/item-book";
 import { createBook, getTotalBooks, searchBooks } from "@/services/bookService";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { BookAddForm } from "@/components/book-add-form";
 
 function BookPage() {
   const [totalPages, setTotalPages] = useState(0);
   const [totalBooks, setTotalBooks] = useState(0);
   const [page, setPage] = useState(0);
-  const [size] = useState(3);
+  const [size] = useState(5);
   const [books, setBooks] = useState<Book[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [newBookTitle, setNewBookTitle] = useState<string>("");
-  const [newBookAuthour, setNewBookAuthour] = useState<string>("");
+
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -72,27 +66,29 @@ function BookPage() {
     };
 
     fetchBooks();
-  }, [page, size]);
+  }, [page, size, books]);
 
-  const handleCreateBook = async () => {
-      const bookRequest: BookRequest = {
-        title: newBookTitle,
-        author: newBookAuthour,
-      }
-  
-      const bookCreated: Book | null = await createBook(bookRequest)
-  
+  const handleCreateBook = async (data: BookRequest) => {
+    try {
+      const bookCreated: Book | null = await createBook(data);
       if (bookCreated) {
-        setNewBookTitle("")
-        setNewBookAuthour("")
-        setIsDialogOpen(false)
-        setBooks((prev) => [...prev, bookCreated])
+        setBooks((prev) => [...prev, bookCreated]);
+      } else {
       }
+    } catch (error) {
+      console.error("Error creating book:", error);
     }
+  };
 
-  function handleRemoveBook(bookId: number): void {
-    throw new Error("Function not implemented.");
+    const handleRemoveBook = (bookId: number) => {
+    setBooks((prevBooks) => prevBooks.filter((book) => book.id !== bookId))
   }
+
+  const updateBookInList = (updatedBook: Book) => {
+  setBooks((prev) =>
+    prev.map((b) => (b.id === updatedBook.id ? updatedBook : b))
+  );
+};
 
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
@@ -200,7 +196,7 @@ function BookPage() {
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="p-8">
-                      <div className="grid auto-rows-min gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                      <div className="grid auto-rows-min gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
                         {books.map((book: Book, index) => (
                           <div
                             className="group transition-all duration-500 hover:scale-105 animate-in fade-in-0 slide-in-from-bottom-4"
@@ -209,141 +205,30 @@ function BookPage() {
                             <ItemBook
                               book={book}
                               removeBook={handleRemoveBook}
+                              updateBookInList={updateBookInList}
                             />
                           </div>
                         ))}
 
-                        {/* Enhanced Create Book Card */}
-                        <Dialog
-                          modal={false}
-                          open={isDialogOpen}
-                          onOpenChange={setIsDialogOpen}
-                        >
-                          <DialogTrigger asChild>
-                            <div className="group h-[23vh] rounded-2xl bg-gradient-to-br from-muted/30 via-muted/20 to-muted/10 cursor-pointer hover:from-purple-500/10 hover:via-purple-500/5 hover:to-purple-500/10 border-2 border-dashed border-muted-foreground/20 hover:border-purple-500/40 transition-all duration-500 flex flex-col p-8 items-center justify-center hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/10 relative overflow-hidden">
-                              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                              <div className="relative z-10 space-y-4 text-center">
-                                <div className="p-4 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 text-white shadow-lg group-hover:scale-110 transition-transform duration-300">
-                                  <Plus className="w-8 h-8 group-hover:rotate-90 transition-transform duration-300" />
-                                </div>
-                                <div>
-                                  <div className="font-semibold text-foreground group-hover:text-blue-600 transition-colors">
-                                    Thêm sách
-                                  </div>
-                                  <div className="text-xs text-muted-foreground mt-1">
-                                    Thêm sách mới vào thư viện
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </DialogTrigger>
-                          <DialogContent
-                            onInteractOutside={(event) =>
-                              event.preventDefault()
-                            }
-                            className="sm:max-w-[500px] p-0 border-0 bg-transparent shadow-none"
-                          >
-                            <Card className="border-0 bg-gradient-to-br from-white/90 to-white/70 dark:from-slate-800/90 dark:to-slate-700/70 backdrop-blur-xl shadow-2xl">
-                              <CardHeader className="bg-gradient-to-r from-transparent via-purple-500/5 to-transparent border-b border-border/50">
-                                <CardTitle className="flex items-center gap-4 text-xl">
-                                  <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-600 text-white shadow-lg">
-                                    <Sparkles className="w-5 h-5" />
-                                  </div>
-                                  <div>
-                                    <span className="bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent font-bold">
-                                      Thêm sách mới
-                                    </span>
-                                    <p className="text-sm text-muted-foreground font-normal mt-1">
-                                      Thêm sách vào thư viện
-                                    </p>
-                                  </div>
-                                </CardTitle>
-                              </CardHeader>
-                              <CardContent className="p-8">
-                                <form className="space-y-6">
-                                  <div className="space-y-3">
-                                    <Label
-                                      htmlFor="name"
-                                      className="text-sm font-semibold flex items-center gap-2"
-                                    >
-                                      <Star className="w-4 h-4 text-blue-500" />
-                                      Tên sách
-                                    </Label>
-                                    <Input
-                                      id="name"
-                                      placeholder="Nhập tựa đề sách..."
-                                      value={newBookTitle}
-                                      onChange={(e) =>
-                                        setNewBookTitle(e.target.value)
-                                      }
-                                      className="h-12 bg-background/50 border-2 hover:border-blue-500/30 focus:border-cyan-500/50 transition-all duration-300 rounded-xl"
-                                    />
-                                  </div>
-                                  <div className="space-y-3">
-                                    <Label
-                                      htmlFor="author"
-                                      className="text-sm font-semibold flex items-center gap-2"
-                                    >
-                                      <Calendar className="w-4 h-4 text-blue-500" />
-                                      Tên tác giả
-                                    </Label>
-                                    <Input
-                                      id="author"
-                                      placeholder="Nhập tên tác giả..."
-                                      value={newBookAuthour}
-                                      onChange={(e) =>
-                                        setNewBookAuthour(e.target.value)
-                                      }
-                                      className="h-12 bg-background/50 border-2 hover:border-blue-500/30 focus:border-cyan-500/50 transition-all duration-300 rounded-xl"
-                                    />
-                                  </div>
-                                </form>
-                              </CardContent>
-                              <CardFooter className="flex justify-center pb-8">
-                                {newBookTitle !== "" &&
-                                !books.some(
-                                  (p) =>
-                                    p.title.toLowerCase() ===
-                                    newBookTitle.toLowerCase()
-                                ) ? (
-                                  <Button
-                                    onClick={handleCreateBook}
-                                    size="lg"
-                                    className="group relative overflow-hidden min-w-[160px] h-12 px-8 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white border-0 shadow-lg hover:shadow-xl hover:shadow-purple-500/25 transition-all duration-300 hover:scale-105 rounded-xl"
-                                  >
-                                    <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                                    <Zap className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform duration-300" />
-                                    Thêm sách mới
-                                  </Button>
-                                ) : (
-                                  <Button
-                                    disabled
-                                    size="lg"
-                                    className="min-w-[160px] h-12 px-8 opacity-50 cursor-not-allowed rounded-xl"
-                                  >
-                                    <Zap className="w-5 h-5 mr-2" />
-                                    Thêm sách mới
-                                  </Button>
-                                )}
-                              </CardFooter>
-                            </Card>
-                          </DialogContent>
-                        </Dialog>
+                        <BookAddForm
+                          onSubmit={handleCreateBook}
+                          isLoading={loading}
+                        />
                       </div>
 
                       {/* Empty State */}
                       {books.length === 0 && (
                         <div className="text-center py-16 space-y-6">
                           <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/20">
-                            <FolderOpen className="w-10 h-10 text-purple-500" />
+                            <FolderOpen className="w-10 h-10 text-blue-500" />
                           </div>
                           <div className="space-y-2">
                             <h3 className="text-xl font-semibold text-foreground">
-                              Chưa có dự án nào
+                              Chưa có sách nào trong hệ thống
                             </h3>
                             <p className="text-muted-foreground max-w-md mx-auto">
-                              Bắt đầu tạo dự án đầu tiên của bạn để quản lý công
-                              việc một cách hiệu quả
+                              Bắt đầu thêm sách mới vào thư viện của bạn để quản
+                              lý
                             </p>
                           </div>
                           <Dialog
@@ -354,7 +239,7 @@ function BookPage() {
                             <DialogTrigger asChild>
                               <Button
                                 size="lg"
-                                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                                className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
                               >
                                 <Plus className="w-5 h-5 mr-2" />
                                 Tạo dự án đầu tiên
