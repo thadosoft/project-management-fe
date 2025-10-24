@@ -66,7 +66,7 @@ function BookPage() {
     };
 
     fetchBooks();
-  }, [page, size, books]);
+  }, [page, size]);
 
   const handleCreateBook = async (data: BookRequest) => {
     try {
@@ -83,12 +83,6 @@ function BookPage() {
     const handleRemoveBook = (bookId: number) => {
     setBooks((prevBooks) => prevBooks.filter((book) => book.id !== bookId))
   }
-
-  const updateBookInList = (updatedBook: Book) => {
-  setBooks((prev) =>
-    prev.map((b) => (b.id === updatedBook.id ? updatedBook : b))
-  );
-};
 
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
@@ -205,7 +199,6 @@ function BookPage() {
                             <ItemBook
                               book={book}
                               removeBook={handleRemoveBook}
-                              updateBookInList={updateBookInList}
                             />
                           </div>
                         ))}

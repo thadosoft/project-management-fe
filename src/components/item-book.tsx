@@ -29,10 +29,9 @@ import { Input } from "./ui/input";
 interface ItemBookProps {
   book: Book;
   removeBook: (bookId: number) => void;
-  updateBookInList: (updatedBook: Book) => void; // new callback
 }
 
-export function ItemBook({ book, removeBook, updateBookInList }: ItemBookProps) {
+export function ItemBook({ book, removeBook,  }: ItemBookProps) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -98,8 +97,6 @@ export function ItemBook({ book, removeBook, updateBookInList }: ItemBookProps) 
       const updatedBook = await updateBook(book.id.toString(), formData);
       if (updatedBook) {
         console.log("Updated successfully:", updatedBook);
-        updateBookInList(updatedBook); // 🔥 tell parent to update state
-
         setIsEditDialogOpen(false);
       }
     } catch (error) {

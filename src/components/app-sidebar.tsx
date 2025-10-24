@@ -10,6 +10,7 @@ import {
   Settings2Icon,
   Warehouse,
   LibraryBig,
+  Calendar,
   WarehouseIcon,
 } from "lucide-react";
 import { useLocation } from "react-router-dom";
@@ -235,6 +236,11 @@ const data = {
           isActive: true,
         },
       ],
+    },
+    {
+      title: "Sự kiện nội bộ",
+      url: "/event",
+      icon: Calendar,
     },
     // {
     //   title: "Điều phối - Coordination",
