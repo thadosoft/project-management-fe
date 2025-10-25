@@ -85,7 +85,7 @@ function EventPage() {
                 {/* End Hero Section */}
 
                 <div className="mx-auto max-w-full">
-                    <EventCalendar />
+                    <EventCalendar/>
                 </div>
               </div>
             </div>
