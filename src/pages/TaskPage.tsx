@@ -142,30 +142,6 @@ export default function TaskPage() {
   }, [projectId]);
 
 
-  // useEffect(() => {
-  //   if (!projectId) return;
-
-  //   const fetchTasks = async () => {
-  //     try {
-  //       const [tasksData, assignmentsData] = await Promise.all([
-  //         getTasksByProjectId(projectId),
-  //         getAssignmentsByProjectId(projectId)
-  //       ]);
-
-  //       if (tasksData && assignmentsData) {
-  //         setTasks(tasksData.sort((a, b) => a.taskOrder - b.taskOrder));
-  //         setAssignments(assignmentsData.sort((a, b) => a.assignmentOrder - b.assignmentOrder));
-  //       }
-  //     } catch (error) {
-  //       console.error('Error fetching tasks:', error);
-  //     }
-  //   };
-
-  //   fetchTasks()
-  //   .then(() => console.log("Tasks fetched successfully"))
-  //   .catch((error) => console.error("Error in fetchTasks:", error));
-  // }, [projectId]);
-
   useEffect(() => {
     const fetchUser = async () => {
       const accessToken = localStorage.getItem("accessToken");

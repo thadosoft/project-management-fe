@@ -6,7 +6,7 @@ export interface BookLoan {
   bookId?: number;
   bookTitle: string;
   borrowerName: string;
-  borrowerId?: number;
+  borrowerId?: string;
   borrowDate: string;       // LocalDateTime BE là string ISO
   dueDate?: string;
   status: LoanStatus;
@@ -26,7 +26,7 @@ export interface CreateBookLoanRequest {
   bookId?: number;
   bookTitle: string;
   borrowerName: string;
-  borrowerId?: number;
+  borrowerId?: string;
   borrowDate: string;
   dueDate?: string;
   status: LoanStatus;

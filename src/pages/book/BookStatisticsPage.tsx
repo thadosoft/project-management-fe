@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { ThemeProvider } from "@/components/theme-provider"
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/app-sidebar"
@@ -22,11 +22,16 @@ import { searchBookLoans, createBookLoan } from "@/services/bookLoanService"
 import type { BookLoan, CreateBookLoanRequest, BookLoanRequest } from "@/models/BookLoan"
 import { getBookLoanStats } from "@/services/bookLoanService"
 import type { BookLoanStatsResponse } from "@/models/BookLoan"
-import { BookOpen, CheckCircle2, Clock, Eye, ChevronDown, ChevronUp } from "lucide-react"
+import { BookOpen, CheckCircle2, Clock, Eye, ChevronDown, ChevronUp, Loader2, RefreshCw } from "lucide-react"
 import { parse, format } from "date-fns"
 import { BookDetailsModal } from "./BookDetailsModal"
 import { ProfileCard } from "@/components/profile-card"
 import { Pagination } from "@/components/pagination"
+import toast from "react-hot-toast";
+import { checkOverdueBookLoans } from "@/services/bookLoanService"
+import { markBookLoanAsReturned } from "@/services/bookLoanService"
+import { RotateCcw } from "lucide-react"
+
 function BookStatisticsPage() {
   const [books, setBooks] = useState<BookLoan[]>([])
   const [loading, setLoading] = useState(true)
@@ -57,12 +62,36 @@ function BookStatisticsPage() {
     setIsModalOpen(true)
   }
 
+  //trả sách
+  const handleReturnBook = async (loanId: number) => {
+    try {
+      setIsSubmitting(true);
+      await markBookLoanAsReturned(loanId);
+      toast.success("Đã trả sách thành công!");
+
+      // cập nhật danh sách
+      const request: BookLoanRequest = {};
+      const response = await searchBookLoans(request, 0, 100);
+      if (response?.content) setBooks(response.content);
+
+      // cập nhật thống kê
+      const statsData = await getBookLoanStats();
+      if (statsData) setStats(statsData);
+    } catch (error) {
+      console.error("Lỗi khi trả sách:", error);
+      toast.error("Không thể trả sách!");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+
   useEffect(() => {
     const fetchBooks = async () => {
       setLoading(true)
       try {
         const request: BookLoanRequest = {}
-        const response = await searchBookLoans(request, 0, 100)
+        const response = await searchBookLoans(request, 0, 100) // page=0, size=100
         if (response?.content) {
           setBooks(response.content)
         } else {
@@ -89,7 +118,15 @@ function BookStatisticsPage() {
     try {
       const newBook = await createBookLoan(formData)
       if (newBook) {
-        setBooks([...books, newBook])
+        // thêm tạm ngay để giao diện phản hồi nhanh
+        setBooks((prev) => [...prev, newBook])
+
+        // đồng thời fetch lại toàn bộ danh sách sau 500ms
+        setTimeout(async () => {
+          const request: BookLoanRequest = {}
+          const response = await searchBookLoans(request, 0, 100)
+          if (response?.content) setBooks(response.content)
+        }, 500)
       }
     } catch (error) {
       console.error("Error adding book:", error)
@@ -98,21 +135,32 @@ function BookStatisticsPage() {
     }
   }
 
-  const getStatusBadge = (status: string) => {
-    const statusConfig: Record<string, { label: string; variant: any }> = {
-      AVAILABLE: {
-        label: "Có sẵn",
-        variant: "default",
-      },
-      BORROWED: {
-        label: "Đang mượn",
-        variant: "secondary",
-      },
-    }
+  const handleCheckOverdue = async () => {
+    setIsSubmitting(true)
+    try {
+      const message = await checkOverdueBookLoans()
+      toast.success(message || "Thành công!");
 
-    const config = statusConfig[status] || statusConfig.AVAILABLE
-    return <Badge variant={config.variant}>{config.label}</Badge>
+      // sau khi cập nhật xong, fetch lại danh sách và thống kê
+      const request: BookLoanRequest = {}
+      const response = await searchBookLoans(request, 0, 10)
+      if (response?.content) setBooks(response.content)
+
+      const statsData = await getBookLoanStats()
+      if (statsData) setStats(statsData)
+    } catch (error) {
+      console.error("Error checking overdue:", error)
+      toast.error("Đã xảy ra lỗi khi kiểm tra phiếu quá hạn.")
+    } finally {
+      setIsSubmitting(false)
+    }
   }
+
+
+  const borrowForm = useMemo(() => (
+    <BookBorrowForm onSubmit={handleAddBook} isLoading={isSubmitting} />
+  ), [isSubmitting]);
+
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -246,7 +294,7 @@ function BookStatisticsPage() {
                     <div className="animate-in fade-in duration-300">
                       <ProfileCard
                         name="Mrs.Tien"
-                        title="Library Manager"
+                        title="Quản lý thư viện"
                         email="tien.ntu@thadosoft.com"
                         phone="+84 853552097"
                         avatar="https://scontent.fsgn5-14.fna.fbcdn.net/v/t39.30808-1/468279569_2080239279045625_1679455235350617662_n.jpg?stp=dst-jpg_s200x200_tt6&_nc_cat=106&ccb=1-7&_nc_sid=e99d92&_nc_ohc=XsAPMqT7_TQQ7kNvwEWIXMY&_nc_oc=Adkcx8Q895jlOK9XLRHGJME9FVjUwfNFkjm3gBWmn04Yk8LCUIVpbuQezA0uZLpMuLi-ZYcnzK8qdvr0jE4WTFmD&_nc_zt=24&_nc_ht=scontent.fsgn5-14.fna&_nc_gid=_CRCrJDHNbNbEpcrGvmGXw&oh=00_AfdXa7j3mMFkW_1JdZONhlZCXOjQ7PeqWADtY1x6lC9UAg&oe=68FE0FD2"
@@ -307,20 +355,42 @@ function BookStatisticsPage() {
               </div>
 
               {/* Book List Table */}
-              <Card className="border-0 bg-card/50 backdrop-blur-sm shadow-lg">
-                <CardHeader className="pb-3 border-b border-border/50 justify-between items-center flex flex-col sm:flex-row gap-4">
+              <Card className="border-0 bg-card/50 backdrop-blur-sm shadow-lg overflow-hidden">
+                <CardHeader className="pb-4 px-2 border-b border-border/50 justify-between items-center flex flex-col sm:flex-row gap-4 bg-gradient-to-r from-blue-200/10 via-purple-200/10 to-blue-500/10">
                   <div className="flex flex-col gap-1">
-                    <CardTitle className="text-lg font-semibold">Danh sách sách</CardTitle>
+                    <CardTitle className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                      Thống kê mượn sách
+                    </CardTitle>
                     <p className="text-sm text-muted-foreground">
                       Hiển thị {startIndex + 1} đến {Math.min(endIndex, books.length)} trong {books.length} sách
                     </p>
                   </div>
-                  <BookBorrowForm onSubmit={handleAddBook} isLoading={isSubmitting} />
+                  {borrowForm}
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={handleCheckOverdue}
+                    disabled={isSubmitting}
+                    className="gap-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow hover:shadow-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-300"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Đang kiểm tra...
+                      </>
+                    ) : (
+                      <>
+                        <RefreshCw className="w-4 h-4" />
+                        Cập nhật
+                      </>
+                    )}
+                  </Button>
+
                 </CardHeader>
                 <CardContent className="p-0">
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
-                      <thead className="bg-muted/50 border-b border-border/50 sticky top-0">
+                      <thead className="bg-gradient-to-r from-slate-200/50 to-slate-300/50 dark:from-slate-200/80 dark:to-slate-100/80 border-b border-border/50 sticky top-0">
                         <tr>
                           {[
                             "Tên sách",
@@ -334,7 +404,7 @@ function BookStatisticsPage() {
                           ].map((th) => (
                             <th
                               key={th}
-                              className="px-4 py-4 text-left font-semibold text-foreground whitespace-nowrap"
+                              className="px-6 py-4 text-left font-semibold text-foreground/90 whitespace-nowrap text-xs uppercase tracking-wider"
                             >
                               {th}
                             </th>
@@ -342,33 +412,85 @@ function BookStatisticsPage() {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-border/30">
-                        {currentBooks.map((book) => (
-                          <tr key={book.id} className="hover:bg-muted/40 transition-colors duration-200 group">
-                            <td className="px-4 py-4 text-foreground font-medium group-hover:text-primary transition-colors">
-                              {book.bookTitle}
+                        {currentBooks.map((book, index) => (
+                          <tr
+                            key={book.id}
+                            className="hover:bg-gradient-to-r hover:from-blue-500/5 hover:via-purple-500/5 hover:to-blue-500/5 transition-all duration-200 group border-b border-border/20 last:border-b-0"
+                          >
+                            <td className="px-6 py-4 text-foreground font-semibold group-hover:text-primary transition-colors">
+                              <div className="flex items-center gap-2">
+                                <div className="w-1 h-6 bg-gradient-to-b from-blue-500 to-purple-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+                                {book.bookTitle}
+                              </div>
                             </td>
-                            <td className="px-4 py-4 text-muted-foreground">{book.approverName}</td>
-                            <td className="px-4 py-4 text-muted-foreground">{book.borrowerName}</td>
-                            <td className="px-4 py-4 font-medium text-foreground">{book.bookOwner}</td>
-                            <td className="px-4 py-4 text-muted-foreground">{book.approvedAt}</td>
-                            <td className="px-4 py-4">
-                              <Badge
-                                variant={book.status === "BORROWED" ? "secondary" : "default"}
-                                className="whitespace-nowrap"
-                              >
-                                {book.status === "BORROWED" ? "Đang mượn" : "Có sẵn"}
-                              </Badge>
+                            <td className="px-6 py-4 text-muted-foreground text-sm">{book.approverName}</td>
+                            <td className="px-6 py-4 text-muted-foreground text-sm">{book.borrowerName}</td>
+                            <td className="px-6 py-4 font-medium text-foreground">{book.bookOwner}</td>
+                            <td className="px-6 py-4 text-muted-foreground text-sm">{book.approvedAt}</td>
+                            <td className="px-6 py-4">
+                              {(() => {
+                                switch (book.status) {
+                                  case "BORROWED":
+                                    return (
+                                      <Badge
+                                        variant="secondary"
+                                        className="whitespace-nowrap font-medium bg-blue-500/10 text-blue-700 dark:text-blue-300 border border-blue-500/30"
+                                      >
+                                        Đang mượn
+                                      </Badge>
+                                    )
+                                  case "OVERDUE":
+                                    return (
+                                      <Badge
+                                        variant="destructive"
+                                        className="whitespace-nowrap font-medium bg-orange-500/20 text-orange-700 dark:text-orange-300 border border-orange-500/30"
+                                      >
+                                        Quá hạn
+                                      </Badge>
+                                    )
+                                  case "RETURNED":
+                                    return (
+                                      <Badge
+                                        variant="outline"
+                                        className="whitespace-nowrap font-medium bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30"
+                                      >
+                                        Đã trả
+                                      </Badge>
+                                    )
+                                  default:
+                                    return (
+                                      <Badge variant="outline" className="whitespace-nowrap font-medium">
+                                        Không xác định
+                                      </Badge>
+                                    )
+                                }
+                              })()}
                             </td>
-                            <td className="px-4 py-4 text-muted-foreground text-sm">{book.remarks}</td>
-                            <td className="px-4 py-4">
+                            <td className="px-6 py-4 text-muted-foreground text-sm max-w-xs truncate">
+                              {book.remarks}
+                            </td>
+                            <td className="px-6 py-4">
                               <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => handleViewDetails(book)}
-                                className="h-8 w-8 p-0 hover:bg-primary/10 group-hover:opacity-100"
+                                className="h-8 w-8 p-0 hover:bg-primary/20 hover:text-primary transition-all duration-200"
                               >
-                                <Eye className="w-4 h-4 text-primary" />
+                                <Eye className="w-4 h-4" />
                               </Button>
+
+                              {/* Trả sách */}
+                              {book.status === "BORROWED" && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleReturnBook(book.id)}
+                                  className="h-8 w-8 p-0 text-emerald-600 hover:bg-emerald-500/10 hover:text-emerald-700 transition-all duration-200"
+                                  disabled={isSubmitting}
+                                >
+                                  <RotateCcw className="w-4 h-4" />
+                                </Button>
+                              )}
                             </td>
                           </tr>
                         ))}
@@ -376,15 +498,18 @@ function BookStatisticsPage() {
                     </table>
 
                     {books.length === 0 && (
-                      <div className="text-center py-12">
-                        <BookOpen className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
-                        <p className="text-muted-foreground">Chưa có sách nào trong hệ thống</p>
+                      <div className="text-center py-16">
+                        <BookOpen className="w-16 h-16 text-muted-foreground/20 mx-auto mb-4" />
+                        <p className="text-muted-foreground text-lg font-medium">Chưa có sách nào trong hệ thống</p>
+                        <p className="text-muted-foreground/60 text-sm mt-2">Hãy thêm sách đầu tiên để bắt đầu</p>
                       </div>
                     )}
                   </div>
 
                   {books.length > 0 && (
-                    <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+                    <div className="border-t border-border/50 bg-muted/30 px-6 py-4">
+                      <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+                    </div>
                   )}
                 </CardContent>
               </Card>

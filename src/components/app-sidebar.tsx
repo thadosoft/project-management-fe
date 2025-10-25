@@ -214,7 +214,11 @@ const data = {
             },
           ],
         },
-        {
+        
+      ],
+    },
+
+    {
           title: "Tủ sách AITS",
           icon: LucideWarehouse,
           url: "",
@@ -222,15 +226,13 @@ const data = {
           items: [
             {
               title: "Thống kê đầu sách",
-              url: "",
+              url: "/book",
             },
             {
               title: "Thống kê mượn sách",
               url: "/book-statistics",
             },
           ],
-        },
-      ],
     },
     // {
     //   title: "Điều phối - Coordination",

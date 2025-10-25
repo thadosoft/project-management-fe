@@ -27,6 +27,7 @@ import EmployeeOfMonthPage from "./pages/employee-of-month-page"
 import WarehouseOutryPage from "./pages/warehouse/WarehouseOutryPage"
 import { ProtectedRoute } from "@/components/ProtectedRoute"
 import BookStatisticsPage from "./pages/book/BookStatisticsPage"
+import Book from "./pages/book/Book"
 
 export const router = createBrowserRouter(
   [
@@ -247,6 +248,15 @@ export const router = createBrowserRouter(
       element: (
         <ProtectedRoute>
           <BookStatisticsPage />
+        </ProtectedRoute>
+      ),
+    },
+
+    {
+      path: "/book",
+      element: (
+        <ProtectedRoute>
+          <Book/>
         </ProtectedRoute>
       ),
     },

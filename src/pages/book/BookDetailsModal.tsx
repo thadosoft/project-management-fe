@@ -31,15 +31,14 @@ export const BookDetailsModal = ({ book, isOpen, onClose }: BookDetailsModalProp
         </DialogHeader>
         <div className="space-y-2 mt-4">
           <p><strong>Tên sách:</strong> {book.bookTitle}</p>
-          <p><strong>Tác giả / Người phê duyệt:</strong> {book.approverName || "-"}</p>
+          <p><strong>Tác giả:</strong> {book.approverName || "-"}</p>
           <p><strong>Người mượn:</strong> {book.borrowerName || "-"}</p>
           <p><strong>Chủ sở hữu:</strong> {book.bookOwner || "-"}</p>
           <p><strong>Ngày mượn:</strong> {book.borrowDate}</p>
           <p><strong>Ngày phê duyệt:</strong> {book.approvedAt}</p>
-          <p><strong>Ngày trả:</strong> {book.returnedAt}</p>
+          <p><strong>Ngày trả:</strong> {book.dueDate}</p>
           <p><strong>Tình trạng:</strong> {book.status}</p>
-          <p><strong>Điều kiện sách:</strong> {book.bookCondition || "-"}</p>
-          <p><strong>Ghi chú:</strong> {book.remarks || "-"}</p>
+          <p><strong>Vị trí:</strong> {book.remarks || "-"}</p>
         </div>
       </DialogContent>
     </Dialog>
