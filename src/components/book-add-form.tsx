@@ -14,12 +14,15 @@ import { Plus, BookOpen } from "lucide-react";
 import type { BookRequest } from "@/models/Book";
 
 interface BookAddFormProps {
-  onSubmit: (data: BookRequest) => Promise<void>;
+  onSubmit: (data: BookRequest, images: File[]) => Promise<void>;
   isLoading?: boolean;
 }
 
 export function BookAddForm({ onSubmit, isLoading = false }: BookAddFormProps) {
   const [open, setOpen] = useState(false);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [formData, setFormData] = useState<BookRequest>({
     title: "",
     author: "",
@@ -37,10 +40,32 @@ export function BookAddForm({ onSubmit, isLoading = false }: BookAddFormProps) {
     }));
   };
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) {
+      setImageFiles([]);
+      setImagePreview(null);
+      return;
+    }
+
+    // Lưu tất cả các file được chọn
+    const newFiles: File[] = [];
+    for (let i = 0; i < files.length; i++) {
+      newFiles.push(files[i]);
+    }
+
+    setImageFiles(newFiles);
+
+    // Chỉ hiển thị preview của hình ảnh đầu tiên
+    const firstFile = files[0];
+    const previewUrl = URL.createObjectURL(firstFile);
+    setImagePreview(previewUrl);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await onSubmit(formData);
+      await onSubmit(formData, imageFiles);
       setFormData({
         title: "",
         author: "",
@@ -50,11 +75,12 @@ export function BookAddForm({ onSubmit, isLoading = false }: BookAddFormProps) {
         publicationYear: undefined,
       });
       setOpen(false);
+      setImageFiles([]);
+      setImagePreview(null);
     } catch (error) {
       console.error("Error submitting form:", error);
     }
   };
-
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -77,7 +103,7 @@ export function BookAddForm({ onSubmit, isLoading = false }: BookAddFormProps) {
         </div>
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-[550px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xl">
+      <DialogContent className="sidebar-scroll sm:max-w-[550px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xl">
         <DialogHeader className="space-y-3 pb-4 border-b border-slate-200 dark:border-slate-700">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 text-white">
@@ -237,6 +263,56 @@ export function BookAddForm({ onSubmit, isLoading = false }: BookAddFormProps) {
               className="border-slate-300 dark:border-slate-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
+          {/* Image */}
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+              Hình ảnh
+            </label>
+            <div className="flex items-center">
+              <label className="cursor-pointer bg-gradient-to-br from-blue-500 to-cyan-500 text-white px-4 py-2 rounded">
+                {imageFiles.length > 0
+                  ? `Đã chọn ${imageFiles.length} hình`
+                  : "Chọn hình"}
+                <input
+                  type="file"
+                  multiple
+                  onChange={handleImageChange}
+                  accept="image/*"
+                  className="hidden"
+                />
+              </label>
+              {imageFiles.length > 0 && (
+                <button
+                  type="button"
+                  className="ml-2 text-red-500 hover:text-red-700"
+                  onClick={() => {
+                    setImageFiles([]);
+                    setImagePreview(null);
+                  }}
+                >
+                  Xóa
+                </button>
+              )}
+            </div>
+            {imagePreview && (
+              <div className="mt-2">
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  className="max-w-[200px] max-h-[200px] object-contain border rounded mt-2"
+                />
+                {imageFiles.length > 1 && (
+                  <span className="text-sm text-gray-500 mt-1 block">
+                    (+{imageFiles.length - 1} hình ảnh khác)
+                  </span>
+                )}
+              </div>
+            )}
+            {errors.image && (
+              <p className="text-red-500 text-xs mt-1">{errors.image}</p>
+            )}
+          </div>
+
           {/* Buttons */}
           <div className="flex gap-3 pt-6 border-t border-slate-200 dark:border-slate-700">
             <Button
@@ -250,7 +326,7 @@ export function BookAddForm({ onSubmit, isLoading = false }: BookAddFormProps) {
             <Button
               type="submit"
               disabled={isLoading}
-              className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50"
+              className="flex-1 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50"
             >
               {isLoading ? "Đang thêm..." : "Thêm sách"}
             </Button>

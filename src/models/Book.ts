@@ -1,3 +1,6 @@
+import { ReferenceFile } from "./Material"
+
+
 export interface Book {
   id: number
   title: string
@@ -10,6 +13,7 @@ export interface Book {
   location?: string
   createdAt?: string
   updatedAt?: string
+  images?: ReferenceFile[];
 }
 
 export interface BookRequest {

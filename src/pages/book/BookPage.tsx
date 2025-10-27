@@ -8,12 +8,7 @@ import {
   BreadcrumbSeparator,
   BreadcrumbPage,
 } from "@/components/ui/breadcrumb";
-import {
-  CardHeader,
-  CardTitle,
-  CardContent,
-  Card,
-} from "@/components/ui/card";
+import { CardHeader, CardTitle, CardContent, Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 import {
@@ -36,6 +31,10 @@ import { ItemBook } from "@/components/item-book";
 import { createBook, getTotalBooks, searchBooks } from "@/services/bookService";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { BookAddForm } from "@/components/book-add-form";
+import {
+  uploadBookImage,
+  uploadMultipleBookImages,
+} from "@/services/material/uploadFileService";
 
 function BookPage() {
   const [totalPages, setTotalPages] = useState(0);
@@ -68,21 +67,57 @@ function BookPage() {
     fetchBooks();
   }, [page, size]);
 
-  const handleCreateBook = async (data: BookRequest) => {
+  const handleCreateBook = async (data: BookRequest, images: File[]) => {
     try {
+      // 1. Tạo sách mới
       const bookCreated: Book | null = await createBook(data);
-      if (bookCreated) {
+
+      // Biến lưu ID sách mới
+      let bookId: number;
+
+      if (bookCreated?.id) {
+        // Nếu API trả về ID
+        bookId = Number(bookCreated.id);
         setBooks((prev) => [...prev, bookCreated]);
       } else {
+        // Nếu API không trả ID → lấy sách mới nhất từ API khác
+        console.warn("createBook thiếu id, thử lấy id từ getAllBooks");
+        const allBooks = await searchBooks("");
+        const latestBook = allBooks?.content.sort(
+          (a, b) => Number(b.id) - Number(a.id)
+        )[0];
+        bookId = latestBook ? Number(latestBook.id) : 0;
+        if (!bookId) {
+          throw new Error("Không thể lấy ID sách vừa tạo");
+        }
+      }
+
+      // 2. Upload ảnh nếu có
+      if (images.length > 0) {
+        try {
+          await uploadMultipleBookImages(images, bookId);
+          // Sau khi upload xong → fetch lại thông tin sách đó để cập nhật hình
+          const updated = await searchBooks(data.title);
+          const updatedBook = updated.content.find((b) => b.id === bookId);
+          if (updatedBook) {
+            setBooks((prev) =>
+              prev.map((b) => (b.id === bookId ? updatedBook : b))
+            );
+          }
+          alert("Tải hình ảnh thành công!");
+        } catch (error) {
+          console.error("Lỗi khi tải hình ảnh:", error);
+          alert("Tải hình ảnh thất bại!");
+        }
       }
     } catch (error) {
       console.error("Error creating book:", error);
     }
   };
 
-    const handleRemoveBook = (bookId: number) => {
-    setBooks((prevBooks) => prevBooks.filter((book) => book.id !== bookId))
-  }
+  const handleRemoveBook = (bookId: number) => {
+    setBooks((prevBooks) => prevBooks.filter((book) => book.id !== bookId));
+  };
 
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
