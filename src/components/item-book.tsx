@@ -33,9 +33,10 @@ import {
 interface ItemBookProps {
   book: Book;
   removeBook: (bookId: number) => void;
+  updateBookInList: () => void;
 }
 
-export function ItemBook({ book, removeBook }: ItemBookProps) {
+export function ItemBook({ book, removeBook, updateBookInList }: ItemBookProps) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -179,6 +180,7 @@ export function ItemBook({ book, removeBook }: ItemBookProps) {
     try {
       const updatedBook = await updateBook(book.id.toString(), formData);
       console.log("Updated successfully:", updatedBook);
+      alert("Chỉnh sửa sách thành công")
       if (imageFiles.length > 0) {
         try {
           const uploadResult = await uploadMultipleBookImages(
@@ -191,6 +193,9 @@ export function ItemBook({ book, removeBook }: ItemBookProps) {
           alert("Tải hình ảnh thất bại!");
         }
       }
+
+      updateBookInList();
+
       setIsEditDialogOpen(false);
     } catch (error) {
       console.error("Error updating book:", error);
@@ -355,26 +360,13 @@ export function ItemBook({ book, removeBook }: ItemBookProps) {
             {/* Publication Year */}
             <div className="space-y-2">
               <Label htmlFor="publicationYear">Năm xuất bản</Label>
-              <select
+              <Input
                 id="publicationYear"
                 name="publicationYear"
-                value={formData.publicationYear || ""}
+                type="number"
+                value={formData.publicationYear || 2025}
                 onChange={handleInputChange}
-                className="w-full rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
-              >
-                <option value="">-- Chọn năm --</option>
-                {Array.from(
-                  { length: new Date().getFullYear() - 1950 + 1 },
-                  (_, i) => {
-                    const year = new Date().getFullYear() - i;
-                    return (
-                      <option key={year} value={year}>
-                        {year}
-                      </option>
-                    );
-                  }
-                )}
-              </select>
+              />
             </div>
 
             {/* Quantity */}

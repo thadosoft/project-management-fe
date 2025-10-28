@@ -40,14 +40,13 @@ function BookPage() {
   const [totalPages, setTotalPages] = useState(0);
   const [totalBooks, setTotalBooks] = useState(0);
   const [page, setPage] = useState(0);
-  const [size] = useState(5);
+  const [size] = useState(20);
   const [books, setBooks] = useState<Book[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchBooks = async () => {
+  const fetchBooks = async () => {
       setLoading(true);
       try {
         const response = await searchBooks("", page, size); // Fetch books with pagination
@@ -63,7 +62,7 @@ function BookPage() {
         setLoading(false);
       }
     };
-
+  useEffect(() => {
     fetchBooks();
   }, [page, size]);
 
@@ -118,6 +117,12 @@ function BookPage() {
   const handleRemoveBook = (bookId: number) => {
     setBooks((prevBooks) => prevBooks.filter((book) => book.id !== bookId));
   };
+
+  const handleUpdateBookInList = (updatedBook: Book) => {
+  setBooks((prevBooks) =>
+    prevBooks.map((b) => (b.id === updatedBook.id ? updatedBook : b))
+  );
+};
 
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
@@ -234,6 +239,7 @@ function BookPage() {
                             <ItemBook
                               book={book}
                               removeBook={handleRemoveBook}
+                              updateBookInList={fetchBooks}   
                             />
                           </div>
                         ))}
@@ -241,6 +247,7 @@ function BookPage() {
                         <BookAddForm
                           onSubmit={handleCreateBook}
                           isLoading={loading}
+
                         />
                       </div>
 

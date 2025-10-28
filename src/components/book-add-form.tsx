@@ -191,7 +191,7 @@ export function BookAddForm({ onSubmit, isLoading = false }: BookAddFormProps) {
             />
           </div>
 
-          {/* Publication Year
+          {/* Publication Year */}
           <div className="space-y-2">
             <Label
               htmlFor="publicationYear"
@@ -203,15 +203,15 @@ export function BookAddForm({ onSubmit, isLoading = false }: BookAddFormProps) {
               id="publicationYear"
               name="publicationYear"
               type="number"
-              placeholder="VD: 2024"
-              value={formData.publicationYear || ""}
+              placeholder="Năm xuất bản"
+              value={formData.publicationYear || 2025}
               onChange={handleInputChange}
               className="border-slate-300 dark:border-slate-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
-          </div> */}
+          </div>
 
           {/* Publication Year */}
-          <div className="space-y-2">
+          {/* <div className="space-y-2">
             <Label
               htmlFor="publicationYear"
               className="text-sm font-semibold text-slate-700 dark:text-slate-300"
@@ -244,7 +244,7 @@ export function BookAddForm({ onSubmit, isLoading = false }: BookAddFormProps) {
                 }
               )}
             </select>
-          </div>
+          </div> */}
           {/* Quantity */}
           <div className="space-y-2">
             <Label
