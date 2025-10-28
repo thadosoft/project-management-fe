@@ -3,13 +3,11 @@ import {
   Frame,
   GalleryVerticalEnd,
   HistoryIcon,
-  LucideALargeSmall,
   LucideWarehouse,
   Map,
   PieChart,
   Settings2Icon,
   Warehouse,
-  WarehouseIcon,
 } from "lucide-react"
 import { useLocation } from "react-router-dom";
 
@@ -26,10 +24,10 @@ import {
 import { NavApp } from "@/components/nav-app.tsx";
 import { Home } from "lucide-react"
 import { CgProfile } from "react-icons/cg";
-import { SiAudiotechnica, SiGoodreads } from "react-icons/si";
+import { SiAudiotechnica } from "react-icons/si";
 import { useEffect, useRef } from "react";
 import { ModeToggle } from "./mode-toggle"
-import { BsDeviceHdd, BsDeviceSsd, BsPeople } from "react-icons/bs";
+import { BsDeviceHdd, BsPeople } from "react-icons/bs";
 import { useSidebar } from "@/components/ui/sidebar"
 
 const data = {
@@ -234,49 +232,6 @@ const data = {
             },
           ],
     },
-    // {
-    //   title: "Điều phối - Coordination",
-    //   url: "#",
-    //   icon: GiConcentrationOrb,
-    //   items: [
-    //     {
-    //       title: "Hợp đồng bán hàng",
-    //       url: "#",
-    //     },
-    //   ],
-    // },
-    // {
-    //   title: "Manufacturing",
-    //   url: "#",
-    //   icon: MdOutlinePrecisionManufacturing,
-    //   items: [
-    //     {
-    //       title: "BOM",
-    //       url: "#",
-    //       items: [
-    //         {
-    //           title: "Khởi tạo",
-    //           url: "#",
-    //         },
-    //         {
-    //           title: "Tìm kiếm",
-    //           url: "#",
-    //         },
-    //       ],
-    //     },
-    //   ],
-    // },
-    // {
-    //   title: "Warehouse",
-    //   url: "#",
-    //   icon: Warehouse,
-    //   items: [
-    //     {
-    //       title: "Report",
-    //       url: "#",
-    //     },
-    //   ],
-    // },
     {
       title: "Hồ sơ lưu trữ",
       url: "/profile",

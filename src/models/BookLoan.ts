@@ -7,7 +7,7 @@ export interface BookLoan {
   bookTitle: string;
   borrowerName: string;
   borrowerId?: string;
-  borrowDate: string;       // LocalDateTime BE là string ISO
+  borrowDate: string;
   dueDate?: string;
   status: LoanStatus;
   approverName?: string;

@@ -14,7 +14,6 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { BookBorrowForm } from "@/components/book-borrow-form"
@@ -22,15 +21,15 @@ import { searchBookLoans, createBookLoan } from "@/services/bookLoanService"
 import type { BookLoan, CreateBookLoanRequest, BookLoanRequest } from "@/models/BookLoan"
 import { getBookLoanStats } from "@/services/bookLoanService"
 import type { BookLoanStatsResponse } from "@/models/BookLoan"
-import { BookOpen, CheckCircle2, Clock, Eye, ChevronDown, ChevronUp, Loader2, RefreshCw } from "lucide-react"
-import { parse, format } from "date-fns"
-import { BookDetailsModal } from "./BookDetailsModal"
+import { BookOpen, CheckCircle2, Clock, Eye, ChevronDown, ChevronUp, Loader2, RefreshCw, CheckCircle } from "lucide-react"
+import { BookDetailsModal } from "./BookLoanDetailsModal"
 import { ProfileCard } from "@/components/profile-card"
-import { Pagination } from "@/components/pagination"
 import toast from "react-hot-toast";
 import { checkOverdueBookLoans } from "@/services/bookLoanService"
 import { markBookLoanAsReturned } from "@/services/bookLoanService"
-import { RotateCcw } from "lucide-react"
+import { NotificationModal } from "@/components/NotificationModal"
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip"
+import { BookLoanTable } from "./BookLoanTable"
 
 function BookStatisticsPage() {
   const [books, setBooks] = useState<BookLoan[]>([])
@@ -49,13 +48,6 @@ function BookStatisticsPage() {
     overdueCount: 0,
   })
 
-  // helper de dinh dang ngay thang
-  const formatDate = (dateStr?: string) => {
-    if (!dateStr) return "-"
-    const parsed = parse(dateStr, "dd/MM/yyyy HH:mm:ss", new Date())
-    return format(parsed, "dd/MM/yyyy")
-  }
-
   // xem chi tiet sach
   const handleViewDetails = (book: BookLoan) => {
     setSelectedBook(book)
@@ -63,27 +55,39 @@ function BookStatisticsPage() {
   }
 
   //trả sách
-  const handleReturnBook = async (loanId: number) => {
+  const handleReturnBook = async (book: BookLoan) => {
     try {
       setIsSubmitting(true);
-      await markBookLoanAsReturned(loanId);
-      toast.success("Đã trả sách thành công!");
-
-      // cập nhật danh sách
+      await markBookLoanAsReturned(book.id);
+      setNotification({
+        open: true,
+        message: "Đã trả sách thành công!",
+        type: "success",
+      });
       const request: BookLoanRequest = {};
-      const response = await searchBookLoans(request, 0, 100);
+      const response = await searchBookLoans(request, 0, 10);
       if (response?.content) setBooks(response.content);
-
-      // cập nhật thống kê
-      const statsData = await getBookLoanStats();
-      if (statsData) setStats(statsData);
     } catch (error) {
-      console.error("Lỗi khi trả sách:", error);
-      toast.error("Không thể trả sách!");
+      setNotification({
+        open: true,
+        message: "Không thể trả sách!",
+        type: "error",
+      });
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  //khai báo modal thông báo
+  const [notification, setNotification] = useState<{
+    open: boolean
+    message: string
+    type: "success" | "error" | "warning"
+  }>({
+    open: false,
+    message: "",
+    type: "success",
+  })
 
 
   useEffect(() => {
@@ -114,32 +118,46 @@ function BookStatisticsPage() {
   const currentBooks = books.slice(startIndex, endIndex)
 
   const handleAddBook = async (formData: CreateBookLoanRequest) => {
-    setIsSubmitting(true)
-    try {
-      const newBook = await createBookLoan(formData)
-      if (newBook) {
-        // thêm tạm ngay để giao diện phản hồi nhanh
-        setBooks((prev) => [...prev, newBook])
+  setIsSubmitting(true)
+  try {
+    const newBookLoan = await createBookLoan(formData)
+    setNotification({
+      open: true,
+      message: "Đã mượn sách thành công!",
+      type: "success",
+    })
 
-        // đồng thời fetch lại toàn bộ danh sách sau 500ms
-        setTimeout(async () => {
-          const request: BookLoanRequest = {}
-          const response = await searchBookLoans(request, 0, 100)
-          if (response?.content) setBooks(response.content)
-        }, 500)
-      }
-    } catch (error) {
-      console.error("Error adding book:", error)
-    } finally {
-      setIsSubmitting(false)
+    if (newBookLoan) {
+      // cập nhật danh sách phiếu mượn
+      const loanResponse = await searchBookLoans({}, 0, 100)
+      if (loanResponse?.content) setBooks(loanResponse.content)
+
+      // ✅ cập nhật lại danh sách sách
+      await searchBookLoans({}, 0, 100)
     }
+  } catch (error) {
+    console.error("Error adding book:", error)
+    setNotification({
+      open: true,
+      message: "Không thể mượn sách!",
+      type: "error",
+    })
+  } finally {
+    setIsSubmitting(false)
   }
+}
+
 
   const handleCheckOverdue = async () => {
     setIsSubmitting(true)
     try {
       const message = await checkOverdueBookLoans()
-      toast.success(message || "Thành công!");
+      // toast.success(message || "Thành công!");
+      setNotification({
+        open: true,
+        message: message || "Đã cập nhật thành công!",
+        type: "success",
+      });
 
       // sau khi cập nhật xong, fetch lại danh sách và thống kê
       const request: BookLoanRequest = {}
@@ -269,7 +287,10 @@ function BookStatisticsPage() {
                     Quản lý và theo dõi thông tin sách trong thư viện công ty
                   </p>
 
-                  <div className="flex items-center justify-center gap-2 mb-6">
+                  <div className="flex items-center justify-center gap-3 mt-6">
+                    <div className="flex justify-between items-center ">
+                      {borrowForm}
+                    </div>
                     <Button
                       variant="outline"
                       size="sm"
@@ -304,20 +325,28 @@ function BookStatisticsPage() {
                 </div>
 
                 {/* Stats Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 max-w-5xl mx-auto">
                   {[
                     {
                       icon: BookOpen,
                       value: books.length,
-                      label: "Tổng sách",
+                      label: "Tổng phiếu",
                       bgFrom: "from-blue-500",
                       bgTo: "to-blue-600",
                       shadow: "hover:shadow-blue-500/10",
                     },
                     {
-                      icon: CheckCircle2,
+                      icon: CheckCircle,
                       value: stats.borrowedCount,
                       label: "Đang mượn",
+                      bgFrom: "from-emerald-500",
+                      bgTo: "to-emerald-600",
+                      shadow: "hover:shadow-emerald-500/10",
+                    },
+                    {
+                      icon: CheckCircle2,
+                      value: stats.returnedCount,
+                      label: "Đã trả",
                       bgFrom: "from-emerald-500",
                       bgTo: "to-emerald-600",
                       shadow: "hover:shadow-emerald-500/10",
@@ -359,143 +388,46 @@ function BookStatisticsPage() {
                 <CardHeader className="pb-4 px-2 border-b border-border/50 justify-between items-center flex flex-col sm:flex-row gap-4 bg-gradient-to-r from-blue-200/10 via-purple-200/10 to-blue-500/10">
                   <div className="flex flex-col gap-1">
                     <CardTitle className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                      Thống kê mượn sách
+                      Lịch sử mượn sách
                     </CardTitle>
                     <p className="text-sm text-muted-foreground">
                       Hiển thị {startIndex + 1} đến {Math.min(endIndex, books.length)} trong {books.length} sách
                     </p>
                   </div>
-                  {borrowForm}
-                  <Button
-                    variant="default"
-                    size="sm"
-                    onClick={handleCheckOverdue}
-                    disabled={isSubmitting}
-                    className="gap-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow hover:shadow-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-300"
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        Đang kiểm tra...
-                      </>
-                    ) : (
-                      <>
-                        <RefreshCw className="w-4 h-4" />
-                        Cập nhật
-                      </>
-                    )}
-                  </Button>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="default"
+                        size="sm"
+                        onClick={handleCheckOverdue}
+                        disabled={isSubmitting}
+                        className="gap-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow hover:shadow-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-300"
+                      >
+                        {isSubmitting ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            Đang kiểm tra...
+                          </>
+                        ) : (
+                          <>
+                            <RefreshCw className="w-4 h-4" />
+                            Cập nhật
+                          </>
+                        )}
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Kiểm tra trạng thái quá hạn của sách</TooltipContent>
+                  </Tooltip>
 
                 </CardHeader>
                 <CardContent className="p-0">
                   <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
-                      <thead className="bg-gradient-to-r from-slate-200/50 to-slate-300/50 dark:from-slate-200/80 dark:to-slate-100/80 border-b border-border/50 sticky top-0">
-                        <tr>
-                          {[
-                            "Tên sách",
-                            "Tác giả",
-                            "Người mượn",
-                            "Chủ sở hữu",
-                            "Ngày mượn",
-                            "Tình trạng",
-                            "Vị trí",
-                            "Hành động",
-                          ].map((th) => (
-                            <th
-                              key={th}
-                              className="px-6 py-4 text-left font-semibold text-foreground/90 whitespace-nowrap text-xs uppercase tracking-wider"
-                            >
-                              {th}
-                            </th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-border/30">
-                        {currentBooks.map((book, index) => (
-                          <tr
-                            key={book.id}
-                            className="hover:bg-gradient-to-r hover:from-blue-500/5 hover:via-purple-500/5 hover:to-blue-500/5 transition-all duration-200 group border-b border-border/20 last:border-b-0"
-                          >
-                            <td className="px-6 py-4 text-foreground font-semibold group-hover:text-primary transition-colors">
-                              <div className="flex items-center gap-2">
-                                <div className="w-1 h-6 bg-gradient-to-b from-blue-500 to-purple-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
-                                {book.bookTitle}
-                              </div>
-                            </td>
-                            <td className="px-6 py-4 text-muted-foreground text-sm">{book.approverName}</td>
-                            <td className="px-6 py-4 text-muted-foreground text-sm">{book.borrowerName}</td>
-                            <td className="px-6 py-4 font-medium text-foreground">{book.bookOwner}</td>
-                            <td className="px-6 py-4 text-muted-foreground text-sm">{book.approvedAt}</td>
-                            <td className="px-6 py-4">
-                              {(() => {
-                                switch (book.status) {
-                                  case "BORROWED":
-                                    return (
-                                      <Badge
-                                        variant="secondary"
-                                        className="whitespace-nowrap font-medium bg-blue-500/10 text-blue-700 dark:text-blue-300 border border-blue-500/30"
-                                      >
-                                        Đang mượn
-                                      </Badge>
-                                    )
-                                  case "OVERDUE":
-                                    return (
-                                      <Badge
-                                        variant="destructive"
-                                        className="whitespace-nowrap font-medium bg-orange-500/20 text-orange-700 dark:text-orange-300 border border-orange-500/30"
-                                      >
-                                        Quá hạn
-                                      </Badge>
-                                    )
-                                  case "RETURNED":
-                                    return (
-                                      <Badge
-                                        variant="outline"
-                                        className="whitespace-nowrap font-medium bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30"
-                                      >
-                                        Đã trả
-                                      </Badge>
-                                    )
-                                  default:
-                                    return (
-                                      <Badge variant="outline" className="whitespace-nowrap font-medium">
-                                        Không xác định
-                                      </Badge>
-                                    )
-                                }
-                              })()}
-                            </td>
-                            <td className="px-6 py-4 text-muted-foreground text-sm max-w-xs truncate">
-                              {book.remarks}
-                            </td>
-                            <td className="px-6 py-4">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleViewDetails(book)}
-                                className="h-8 w-8 p-0 hover:bg-primary/20 hover:text-primary transition-all duration-200"
-                              >
-                                <Eye className="w-4 h-4" />
-                              </Button>
-
-                              {/* Trả sách */}
-                              {book.status === "BORROWED" && (
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => handleReturnBook(book.id)}
-                                  className="h-8 w-8 p-0 text-emerald-600 hover:bg-emerald-500/10 hover:text-emerald-700 transition-all duration-200"
-                                  disabled={isSubmitting}
-                                >
-                                  <RotateCcw className="w-4 h-4" />
-                                </Button>
-                              )}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                    <BookLoanTable
+                      data={books}
+                      loading={loading}
+                      onView={handleViewDetails}
+                      onReturn={handleReturnBook}
+                    />
 
                     {books.length === 0 && (
                       <div className="text-center py-16">
@@ -505,12 +437,6 @@ function BookStatisticsPage() {
                       </div>
                     )}
                   </div>
-
-                  {books.length > 0 && (
-                    <div className="border-t border-border/50 bg-muted/30 px-6 py-4">
-                      <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
-                    </div>
-                  )}
                 </CardContent>
               </Card>
               <BookDetailsModal book={selectedBook} isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
@@ -518,6 +444,13 @@ function BookStatisticsPage() {
           </div>
         </SidebarInset>
       </SidebarProvider>
+      <NotificationModal
+        isOpen={notification.open}
+        onClose={() => setNotification({ ...notification, open: false })}
+        message={notification.message}
+        type={notification.type}
+      />
+
     </ThemeProvider>
   )
 }

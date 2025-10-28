@@ -10,6 +10,14 @@ import type { Book } from "@/models/Book";
 import { searchBooks } from "@/services/bookService";
 import { fetchData } from "@/utils/api";
 import type { User } from "@/models/User";
+import {
+  Command,
+  CommandInput,
+  CommandList,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+} from "@/components/ui/command"
 
 interface BookBorrowFormProps {
   onSubmit: (data: CreateBookLoanRequest) => Promise<void>;
@@ -54,14 +62,15 @@ export function BookBorrowForm({ onSubmit, isLoading }: BookBorrowFormProps) {
     fetchUser();
   }, []);
 
-  // ✅ Lấy danh sách sách
+  // ✅ Lấy danh sách sách mỗi lần mở form
   useEffect(() => {
+    if (!open) return; // chỉ fetch khi mở
     const fetchBooks = async () => {
       const result = await searchBooks({}, 0, 100);
       if (result?.content) setBooks(result.content);
     };
     fetchBooks();
-  }, []);
+  }, [open]);
 
   // ✅ Chọn sách
   const handleSelectBook = (bookId: number) => {
@@ -113,25 +122,39 @@ export function BookBorrowForm({ onSubmit, isLoading }: BookBorrowFormProps) {
               <p className="text-sm text-foreground">👤 {currentUser.name}</p>
               <p className="text-xs text-muted-foreground">📧 {currentUser.email}</p>
               <p className="text-xs text-muted-foreground">📞 {currentUser.phoneNumber}</p>
-              {/* <p className="text-xs text-muted-foreground">🆔 ID: {currentUser.id}</p> */}
             </div>
           )}
 
           {/* Dropdown chọn sách */}
           <div className="space-y-2">
             <label className="text-sm font-semibold text-foreground">Chọn sách</label>
-            <select
-              value={selectedBook?.id || ""}
-              onChange={(e) => handleSelectBook(Number(e.target.value))}
-              className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">-- Chọn sách --</option>
-              {books.map((b) => (
-                <option key={b.id} value={b.id}>
-                  {b.title} — {b.publisher} - Số lượng: {b.quantity_available}
-                </option>
-              ))}
-            </select>
+            <Command className="rounded-lg border border-border shadow-sm">
+              <CommandInput placeholder="Nhập tên sách cần tìm..." />
+              <CommandList className="max-h-60 overflow-y-auto">
+                <CommandEmpty>Không tìm thấy sách nào.</CommandEmpty>
+                <CommandGroup heading="Kết quả">
+                  {books.map((b) => (
+                    <CommandItem
+                      key={b.id}
+                      value={b.title}
+                      onSelect={() => handleSelectBook(b.id)}
+                    >
+                      <div className="flex flex-col">
+                        <span className="font-medium">{b.title}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {b.publisher} — SL: {b.quantity_available}
+                        </span>
+                      </div>
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </CommandList>
+            </Command>
+            {selectedBook && (
+              <p className="text-sm mt-2 text-muted-foreground">
+                ✅ Đã chọn: <strong>{selectedBook.title}</strong>
+              </p>
+            )}
           </div>
 
           {/* Ngày mượn */}

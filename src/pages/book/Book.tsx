@@ -13,19 +13,19 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
+import { CheckCircle2, Clock, CheckCircle, BellIcon } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
-import { Pagination } from "@/components/pagination"
 import { ProfileCard } from "@/components/profile-card"
-import { BookSearchFilter } from "@/components/book-search-filter"
-import { BookActionButtons } from "@/components/book-action-buttons"
 import { searchBooks, deleteBook, createBook } from "@/services/bookService"
 import toast from "react-hot-toast"
-import { Plus, ChevronDown, ChevronUp, BookOpen, Loader2 } from "lucide-react"
-import type { Book, BookRequest, CreateBookRequest } from "@/models/Book"
+import { ChevronDown, ChevronUp, BookOpen } from "lucide-react"
+import type { Book, BookRequest } from "@/models/Book"
 import { BookCreateForm } from "@/components/BookCreateForm"
+import { useDebounce } from "use-debounce"
+import { BookTable } from "./BookTable"
+import { BookDetailsModal } from "./BookDetailsModal"
 
 function BooksPage() {
   const [books, setBooks] = useState<Book[]>([])
@@ -36,16 +36,20 @@ function BooksPage() {
   const [totalPages, setTotalPages] = useState(0)
   const [totalElements, setTotalElements] = useState(0)
   const [searchQuery, setSearchQuery] = useState("")
+  const [debouncedQuery] = useDebounce(searchQuery, 500)
   const [filters, setFilters] = useState<{ status?: string; category?: string }>({ status: "", category: "" })
+  const [selectedBook, setSelectedBook] = useState<Book | null>(null)
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false)
   const itemsPerPage = 10
 
   const fetchBooks = async (page = 0) => {
     try {
       setLoading(true)
-      const request: BookRequest = {
-        title: searchQuery || undefined,
-        // author: searchQuery || undefined,
-        // category: filters.category || undefined,
+
+      const request: BookRequest = {}
+
+      if (debouncedQuery && debouncedQuery.trim() !== "") {
+        request.title = debouncedQuery.trim()
       }
 
       const result = await searchBooks(request, page, itemsPerPage)
@@ -67,25 +71,16 @@ function BooksPage() {
 
   useEffect(() => {
     fetchBooks(0)
-  }, [])
-
-  useEffect(() => {
-    setCurrentPage(1)
-    fetchBooks(0)
-  }, [searchQuery, filters])
-
-  useEffect(() => {
-    if (currentPage > 1) {
-      fetchBooks(currentPage - 1)
-    }
-  }, [currentPage])
+  }, [debouncedQuery, filters])
 
   const handleViewDetails = (book: Book) => {
-    toast.success(`Xem chi tiết: ${book.title}`)
+    setSelectedBook(book)
+    setIsDetailsOpen(true)
   }
 
+
   const handleEditBook = (book: Book) => {
-    // toast.success(`Chỉnh sửa: ${book.title}`)
+
   }
 
   const handleDeleteBook = async (id: number) => {
@@ -142,6 +137,47 @@ function BooksPage() {
     )
   }
 
+  // Thống kê dữ liệu thực
+  const totalBooks = books.length
+  const availableBooks = books.filter(b => (b.quantity_available ?? 0) >= 2).length
+  const outOfStockBooks = books.filter(b => (b.quantity_available ?? 0) === 0).length
+  const lowStockBooks = books.filter(b => (b.quantity_available ?? 0) > 0 && (b.quantity_available ?? 0) <= 1).length
+
+  const stats = [
+    {
+      icon: BookOpen,
+      value: totalBooks,
+      label: "Tổng sách",
+      bgFrom: "from-blue-500",
+      bgTo: "to-blue-600",
+      shadow: "hover:shadow-blue-500/10",
+    },
+    {
+      icon: CheckCircle2,
+      value: availableBooks,
+      label: "Có sẵn",
+      bgFrom: "from-emerald-500",
+      bgTo: "to-emerald-600",
+      shadow: "hover:shadow-emerald-500/10",
+    },
+    {
+      icon: Clock,
+      value: outOfStockBooks,
+      label: "Tạm hết",
+      bgFrom: "from-orange-500",
+      bgTo: "to-orange-600",
+      shadow: "hover:shadow-orange-500/10",
+    },
+    {
+      icon: BellIcon,
+      value: lowStockBooks,
+      label: "Số lượng ít",
+      bgFrom: "from-red-500",
+      bgTo: "to-red-600",
+      shadow: "hover:shadow-red-500/10",
+    },
+  ]
+
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
       <SidebarProvider>
@@ -175,20 +211,31 @@ function BooksPage() {
             <div className="relative z-10 px-6 py-12 lg:px-8 max-w-full mx-auto">
               {/* Hero */}
               <div className="text-center space-y-8 mb-12">
-                <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20 backdrop-blur-sm">
+                <div
+                  className="inline-flex items-center gap-3 px-4 py-2 rounded-full 
+                      bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20 backdrop-blur-sm"
+                >
                   <div className="w-2 h-2 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 animate-pulse" />
                   <span className="text-sm font-medium text-muted-foreground">Quản lý thư viện</span>
                 </div>
 
-                <h1 className="text-5xl md:text-6xl font-black">
-                  <span className="block bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 bg-clip-text text-transparent">
-                    Tủ sách AITS
+                <h1 className="text-4xl md:text-6xl lg:text-7xl font-black tracking-tight space-y-2">
+                  <span
+                    className="block bg-gradient-to-r from-slate-900 via-blue-900 to-slate-900 
+                         dark:from-white dark:via-blue-100 dark:to-white bg-clip-text text-transparent"
+                  >
+                    Thư viện
+                  </span>
+                  <span
+                    className="block bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 
+                         bg-clip-text text-transparent animate-gradient"
+                  >
+                    Sách AITS
                   </span>
                 </h1>
 
                 <div className="flex justify-center gap-3 mt-6">
                   <div className="flex justify-between items-center mb-4">
-                    {/* <h1 className="text-2xl font-bold">Danh sách đầu sách</h1> */}
                     {bookForm}
                   </div>
 
@@ -220,16 +267,36 @@ function BooksPage() {
                       title="Quản lý thư viện"
                       email="tien.ntu@thadosoft.com"
                       phone="+84 853552097"
-                      avatar="https://scontent.fsgn5-14.fna.fbcdn.net/v/t39.30808-1/468279569_2080239279045625_1679455235350617662_n.jpg?stp=dst-jpg_s200x200_tt6&_nc_cat=106&ccb=1-7&_nc_sid=e99d92&_nc_ohc=XsAPMqT7_TQQ7kNvwEWIXMY&_nc_oc=Adkcx8Q895jlOK9XLRHGJME9FVjUwfNFkjm3gBWmn04Yk8LCUIVpbuQezA0uZLpMuLi-ZYcnzK8qdvr0jE4WTFmD&_nc_zt=24&_nc_ht=scontent.fsgn5-14.fna&_nc_gid=2yibWRyjIBvOakZHlhO97A&oh=00_Afcl5HUKG3bHUKstEqNOLXqZ5DFWcETvGuOGY0tlol39-g&oe=68FE8052"
+                      avatar="https://scontent.fsgn5-14.fna.fbcdn.net/v/t39.30808-1/468279569_2080239279045625_1679455235350617662_n.jpg?stp=dst-jpg_s200x200_tt6&_nc_cat=106&ccb=1-7&_nc_sid=e99d92&_nc_ohc=XsAPMqT7_TQQ7kNvwEWIXMY&_nc_oc=Adkcx8Q895jlOK9XLRHGJME9FVjUwfNFkjm3gBWmn04Yk8LCUIVpbuQezA0uZLpMuLi-ZYcnzK8qdvr0jE4WTFmD&_nc_zt=24&_nc_ht=scontent.fsgn5-14.fna&_nc_gid=_CRCrJDHNbNbEpcrGvmGXw&oh=00_AfdXa7j3mMFkW_1JdZONhlZCXOjQ7PeqWADtY1x6lC9UAg&oe=68FE0FD2"
                     />
                   </div>
                 )}
               </div>
 
-              {/* Search and Filter */}
-              <Card className="border-0 bg-card/50 backdrop-blur-sm shadow-lg mb-6 p-6">
-                <BookSearchFilter onSearch={setSearchQuery} onFilter={setFilters} />
-              </Card>
+              {/* Stats Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 max-w-5xl mx-auto">
+                {stats.map(({ icon: Icon, value, label, bgFrom, bgTo, shadow }) => (
+                  <div
+                    key={label}
+                    className={`group p-6 rounded-2xl bg-gradient-to-br from-white/50 to-white/30 
+                  dark:from-slate-800/50 dark:to-slate-700/30 backdrop-blur-sm 
+                  border border-white/20 dark:border-slate-700/50 
+                  hover:scale-105 transition-all duration-300 ${shadow}`}
+                  >
+                    <div className="flex items-center gap-4">
+                      <div
+                        className={`p-3 rounded-xl bg-gradient-to-br ${bgFrom} ${bgTo} text-white group-hover:scale-110 transition-transform duration-300`}
+                      >
+                        <Icon className="w-6 h-6" />
+                      </div>
+                      <div className="text-left">
+                        <div className="text-2xl font-bold text-foreground">{value}</div>
+                        <div className="text-sm text-muted-foreground">{label}</div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
 
               {/* Table */}
               <Card className="border-0 bg-card/50 backdrop-blur-sm shadow-lg overflow-hidden">
@@ -247,81 +314,30 @@ function BooksPage() {
 
                 <CardContent className="p-0">
                   <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
-                      <thead className="bg-slate-200/50 dark:bg-slate-200/80 border-b border-border/50 sticky top-0">
-                        <tr>
-                          {["Tên sách", "Tác giả", "Thể loại", "Chủ sở hữu", "Năm XB", "Vị trí", "TÌnh trạng", "Hành động"].map((th) => (
-                            <th key={th} className="px-6 py-4 text-left font-semibold text-xs uppercase tracking-wider">
-                              {th}
-                            </th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-border/30">
-                        {books.map((book) => (
-                          <tr
-                            key={book.id}
-                            className="hover:bg-gradient-to-r hover:from-blue-500/5 hover:to-purple-500/5 transition-all duration-200 group"
-                          >
-                            <td className="px-6 py-4 font-medium group-hover:text-primary transition-colors">
-                              <div className="flex items-center gap-2">
-                                <div className="w-1 h-6 bg-gradient-to-b from-blue-500 to-purple-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
-                                {book.title}
-                              </div>
-                            </td>
-                            <td className="px-6 py-4 text-muted-foreground">{book.author}</td>
-                            <td className="px-6 py-4">
-                              <Badge
-                                variant="outline"
-                                className="bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-500/30"
-                              >
-                                {book.category}
-                              </Badge>
-                            </td>
-                            <td className="px-6 py-4 text-muted-foreground">{book.publisher}</td>
-                            <td className="px-6 py-4 text-muted-foreground">{book.publicationYear}</td>
-                            <td className="px-6 py-4 text-muted-foreground">{book.location}</td>
-                            <td className="px-6 py-4 text-muted-foreground">{book.quantity_available}</td>
-
-                            <td className="px-6 py-4">
-                              <BookActionButtons
-                                book={book}
-                                onView={handleViewDetails}
-                                onEdit={handleEditBook}
-                                onDelete={handleDeleteBook}
-                              />
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-
-                    {books.length === 0 && (
-                      <div className="text-center py-16">
-                        <BookOpen className="w-16 h-16 text-muted-foreground/20 mx-auto mb-4" />
-                        <p className="text-muted-foreground text-lg font-medium">
-                          {searchQuery || filters.category
-                            ? "Không tìm thấy sách nào"
-                            : "Chưa có sách nào trong hệ thống"}
-                        </p>
-                        <p className="text-muted-foreground/60 text-sm mt-2">
-                          {searchQuery || filters.category
-                            ? "Hãy thử tìm kiếm hoặc lọc khác"
-                            : "Hãy thêm sách đầu tiên để bắt đầu"}
-                        </p>
-                      </div>
-                    )}
+                    <BookTable
+                      data={books}
+                      loading={loading}
+                      onView={handleViewDetails}
+                      onEdit={handleEditBook}
+                      onDelete={handleDeleteBook}
+                    />
                   </div>
 
-                  {books.length > 0 && (
+                  {/* {books.length > 0 && (
                     <div className="border-t border-border/50 bg-muted/30 px-6 py-4">
                       <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
                     </div>
-                  )}
+                  )} */}
                 </CardContent>
               </Card>
             </div>
           </div>
+          <BookDetailsModal
+            book={selectedBook}
+            isOpen={isDetailsOpen}
+            onClose={() => setIsDetailsOpen(false)}
+            onUpdated={() => fetchBooks(currentPage - 1)}
+          />
         </SidebarInset>
       </SidebarProvider>
     </ThemeProvider>

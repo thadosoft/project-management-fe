@@ -33,7 +33,7 @@ export function BookActionButtons({ book, onView, onEdit, onDelete, isDeleting =
       >
         <Edit2 className="w-4 h-4" />
       </Button>
-      <Button
+      {/* <Button
         variant="ghost"
         size="sm"
         onClick={() => onDelete(book.id)}
@@ -42,7 +42,7 @@ export function BookActionButtons({ book, onView, onEdit, onDelete, isDeleting =
         title="Xóa"
       >
         <Trash2 className="w-4 h-4" />
-      </Button>
+      </Button> */}
     </div>
   )
 }

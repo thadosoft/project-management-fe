@@ -5,7 +5,6 @@ import type {
   CreateBookLoanRequest,
   // UpdateBookLoanRequest,
   BookLoanStatsResponse,
-  LoanStatus
 } from "@/models/BookLoan";
 
 const API_URL = "book-loans";
