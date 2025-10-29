@@ -1,6 +1,10 @@
 import { useState } from "react";
-import { DatePicker, Button } from "rsuite";
-import { Search, Filter } from "lucide-react";
+import {
+  Search,
+  Filter,
+  RotateCcw,
+  Calendar as CalendarIcon,
+} from "lucide-react";
 import { EventType } from "@/models/Event";
 import {
   Select,
@@ -11,11 +15,7 @@ import {
 } from "./ui/select";
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
-
-
-interface EventFilterProps {
-  onFilter: (filters: EventFilterValues) => void;
-}
+import { Button } from "./ui/button";
 
 export interface EventFilterValues {
   title?: string;
@@ -24,6 +24,10 @@ export interface EventFilterValues {
   date?: Date;
   quarter?: 1 | 2 | 3 | 4;
   year?: number;
+}
+
+interface EventFilterProps {
+  onFilter: (filters: EventFilterValues) => void;
 }
 
 export function EventFilter({ onFilter }: EventFilterProps) {
@@ -38,7 +42,6 @@ export function EventFilter({ onFilter }: EventFilterProps) {
     "Họp",
     "Khảo sát",
   ];
-
   const modeOptions: ("ngày" | "tháng" | "quý" | "năm")[] = [
     "ngày",
     "tháng",
@@ -47,20 +50,65 @@ export function EventFilter({ onFilter }: EventFilterProps) {
   ];
   const quarterOptions = [1, 2, 3, 4];
 
-  const handleChange = (field: keyof EventFilterValues, value: any) => {
-    console.log(value);
-    setFilters((prev) => ({ ...prev, [field]: value }));
+  const formatDateInput = (date?: Date) => {
+    if (!date) return "";
+    return date.toISOString().split("T")[0];
   };
 
-  const handleSearch = () => {
-    onFilter(filters);
+  const handleChange = (field: keyof EventFilterValues, value: any) => {
+    setFilters((prev) => {
+      const updated = { ...prev, [field]: value };
+
+      if (field === "mode") {
+        delete updated.date;
+        delete updated.quarter;
+        delete updated.year;
+      }
+
+      return updated;
+    });
+  };
+
+  const handleFilter = () => {
+    const cleaned: EventFilterValues = { ...filters };
+
+    switch (filters.mode) {
+      case "ngày":
+        delete cleaned.quarter;
+        delete cleaned.year;
+        break;
+      case "tháng":
+        delete cleaned.quarter;
+        delete cleaned.year;
+        break;
+      case "quý":
+        delete cleaned.date;
+        break;
+      case "năm":
+        delete cleaned.date;
+        delete cleaned.quarter;
+        break;
+    }
+
+    console.log("🔍 Filter data:", cleaned);
+    onFilter(cleaned);
+  };
+
+  const handleReset = () => {
+    setFilters({
+      mode: "ngày",
+      type: "Tất cả",
+      title: "",
+    });
   };
 
   return (
-    <div className="mt-12 p-4 bg-gradient-to-bl from-black-500/5 via-transparent to-black-500/10 group-hover:opacity-100 transition-opacity duration-500 rounded-xl border border-white/20 space-y-4 shadow-sm w-full lg:w-1/2">
+    <div className="mt-12 p-4 bg-gradient-to-bl from-black-500/5 via-transparent to-black-500/10 group-hover:opacity-100 transition-opacity duration-500 rounded-md border border-white/20 space-y-4 shadow-sm">
       <div className="flex items-center gap-2 mb-1">
         <Filter className="w-5 h-5 text-lime-500" />
-        <h3 className="text-base font-semibold">Bộ lọc sự kiện</h3>
+        <h3 className="text-lg font-bold tracking-tight text-foreground">
+          Bộ lọc sự kiện
+        </h3>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -74,7 +122,7 @@ export function EventFilter({ onFilter }: EventFilterProps) {
             placeholder="Nhập tên sự kiện..."
             value={filters.title || ""}
             onChange={(e) => handleChange("title", e.target.value)}
-            className="bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
+            className="bg-transparent focus-visible:ring-offset-0"
           />
         </div>
 
@@ -84,10 +132,10 @@ export function EventFilter({ onFilter }: EventFilterProps) {
             Loại sự kiện
           </Label>
           <Select
+            value={filters.type}
             onValueChange={(val) => handleChange("type", val)}
-            defaultValue={filters.type}
           >
-            <SelectTrigger className="w-full">
+            <SelectTrigger className="w-full hover:bg-transparent">
               <SelectValue placeholder="Chọn loại sự kiện" />
             </SelectTrigger>
             <SelectContent>
@@ -106,10 +154,10 @@ export function EventFilter({ onFilter }: EventFilterProps) {
             Kiểu lọc thời gian
           </Label>
           <Select
+            value={filters.mode}
             onValueChange={(val) => handleChange("mode", val)}
-            defaultValue={filters.mode}
           >
-            <SelectTrigger className="w-full">
+            <SelectTrigger className="w-full hover:bg-transparent">
               <SelectValue placeholder="Chọn kiểu thời gian" />
             </SelectTrigger>
             <SelectContent>
@@ -124,27 +172,52 @@ export function EventFilter({ onFilter }: EventFilterProps) {
 
         {/* 📅 Input tùy mode */}
         {filters.mode === "ngày" && (
-          <div>
+          <div className="relative">
             <Label className="text-sm font-medium mb-1 block">Chọn ngày</Label>
-            <DatePicker
-              oneTap
-              value={filters.date}
-              onChange={(value) => handleChange("date", value || undefined)}
-              className="w-full"
+            <Input
+              type="date"
+              className="bg-transparent focus-visible:ring-offset-0 pr-10 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:pointer-events-none"
+              value={formatDateInput(filters.date)}
+              onChange={(e) =>
+                handleChange(
+                  "date",
+                  e.target.value ? new Date(e.target.value) : undefined
+                )
+              }
+            />
+            <CalendarIcon
+              className="absolute right-2 bottom-2.5 w-4 h-4 text-gray-400 cursor-pointer"
+              onClick={() => {
+                const input = document.querySelector(
+                  'input[type="date"]'
+                ) as HTMLInputElement | null;
+                input?.showPicker?.();
+              }}
             />
           </div>
         )}
 
         {filters.mode === "tháng" && (
-          <div>
+          <div className="relative">
             <Label className="text-sm font-medium mb-1 block">Chọn tháng</Label>
-            <DatePicker
-              oneTap
-              format="MM-yyyy"
-              value={filters.date}
-              onChange={(value) => handleChange("date", value || undefined)}
-              className="w-full"
-              
+            <Input
+              type="month"
+              className="bg-transparent focus-visible:ring-offset-0 pr-10 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:pointer-events-none"
+              onChange={(e) =>
+                handleChange(
+                  "date",
+                  e.target.value ? new Date(e.target.value) : undefined
+                )
+              }
+            />
+            <CalendarIcon
+              className="absolute right-2 bottom-2.5 w-4 h-4 text-gray-400 cursor-pointer"
+              onClick={() => {
+                const input = document.querySelector(
+                  'input[type="month"]'
+                ) as HTMLInputElement | null;
+                input?.showPicker?.();
+              }}
             />
           </div>
         )}
@@ -154,10 +227,10 @@ export function EventFilter({ onFilter }: EventFilterProps) {
             <div>
               <Label className="text-sm font-medium mb-1 block">Chọn quý</Label>
               <Select
+                value={filters.quarter?.toString()}
                 onValueChange={(val) => handleChange("quarter", Number(val))}
-                defaultValue={filters.quarter?.toString()}
               >
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full hover:bg-transparent">
                   <SelectValue placeholder="Chọn quý" />
                 </SelectTrigger>
                 <SelectContent>
@@ -177,7 +250,7 @@ export function EventFilter({ onFilter }: EventFilterProps) {
                 placeholder="2025"
                 value={filters.year || ""}
                 onChange={(e) => handleChange("year", Number(e.target.value))}
-                className="bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
+                className="bg-transparent focus-visible:ring-offset-0"
               />
             </div>
           </>
@@ -191,21 +264,33 @@ export function EventFilter({ onFilter }: EventFilterProps) {
               placeholder="2025"
               value={filters.year || ""}
               onChange={(e) => handleChange("year", Number(e.target.value))}
-              className="bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
+              className="bg-transparent focus-visible:ring-offset-0"
             />
           </div>
         )}
       </div>
 
-      {/* 🔘 Nút lọc */}
-      <div className="flex justify-end">
+      {/* 🔘 Buttons */}
+      <div className="flex justify-end gap-3 mt-4">
         <Button
-          appearance="primary"
-          color="green"
-          onClick={handleSearch}
-          className="flex items-center gap-2 bg-green-600 hover:bg-green-500 text-white shadow-md"
+          onClick={handleReset}
+          className="flex items-center gap-2 px-4 py-2 w-32 rounded-lg font-medium text-sm 
+               bg-gradient-to-r from-slate-400 to-slate-500 
+               text-white shadow-sm hover:shadow-md 
+               hover:from-slate-300 hover:to-slate-400 
+               transition-all duration-300 ease-in-out active:scale-[0.97]"
         >
-          <Search className="w-4 h-4" />
+          <RotateCcw className="w-4 h-4 opacity-90" />
+          Làm mới
+        </Button>
+        <Button
+          onClick={handleFilter}
+          className="flex items-center gap-2 px-5 py-2 w-32 rounded-lg font-semibold text-sm 
+               bg-gradient-to-r from-lime-600 to-green-600 
+               text-white shadow-md hover:shadow-xl hover:brightness-110 
+               transition-all duration-300 ease-in-out active:scale-[0.97]"
+        >
+          <Search className="w-4 h-4 opacity-90" />
           Lọc sự kiện
         </Button>
       </div>
