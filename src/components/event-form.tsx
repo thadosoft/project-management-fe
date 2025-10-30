@@ -18,7 +18,7 @@ import {
 
 import type { Event } from "@/models/Event";
 import { Project } from "@/models/Project";
-import { CalendarIcon, Plus, Save } from "lucide-react";
+import { CalendarIcon, Plus, Save, X } from "lucide-react";
 
 interface EventFormProps {
   open: boolean;
@@ -66,21 +66,19 @@ export function EventForm({
 
   const handleSubmit = () => {
     if (!formData.title || !formData.startDate || !formData.project) return;
-
     const tempId =
       formData.id ?? `temp-${Math.random().toString(36).slice(2, 9)}`;
     const payload: Event = {
       ...(formData as Event),
       id: tempId,
     };
-
     onSave(payload);
     onClose();
   };
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px] bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-100/50 dark:from-slate-950 dark:via-slate-900/50 dark:to-slate-800">
+      <DialogContent className="sidebar-scroll sm:max-w-[500px] bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-100/50 dark:from-slate-950 dark:via-slate-900/50 dark:to-slate-800">
         <DialogHeader>
           <DialogTitle>
             {mode === "edit" ? "Chỉnh sửa sự kiện" : "Thêm sự kiện mới"}
@@ -95,15 +93,23 @@ export function EventForm({
           className="space-y-5 mt-4"
         >
           {/* Title */}
-          <div className="space-y-2">
+          <div className="relative space-y-2">
             <Label htmlFor="title">Tiêu đề sự kiện</Label>
-            <Input
-              id="title"
-              value={formData.title || ""}
-              onChange={(e) => handleChange("title", e.target.value)}
-              placeholder="Nhập tiêu đề"
-              required
-            />
+            <div className="relative w-full">
+              <Input
+                id="title"
+                value={formData.title || ""}
+                onChange={(e) => handleChange("title", e.target.value)}
+                placeholder="Nhập tiêu đề"
+                required
+              />
+              {formData.title && (
+                <X
+                  onClick={() => handleChange("title", "")}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 cursor-pointer"
+                />
+              )}
+            </div>
           </div>
 
           {/* Start Date */}
@@ -173,12 +179,20 @@ export function EventForm({
           {/* Description */}
           <div className="space-y-2">
             <Label htmlFor="description">Mô tả chi tiết</Label>
-            <Input
-              id="description"
-              value={formData.description || ""}
-              onChange={(e) => handleChange("description", e.target.value)}
-              placeholder="Nhập mô tả"
-            />
+            <div className="relative w-full">
+              <Input
+                id="description"
+                value={formData.description || ""}
+                onChange={(e) => handleChange("description", e.target.value)}
+                placeholder="Nhập mô tả"
+              />
+              {formData.description && (
+                  <X
+                    onClick={() => handleChange("description", "")}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 cursor-pointer"
+                  />
+                )}
+            </div>
           </div>
 
           {/* Buttons */}

@@ -4,6 +4,7 @@ import {
   Filter,
   RotateCcw,
   Calendar as CalendarIcon,
+  X,
 } from "lucide-react";
 import { EventType } from "@/models/Event";
 import {
@@ -117,13 +118,21 @@ export function EventFilter({ onFilter }: EventFilterProps) {
           <Label htmlFor="title" className="text-sm font-medium mb-1 block">
             Tiêu đề
           </Label>
-          <Input
-            id="title"
-            placeholder="Nhập tên sự kiện..."
-            value={filters.title || ""}
-            onChange={(e) => handleChange("title", e.target.value)}
-            className="bg-transparent focus-visible:ring-offset-0"
-          />
+          <div className="relative">
+            <Input
+              id="title"
+              placeholder="Nhập tên sự kiện..."
+              value={filters.title || ""}
+              onChange={(e) => handleChange("title", e.target.value)}
+              className="bg-transparent focus-visible:ring-offset-0"
+            />
+            {filters.title && (
+              <X
+                onClick={() => handleChange("title", "")}
+                className="absolute right-2 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 cursor-pointer"
+              />
+            )}
+          </div>
         </div>
 
         {/* 🏷️ Loại sự kiện */}
@@ -274,24 +283,17 @@ export function EventFilter({ onFilter }: EventFilterProps) {
       <div className="flex justify-end gap-3 mt-4">
         <Button
           onClick={handleReset}
-          className="flex items-center gap-2 px-4 py-2 w-32 rounded-lg font-medium text-sm 
-               bg-gradient-to-r from-slate-400 to-slate-500 
-               text-white shadow-sm hover:shadow-md 
-               hover:from-slate-300 hover:to-slate-400 
-               transition-all duration-300 ease-in-out active:scale-[0.97]"
+          className="flex items-center gap-2 bg-gray-700 hover:bg-gray-600 text-gray-100 border border-gray-500 rounded-xl px-5 py-2 transition-all duration-200"
         >
-          <RotateCcw className="w-4 h-4 opacity-90" />
+          <RotateCcw className="w-1 h-1 opacity-90" />
           Làm mới
         </Button>
         <Button
           onClick={handleFilter}
-          className="flex items-center gap-2 px-5 py-2 w-32 rounded-lg font-semibold text-sm 
-               bg-gradient-to-r from-lime-600 to-green-600 
-               text-white shadow-md hover:shadow-xl hover:brightness-110 
-               transition-all duration-300 ease-in-out active:scale-[0.97]"
+          className="flex items-center gap-2 bg-gradient-to-r from-lime-600 to-green-600 hover:from-lime-500 hover:to-green-500 text-white font-medium rounded-xl px-5 py-2 shadow-md hover:shadow-lg active:scale-95 transition-all duration-300"
         >
-          <Search className="w-4 h-4 opacity-90" />
-          Lọc sự kiện
+          <Search className="w-1 h-1 opacity-90" />
+          Lọc
         </Button>
       </div>
     </div>

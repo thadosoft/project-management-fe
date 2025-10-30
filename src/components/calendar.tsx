@@ -1,12 +1,12 @@
 import { useTheme } from "@/hooks/use-theme";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Calendar, Badge, HStack, CustomProvider, Whisper } from "rsuite";
 import "rsuite/dist/rsuite-no-reset.min.css";
 import locale from "@/utils/locale";
 import type { Event } from "@/models/Event";
 import { getBadgeColor } from "@/utils/event-utils"; // you already have this
 import { EventOverlay } from "./event-overlay";
-import { EventFilter } from "./event-filter";
+import { EventFilter, EventFilterValues } from "./event-filter";
 import { EventForm } from "./event-form";
 import { Project } from "@/models/Project";
 import { EventListView } from "./event-listview";
@@ -71,7 +71,7 @@ export function EventCalendar() {
     {
       id: "3",
       title: "Demo Betrimex",
-      startDate: "2025-10-30T09:30:00",
+      startDate: "2025-10-31T09:30:00",
       type: "Demo",
       description:
         "Trình bày bản demo tính năng mới của hệ thống cho đối tác Betrimex.",
@@ -96,7 +96,7 @@ export function EventCalendar() {
     {
       id: "4",
       title: "Họp nội bộ",
-      startDate: "2025-10-30T14:30:00",
+      startDate: "2025-10-31T14:30:00",
       type: "Họp",
       description: "Đánh giá tiến độ các task trong sprint hiện tại.",
       project: {
@@ -120,7 +120,7 @@ export function EventCalendar() {
     {
       id: "5",
       title: "Khảo sát team",
-      startDate: "2025-10-30T16:00:00",
+      startDate: "2025-10-31T16:00:00",
       type: "Khảo sát",
       description: "Thu thập phản hồi từ các thành viên team phát triển.",
       project: {
@@ -166,13 +166,15 @@ export function EventCalendar() {
       },
     },
   ]);
+  const [filteredEvents, setFilteredEvents] = useState<Event[]>(events);
+  const [hasFiltered, setHasFiltered] = useState(false);
 
   // ========================
   // 🧠 Logic
   // ========================
   const getEventsByDate = (date: Date | null): Event[] => {
     if (!date) return [];
-    const key = date.toISOString().split("T")[0];
+    const key = date.toLocaleDateString("en-CA"); // 🧡 keeps local date
     return events.filter((event) => event.startDate.startsWith(key));
   };
 
@@ -193,11 +195,61 @@ export function EventCalendar() {
   };
 
   const handleSaveTask = (data: Event) => {
-    if (formMode === "add") setEvents((prev) => [...prev, data]);
-    else
+    if (formMode === "add") {
+      setEvents((prev) => [...prev, data]);
+      alert("Thêm sự kiện thành công ✅");
+    } else {
       setEvents((prev) =>
         prev.map((e) => (e.id === data.id ? { ...data } : e))
       );
+      alert("Cập nhật sự kiện thành công ✅");
+    }
+  };
+
+  const handleFilter = (filters: EventFilterValues) => {
+    let result = [...events];
+    console.log("Event: ", events);
+    setHasFiltered(true);
+    const searchTitle = filters.title?.trim().toLowerCase();
+    if (searchTitle) {
+      result = result.filter((e) =>
+        e.title.toLowerCase().includes(searchTitle)
+      );
+    }
+
+    if (filters.type && filters.type !== "Tất cả") {
+      result = result.filter((e) => e.type === filters.type);
+    }
+
+    if (filters.mode === "ngày" && filters.date) {
+      const dateStr = filters.date.toISOString().split("T")[0];
+      result = result.filter((e) => e.startDate.startsWith(dateStr));
+    }
+
+    if (filters.mode === "tháng" && filters.date) {
+      const [year, month] = filters.date.toISOString().split("T")[0].split("-");
+      result = result.filter((e) => {
+        const [y, m] = e.startDate.split("T")[0].split("-");
+        return y === year && m === month;
+      });
+    }
+
+    const year = filters.year?.toString();
+    if (filters.mode === "năm" && year) {
+      result = result.filter((e) => e.startDate.startsWith(year));
+    }
+
+    if (filters.mode === "quý" && filters.quarter && filters.year) {
+      const startMonth = (filters.quarter - 1) * 3 + 1;
+      const endMonth = startMonth + 2;
+      result = result.filter((e) => {
+        const [y, m] = e.startDate.split("T")[0].split("-").map(Number);
+        return y === filters.year && m >= startMonth && m <= endMonth;
+      });
+    }
+    console.log("Result: ", result);
+
+    setFilteredEvents(result);
   };
 
   const projectOptions: Project[] = Array.from(
@@ -215,7 +267,6 @@ export function EventCalendar() {
   const renderCell = (date: Date) => {
     const list = getEventsByDate(date);
     if (!list.length) return null;
-    console.log("Danh sach:", list);
     const uniqueTypes = Array.from(new Set(list.map((i) => i.type)));
 
     return (
@@ -250,6 +301,10 @@ export function EventCalendar() {
     );
   };
 
+  useEffect(() => {
+    setFilteredEvents(events);
+  }, [events]);
+
   return (
     <CustomProvider locale={locale} theme={isDarkMode ? "dark" : "light"}>
       <HStack
@@ -269,8 +324,15 @@ export function EventCalendar() {
 
         {/* Filter (top) + List (bottom) */}
         <div className="w-full xl:w-1/2 flex flex-col h-full gap-4">
-          <EventFilter onFilter={() => {}} />
-          <EventListView events={events}/>
+          <EventFilter onFilter={handleFilter} />
+          <EventListView
+            events={
+              hasFiltered
+                ? filteredEvents // nếu đã lọc rồi, dù rỗng vẫn truyền mảng rỗng
+                : events.filter((e) => new Date(e.startDate) >= new Date()) // nếu chưa lọc, hiển thị mặc định
+            }
+            onAddEvent={handleAddTask}
+          />
         </div>
 
         {/* 📝 Modal Form */}
