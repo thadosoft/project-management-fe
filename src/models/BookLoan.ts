@@ -1,3 +1,4 @@
+
 // LoanStatus enum giống BE
 export type LoanStatus = "AVAILABLE" | "BORROWED" | "OVERDUE" | "RETURNED";
 
@@ -51,4 +52,14 @@ export interface BookLoanStatsResponse {
   borrowedCount: number;
   returnedCount: number;
   overdueCount: number;
+}
+
+// Kiểu dữ liệu cho bảng thống kê theo người
+export interface UserBookLoanStats {
+  borrowerId: string
+  totalLoans: number
+  borrowingCount: number
+  returnedCount: number
+  overdueCount: number
+  returnRate: number
 }

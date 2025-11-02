@@ -1,7 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Loader2 } from "lucide-react";
@@ -17,7 +23,7 @@ import {
   CommandEmpty,
   CommandGroup,
   CommandItem,
-} from "@/components/ui/command"
+} from "@/components/ui/command";
 
 interface BookBorrowFormProps {
   onSubmit: (data: CreateBookLoanRequest) => Promise<void>;
@@ -48,7 +54,11 @@ export function BookBorrowForm({ onSubmit, isLoading }: BookBorrowFormProps) {
       if (!userId) return;
 
       try {
-        const user = (await fetchData(`users/${userId}`, "GET", accessToken)) as User;
+        const user = (await fetchData(
+          `users/${userId}`,
+          "GET",
+          accessToken
+        )) as User;
         setCurrentUser(user);
         setFormData((prev) => ({
           ...prev,
@@ -104,14 +114,20 @@ export function BookBorrowForm({ onSubmit, isLoading }: BookBorrowFormProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="gap-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800">
+        <Button
+          type="button"
+          className=" gap-2 bg-gradient-to-l from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-medium shadow-md hover:shadow-lg transition-all duration-300"
+        >
+          {" "}
           <Plus className="w-4 h-4" /> Mượn sách
         </Button>
       </DialogTrigger>
 
       <DialogContent forceMount className="max-w-lg">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold">Đăng ký mượn sách</DialogTitle>
+          <DialogTitle className="text-2xl font-bold">
+            Đăng ký mượn sách
+          </DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -120,15 +136,21 @@ export function BookBorrowForm({ onSubmit, isLoading }: BookBorrowFormProps) {
             <div className="bg-muted/30 rounded-lg p-3 border border-border/40">
               <p className="text-sm font-semibold mb-1">Người mượn hiện tại</p>
               <p className="text-sm text-foreground">👤 {currentUser.name}</p>
-              <p className="text-xs text-muted-foreground">📧 {currentUser.email}</p>
-              <p className="text-xs text-muted-foreground">📞 {currentUser.phoneNumber}</p>
+              <p className="text-xs text-muted-foreground">
+                📧 {currentUser.email}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                📞 {currentUser.phoneNumber}
+              </p>
             </div>
           )}
 
           {/* Dropdown chọn sách */}
           <div className="space-y-2">
-            <label className="text-sm font-semibold text-foreground">Chọn sách</label>
-            <Command className="rounded-lg border border-border shadow-sm">
+            <label className="text-sm font-semibold text-foreground">
+              Chọn sách
+            </label>
+            <Command className="rounded-lg border border-border shadow-sm sidebar-scroll">
               <CommandInput placeholder="Nhập tên sách cần tìm..." />
               <CommandList className="max-h-60 overflow-y-auto">
                 <CommandEmpty>Không tìm thấy sách nào.</CommandEmpty>
@@ -159,21 +181,29 @@ export function BookBorrowForm({ onSubmit, isLoading }: BookBorrowFormProps) {
 
           {/* Ngày mượn */}
           <div>
-            <label className="text-sm font-semibold text-foreground">Ngày mượn</label>
+            <label className="text-sm font-semibold text-foreground">
+              Ngày mượn
+            </label>
             <Input
               type="date"
               value={formData.borrowDate ?? ""}
-              onChange={(e) => setFormData({ ...formData, borrowDate: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, borrowDate: e.target.value })
+              }
               className="border-border"
             />
           </div>
 
           {/* Ghi chú / Tình trạng */}
           <div>
-            <label className="text-sm font-semibold text-foreground">Tình trạng sách</label>
+            <label className="text-sm font-semibold text-foreground">
+              Tình trạng sách
+            </label>
             <select
               value={formData.bookCondition ?? ""}
-              onChange={(e) => setFormData({ ...formData, bookCondition: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, bookCondition: e.target.value })
+              }
               className="w-full px-3 py-2 border border-border rounded-md bg-background focus:ring-2 focus:ring-blue-500"
             >
               <option value="Tốt">Tốt</option>
@@ -190,7 +220,8 @@ export function BookBorrowForm({ onSubmit, isLoading }: BookBorrowFormProps) {
           >
             {isLoading ? (
               <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Đang tạo phiếu...
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Đang tạo
+                phiếu...
               </>
             ) : (
               "Tạo phiếu mượn"

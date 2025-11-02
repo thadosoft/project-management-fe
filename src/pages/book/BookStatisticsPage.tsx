@@ -270,15 +270,15 @@ function BookStatisticsPage() {
                 <h1 className="text-4xl md:text-6xl lg:text-7xl font-black tracking-tight space-y-2">
                   <span
                     className="block bg-gradient-to-r from-slate-900 via-blue-900 to-slate-900 
-                         dark:from-white dark:via-blue-100 dark:to-white bg-clip-text text-transparent"
+                         dark:from-white dark:via-blue-100 dark:to-white bg-clip-text text-transparent "
                   >
-                    Thư viện
+                    Lịch sử
                   </span>
                   <span
                     className="block bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 
                          bg-clip-text text-transparent animate-gradient"
                   >
-                    Sách AITS
+                    Thư viện
                   </span>
                 </h1>
 
@@ -288,12 +288,9 @@ function BookStatisticsPage() {
                   </p>
 
                   <div className="flex items-center justify-center gap-3 mt-6">
-                    <div className="flex justify-between items-center ">
-                      {borrowForm}
-                    </div>
+                   
                     <Button
                       variant="outline"
-                      size="sm"
                       onClick={() => setShowContactInfo(!showContactInfo)}
                       className="gap-2 hover:bg-primary/10"
                     >
@@ -391,7 +388,7 @@ function BookStatisticsPage() {
                       Lịch sử mượn sách
                     </CardTitle>
                     <p className="text-sm text-muted-foreground">
-                      Hiển thị {startIndex + 1} đến {Math.min(endIndex, books.length)} trong {books.length} sách
+                      Hiển thị {startIndex + 1} đến {Math.min(endIndex, books.length)} trong {books.length} phiếu mượn
                     </p>
                   </div>
                   <Tooltip>

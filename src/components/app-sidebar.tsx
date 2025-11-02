@@ -223,11 +223,11 @@ const data = {
           isActive: true,
           items: [
             {
-              title: "Thống kê đầu sách",
+              title: "Thư viện",
               url: "/book",
             },
             {
-              title: "Thống kê mượn sách",
+              title: "Lịch sử thư viện",
               url: "/book-statistics",
             },
           ],

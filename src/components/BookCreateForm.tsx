@@ -1,39 +1,58 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useForm } from "react-hook-form"
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Plus, Loader2, BookOpen, User, Tag, Building2, Calendar, MapPin, Package } from "lucide-react"
-import type { CreateBookRequest } from "@/models/Book"
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Plus,
+  Loader2,
+  BookOpen,
+  User,
+  Tag,
+  Building2,
+  Calendar,
+  MapPin,
+  Package,
+} from "lucide-react";
+import type { CreateBookRequest } from "@/models/Book";
 
 export function BookCreateForm({
   onSubmit,
   isLoading,
 }: {
-  onSubmit: (data: CreateBookRequest) => Promise<void>
-  isLoading?: boolean
+  onSubmit: (data: CreateBookRequest) => Promise<void>;
+  isLoading?: boolean;
 }) {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false);
 
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<CreateBookRequest>()
+  } = useForm<CreateBookRequest>();
 
   const handleCreate = async (data: CreateBookRequest) => {
-    await onSubmit(data)
-    reset()
-    setOpen(false)
-  }
+    await onSubmit(data);
+    reset();
+    setOpen(false);
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button type="button" className="gap-2 bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200">
+        <Button
+          type="button"
+          className=" gap-2 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-medium shadow-md hover:shadow-lg transition-all duration-300"
+        >
           <Plus className="w-4 h-4" />
           Thêm sách
         </Button>
@@ -41,8 +60,12 @@ export function BookCreateForm({
 
       <DialogContent forceMount className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-blue-900">Thêm Sách Mới</DialogTitle>
-          <p className="text-sm text-gray-500 mt-1">Điền thông tin chi tiết về cuốn sách</p>
+          <DialogTitle className="text-2xl font-bold text-blue-900">
+            Thêm Sách Mới
+          </DialogTitle>
+          <p className="text-sm text-gray-500 mt-1">
+            Điền thông tin chi tiết về cuốn sách
+          </p>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(handleCreate)} className="space-y-6">
@@ -121,10 +144,15 @@ export function BookCreateForm({
                 type="number"
                 {...register("publicationYear", {
                   valueAsNumber: true,
-                  min: { value: 1000, message: "Năm xuất bản phải từ 1000 trở lên" },
+                  min: {
+                    value: 1000,
+                    message: "Năm xuất bản phải từ 1000 trở lên",
+                  },
                   max: {
                     value: new Date().getFullYear() + 1,
-                    message: `Năm xuất bản không được vượt quá ${new Date().getFullYear() + 1}`,
+                    message: `Năm xuất bản không được vượt quá ${
+                      new Date().getFullYear() + 1
+                    }`,
                   },
                 })}
                 placeholder="VD: 2024"
@@ -159,7 +187,10 @@ export function BookCreateForm({
               </label>
               <Input
                 type="number"
-                {...register("quantity_total", { valueAsNumber: true, required: "Vui lòng nhập số lượng" })}
+                {...register("quantity_total", {
+                  valueAsNumber: true,
+                  required: "Vui lòng nhập số lượng",
+                })}
                 placeholder="0"
                 className="border-2 border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-lg transition-colors"
               />
@@ -192,5 +223,5 @@ export function BookCreateForm({
         </form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
