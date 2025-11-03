@@ -194,24 +194,6 @@ export function BookBorrowForm({ onSubmit, isLoading }: BookBorrowFormProps) {
             />
           </div>
 
-          {/* Ghi chú / Tình trạng */}
-          <div>
-            <label className="text-sm font-semibold text-foreground">
-              Tình trạng sách
-            </label>
-            <select
-              value={formData.bookCondition ?? ""}
-              onChange={(e) =>
-                setFormData({ ...formData, bookCondition: e.target.value })
-              }
-              className="w-full px-3 py-2 border border-border rounded-md bg-background focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="Tốt">Tốt</option>
-              <option value="Bình thường">Bình thường</option>
-              {/* <option value="Cần sửa chữa">Cần sửa chữa</option> */}
-            </select>
-          </div>
-
           {/* Nút submit */}
           <Button
             type="submit"

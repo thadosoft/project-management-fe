@@ -19,9 +19,11 @@ interface BookTableProps {
   onView: (book: Book) => void;
   onEdit: (book: Book) => void;
   onDelete: (id: number) => void;
+  currentPage: number
+  pageSize: number
 }
 
-export function BookTable({ data, loading, onView }: BookTableProps) {
+export function BookTable({ data, loading, onView, currentPage, pageSize }: BookTableProps) {
   const [searchText, setSearchText] = useState("");
   const [searchedColumn, setSearchedColumn] = useState("");
   const searchInput = useRef<InputRef>(null);
@@ -98,8 +100,8 @@ export function BookTable({ data, loading, onView }: BookTableProps) {
     onFilter: (value, record) =>
       record[dataIndex]
         ? record[dataIndex]!.toString()
-            .toLowerCase()
-            .includes((value as string).toLowerCase())
+          .toLowerCase()
+          .includes((value as string).toLowerCase())
         : false,
     filterDropdownProps: {
       onOpenChange: (open) => {
@@ -121,11 +123,18 @@ export function BookTable({ data, loading, onView }: BookTableProps) {
     if (quantity === undefined) return "Không rõ";
     if (quantity === 0) return "Đã mượn hết";
     if (quantity === 1) return "Còn 1,2 cuốn";
-    if (quantity > 2) return "Sẵn sàng mượn";
+    if (quantity >= 2) return "Sẵn sàng mượn";
     return "Không rõ";
   };
 
   const columns: ColumnsType<Book> = [
+    {
+      title: "STT",
+      key: "index",
+      width: 70,
+      align: "center",
+      render: (_: any, __: Book, index: number) => (currentPage - 1) * pageSize + index + 1,
+    },
     {
       title: "Tên sách",
       dataIndex: "title",
@@ -172,8 +181,8 @@ export function BookTable({ data, loading, onView }: BookTableProps) {
           quantity === 0
             ? "text-red-600"
             : quantity === 1
-            ? "text-orange-500"
-            : "text-green-600";
+              ? "text-orange-500"
+              : "text-green-600";
 
         return <span className={`${color} font-medium`}>{label}</span>;
       },

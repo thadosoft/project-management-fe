@@ -52,17 +52,17 @@ function BooksPage() {
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const itemsPerPage = 10;
-   //khai báo modal thông báo
-    const [notification, setNotification] = useState<{
-      open: boolean
-      message: string
-      type: "success" | "error" | "warning"
-    }>({
-      open: false,
-      message: "",
-      type: "success",
-    })
-  
+  //khai báo modal thông báo
+  const [notification, setNotification] = useState<{
+    open: boolean
+    message: string
+    type: "success" | "error" | "warning"
+  }>({
+    open: false,
+    message: "",
+    type: "success",
+  })
+
 
 
   const fetchBooks = async (page = 0) => {
@@ -101,7 +101,7 @@ function BooksPage() {
     setIsDetailsOpen(true);
   };
 
-  const handleEditBook = (book: Book) => {};
+  const handleEditBook = (book: Book) => { };
 
   const handleDeleteBook = async (id: number) => {
     try {
@@ -130,12 +130,12 @@ function BooksPage() {
         message: "Đã mượn sách thành công!",
         type: "success",
       })
-  
+
       if (newBookLoan) {
         // cập nhật danh sách phiếu mượn
         const loanResponse = await searchBookLoans({}, 0, 100)
         if (loanResponse?.content) setBookLoans(loanResponse.content)
-  
+
         // ✅ cập nhật lại danh sách sách
         await searchBookLoans({}, 0, 100)
       }
@@ -184,7 +184,7 @@ function BooksPage() {
       <div className="flex items-center justify-center min-h-screen bg-background">
         <div className="space-y-4 w-full max-w-6xl mx-auto p-6">
           <Skeleton className="h-8 w-48 rounded" />
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {[...Array(4)].map((_, i) => (
               <Skeleton key={i} className="h-24 rounded-lg" />
             ))}
@@ -203,9 +203,9 @@ function BooksPage() {
   const outOfStockBooks = books.filter(
     (b) => (b.quantity_available ?? 0) === 0
   ).length;
-  const lowStockBooks = books.filter(
-    (b) => (b.quantity_available ?? 0) > 0 && (b.quantity_available ?? 0) <= 1
-  ).length;
+  // const lowStockBooks = books.filter(
+  //   (b) => (b.quantity_available ?? 0) > 0 && (b.quantity_available ?? 0) <= 1
+  // ).length;
 
   const stats = [
     {
@@ -227,19 +227,19 @@ function BooksPage() {
     {
       icon: Clock,
       value: outOfStockBooks,
-      label: "Tạm hết",
+      label: "Đã hết",
       bgFrom: "from-orange-500",
       bgTo: "to-orange-600",
       shadow: "hover:shadow-orange-500/10",
     },
-    {
-      icon: BellIcon,
-      value: lowStockBooks,
-      label: "Số lượng ít",
-      bgFrom: "from-red-500",
-      bgTo: "to-red-600",
-      shadow: "hover:shadow-red-500/10",
-    },
+    // {
+    //   icon: BellIcon,
+    //   value: lowStockBooks,
+    //   label: "Số lượng ít",
+    //   bgFrom: "from-red-500",
+    //   bgTo: "to-red-600",
+    //   shadow: "hover:shadow-red-500/10",
+    // },
   ];
 
   return (
@@ -348,7 +348,7 @@ function BooksPage() {
               </div>
 
               {/* Stats Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 max-w-5xl mx-auto pb-10">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto pb-10">
                 {stats.map(
                   ({ icon: Icon, value, label, bgFrom, bgTo, shadow }) => (
                     <div
@@ -404,6 +404,8 @@ function BooksPage() {
                       onView={handleViewDetails}
                       onEdit={handleEditBook}
                       onDelete={handleDeleteBook}
+                      currentPage={currentPage}
+                      pageSize={itemsPerPage}
                     />
                   </div>
 

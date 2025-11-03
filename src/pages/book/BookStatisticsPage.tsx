@@ -56,6 +56,7 @@ function BookStatisticsPage() {
 
   //trả sách
   const handleReturnBook = async (book: BookLoan) => {
+    console.log(">>> handleReturn called with book:", book)
     try {
       setIsSubmitting(true);
       await markBookLoanAsReturned(book.id);
@@ -95,7 +96,7 @@ function BookStatisticsPage() {
       setLoading(true)
       try {
         const request: BookLoanRequest = {}
-        const response = await searchBookLoans(request, 0, 100) // page=0, size=100
+        const response = await searchBookLoans(request, 0, 100)
         if (response?.content) {
           setBooks(response.content)
         } else {
@@ -118,34 +119,34 @@ function BookStatisticsPage() {
   const currentBooks = books.slice(startIndex, endIndex)
 
   const handleAddBook = async (formData: CreateBookLoanRequest) => {
-  setIsSubmitting(true)
-  try {
-    const newBookLoan = await createBookLoan(formData)
-    setNotification({
-      open: true,
-      message: "Đã mượn sách thành công!",
-      type: "success",
-    })
+    setIsSubmitting(true)
+    try {
+      const newBookLoan = await createBookLoan(formData)
+      setNotification({
+        open: true,
+        message: "Đã mượn sách thành công!",
+        type: "success",
+      })
 
-    if (newBookLoan) {
-      // cập nhật danh sách phiếu mượn
-      const loanResponse = await searchBookLoans({}, 0, 100)
-      if (loanResponse?.content) setBooks(loanResponse.content)
+      if (newBookLoan) {
+        // cập nhật danh sách phiếu mượn
+        const loanResponse = await searchBookLoans({}, 0, 100)
+        if (loanResponse?.content) setBooks(loanResponse.content)
 
-      // ✅ cập nhật lại danh sách sách
-      await searchBookLoans({}, 0, 100)
+        // ✅ cập nhật lại danh sách sách
+        await searchBookLoans({}, 0, 100)
+      }
+    } catch (error) {
+      console.error("Error adding book:", error)
+      setNotification({
+        open: true,
+        message: "Không thể mượn sách!",
+        type: "error",
+      })
+    } finally {
+      setIsSubmitting(false)
     }
-  } catch (error) {
-    console.error("Error adding book:", error)
-    setNotification({
-      open: true,
-      message: "Không thể mượn sách!",
-      type: "error",
-    })
-  } finally {
-    setIsSubmitting(false)
   }
-}
 
 
   const handleCheckOverdue = async () => {
@@ -288,7 +289,7 @@ function BookStatisticsPage() {
                   </p>
 
                   <div className="flex items-center justify-center gap-3 mt-6">
-                   
+
                     <Button
                       variant="outline"
                       onClick={() => setShowContactInfo(!showContactInfo)}
@@ -424,6 +425,8 @@ function BookStatisticsPage() {
                       loading={loading}
                       onView={handleViewDetails}
                       onReturn={handleReturnBook}
+                      currentPage={currentPage}
+                      pageSize={itemsPerPage}
                     />
 
                     {books.length === 0 && (

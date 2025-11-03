@@ -12,14 +12,16 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { BookLoan, UserBookLoanStats } from "@/models/BookLoan";
-import { getEmployeeById } from "@/services/employee/EmployeeService";
 import { CardTitle } from "@/components/ui/card";
+import { getUserById } from "@/services/userService";
 
 interface BookTableProps {
   data: BookLoan[];
   loading: boolean;
   onView: (book: BookLoan) => void;
   onReturn: (book: BookLoan) => void;
+  currentPage: number;
+  pageSize: number;
 }
 
 export function BookLoanTable({
@@ -27,13 +29,15 @@ export function BookLoanTable({
   loading,
   onView,
   onReturn,
+  currentPage,
+  pageSize
 }: BookTableProps) {
   const [searchText, setSearchText] = useState("");
   const [searchedColumn, setSearchedColumn] = useState("");
   const searchInput = useRef<InputRef>(null);
   const [userStats, setUserStats] = useState<UserBookLoanStats[]>([]);
   const [userInfoMap, setUserInfoMap] = useState<
-    Record<string, { fullName: string; email: string }>
+    Record<string, { name: string; email: string }>
   >({});
 
   // ========== Hàm search/filter cho bảng phiếu mượn ==========
@@ -108,8 +112,8 @@ export function BookLoanTable({
     onFilter: (value, record) =>
       record[dataIndex]
         ? record[dataIndex]!.toString()
-            .toLowerCase()
-            .includes((value as string).toLowerCase())
+          .toLowerCase()
+          .includes((value as string).toLowerCase())
         : false,
     render: (text) =>
       searchedColumn === dataIndex ? (
@@ -134,6 +138,13 @@ export function BookLoanTable({
 
   // ========== Cột bảng chi tiết phiếu mượn ==========
   const columns1: ColumnsType<BookLoan> = [
+    {
+      title: "STT",
+      key: "index",
+      render: (_: any, __: BookLoan, index: number) => (currentPage - 1) * pageSize + index + 1,
+      width: 70,
+      align: "center",
+    },
     {
       title: "Tên sách",
       dataIndex: "bookTitle",
@@ -177,10 +188,10 @@ export function BookLoanTable({
           status === "BORROWED"
             ? "text-blue-600"
             : status === "RETURNED"
-            ? "text-green-600"
-            : status === "OVERDUE"
-            ? "text-red-600"
-            : "";
+              ? "text-green-600"
+              : status === "OVERDUE"
+                ? "text-red-600"
+                : "";
         return <span className={`${color} font-medium`}>{text}</span>;
       },
     },
@@ -197,7 +208,7 @@ export function BookLoanTable({
             </TooltipTrigger>
             <TooltipContent>Xem chi tiết</TooltipContent>
           </Tooltip>
-          {book.status === "BORROWED" && (
+          {(book.status === "BORROWED" || book.status === "OVERDUE") && (
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
@@ -263,10 +274,10 @@ export function BookLoanTable({
       for (const stat of userStats) {
         const id = stat.borrowerId;
         if (!id || mapCopy[id]) continue;
-        const emp = await getEmployeeById(Number(id));
+        const emp = await getUserById(id);
         console.log(emp);
         mapCopy[id] = {
-          fullName: emp?.fullName || `#${id}`,
+          name: emp?.name || `#${id}`,
           email: emp?.email || "",
         };
       }
@@ -286,7 +297,7 @@ export function BookLoanTable({
         return (
           <div>
             <div className="font-semibold">
-              {info?.fullName || "Đang tải..."}
+              {info?.name || "Đang tải..."}
             </div>
             <div className="text-xs text-muted-foreground">
               {info?.email || ""}
@@ -322,8 +333,8 @@ export function BookLoanTable({
         className="!rounded-none [&_.ant-table-container]:!rounded-none [&_.ant-table]:!rounded-none [&_.ant-table-content]:!rounded-none"
       />
 
-      <CardTitle className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-       Thống kê người mượn
+      <CardTitle className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent pl-2">
+        Thống kê người mượn
       </CardTitle>
 
       <Table
