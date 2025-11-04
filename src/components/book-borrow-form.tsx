@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Loader2 } from "lucide-react";
+import { Plus, Loader2, CalendarIcon } from "lucide-react";
 import type { CreateBookLoanRequest } from "@/models/BookLoan";
 import type { Book } from "@/models/Book";
 import { searchBooks } from "@/services/bookService";
@@ -44,6 +44,8 @@ export function BookBorrowForm({ onSubmit, isLoading }: BookBorrowFormProps) {
     borrowDate: "",
     dueDate: "",
     status: "BORROWED",
+    approverName: "Nguyễn Thị Út Tiên",
+    remarks: "",
   });
 
   // ✅ Lấy thông tin user hiện tại từ localStorage
@@ -180,15 +182,43 @@ export function BookBorrowForm({ onSubmit, isLoading }: BookBorrowFormProps) {
           </div>
 
           {/* Ngày mượn */}
-          <div>
+          <div className="space-y-2">
             <label className="text-sm font-semibold text-foreground">
               Ngày mượn
             </label>
+            <div className="relative w-full">
+              <Input
+                id="borrowDate"
+                type="date"
+                value={formData.borrowDate || ""}
+                onChange={(e) =>
+                  setFormData({ ...formData, borrowDate: e.target.value })
+                }
+                className="pr-10 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:pointer-events-none"
+                required
+              />
+              <CalendarIcon
+                className="absolute right-2 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 cursor-pointer"
+                onClick={() => {
+                  const input = document.getElementById(
+                    "borrowDate"
+                  ) as HTMLInputElement | null;
+                  input?.showPicker?.();
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Ghi chú */}
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-foreground">
+              Ghi chú
+            </label>
             <Input
-              type="date"
-              value={formData.borrowDate ?? ""}
+              type="text"
+              value={formData.remarks ?? ""}
               onChange={(e) =>
-                setFormData({ ...formData, borrowDate: e.target.value })
+                setFormData({ ...formData, remarks: e.target.value })
               }
               className="border-border"
             />

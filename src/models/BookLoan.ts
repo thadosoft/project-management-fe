@@ -61,5 +61,5 @@ export interface UserBookLoanStats {
   borrowingCount: number
   returnedCount: number
   overdueCount: number
-  returnRate: number
+  returnRate?: number
 }

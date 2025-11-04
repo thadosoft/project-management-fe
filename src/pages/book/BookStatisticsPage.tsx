@@ -382,7 +382,7 @@ function BookStatisticsPage() {
               </div>
 
               {/* Book List Table */}
-              <Card className="border-0 bg-card/50 backdrop-blur-sm shadow-lg overflow-hidden">
+              <Card className="border-0 bg-card/50 backdrop-blur-sm shadow-lg">
                 <CardHeader className="pb-4 px-2 border-b border-border/50 justify-between items-center flex flex-col sm:flex-row gap-4 bg-gradient-to-r from-blue-200/10 via-purple-200/10 to-blue-500/10">
                   <div className="flex flex-col gap-1">
                     <CardTitle className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
@@ -418,8 +418,8 @@ function BookStatisticsPage() {
                   </Tooltip>
 
                 </CardHeader>
-                <CardContent className="p-0">
-                  <div className="overflow-x-auto">
+                <CardContent className="p-0 sidebar-scroll">
+                  <div className="">
                     <BookLoanTable
                       data={books}
                       loading={loading}

@@ -51,7 +51,7 @@ function BooksPage() {
   }>({ status: "", category: "" });
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
-  const itemsPerPage = 10;
+  const itemsPerPage = 15;
   //khai báo modal thông báo
   const [notification, setNotification] = useState<{
     open: boolean

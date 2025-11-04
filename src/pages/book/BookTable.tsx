@@ -6,7 +6,7 @@ import { SearchOutlined } from "@ant-design/icons";
 import type { ColumnType, ColumnsType } from "antd/es/table";
 import type { InputRef } from "antd";
 import type { Book } from "@/models/Book";
-import { Eye } from "lucide-react";
+import { BookPlus, Eye } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -19,11 +19,17 @@ interface BookTableProps {
   onView: (book: Book) => void;
   onEdit: (book: Book) => void;
   onDelete: (id: number) => void;
-  currentPage: number
-  pageSize: number
+  currentPage: number;
+  pageSize: number;
 }
 
-export function BookTable({ data, loading, onView, currentPage, pageSize }: BookTableProps) {
+export function BookTable({
+  data,
+  loading,
+  onView,
+  currentPage,
+  pageSize,
+}: BookTableProps) {
   const [searchText, setSearchText] = useState("");
   const [searchedColumn, setSearchedColumn] = useState("");
   const searchInput = useRef<InputRef>(null);
@@ -100,8 +106,8 @@ export function BookTable({ data, loading, onView, currentPage, pageSize }: Book
     onFilter: (value, record) =>
       record[dataIndex]
         ? record[dataIndex]!.toString()
-          .toLowerCase()
-          .includes((value as string).toLowerCase())
+            .toLowerCase()
+            .includes((value as string).toLowerCase())
         : false,
     filterDropdownProps: {
       onOpenChange: (open) => {
@@ -133,7 +139,8 @@ export function BookTable({ data, loading, onView, currentPage, pageSize }: Book
       key: "index",
       width: 70,
       align: "center",
-      render: (_: any, __: Book, index: number) => (currentPage - 1) * pageSize + index + 1,
+      render: (_: any, __: Book, index: number) =>
+        (currentPage - 1) * pageSize + index + 1,
     },
     {
       title: "Tên sách",
@@ -169,30 +176,46 @@ export function BookTable({ data, loading, onView, currentPage, pageSize }: Book
       key: "location",
       width: "10%",
     },
+
     {
       title: "Tình trạng",
-      dataIndex: "quantity_available",
-      key: "quantity_available",
-      sorter: (a, b) =>
-        (a.quantity_available ?? 0) - (b.quantity_available ?? 0),
-      render: (quantity: number | undefined) => {
-        const label = getAvailabilityLabel(quantity);
-        const color =
-          quantity === 0
-            ? "text-red-600"
-            : quantity === 1
-              ? "text-orange-500"
-              : "text-green-600";
+      dataIndex: "available",
+      key: "available",
+      sorter: (a, b) => {
+        // Ưu tiên available trước, sau đó mới so sánh theo số lượng tồn
+        const aValue = (a.available ? 1 : 0) * 10 + (a.quantity_available ?? 0);
+        const bValue = (b.available ? 1 : 0) * 10 + (b.quantity_available ?? 0);
+        return aValue - bValue;
+      },
+      render: (_: boolean | undefined, record: Book) => {
+        const { available, quantity_available } = record;
+
+        let label = "Không rõ";
+        let color = "text-gray-500";
+
+        if (available === false || quantity_available === 0) {
+          label = "Đã mượn hết";
+          color = "text-red-600";
+        } else if (quantity_available && (quantity_available  === 1 || quantity_available  === 2)) { 
+          label = "Còn ít";
+          color = "text-orange-500";
+        } else if (quantity_available && quantity_available > 2) {
+          label = "Sẵn sàng mượn";
+          color = "text-green-600";
+        }
 
         return <span className={`${color} font-medium`}>{label}</span>;
       },
       width: "10%",
+      align: "center",
     },
     {
-      title: "Số lượng tồn",
+      title: "Số lượng khả dụng",
       dataIndex: "quantity_available",
       key: "quantity_available",
-      ...getColumnSearchProps("quantity_available"),
+      sorter: (a, b) =>
+        (a.quantity_available ?? 0) - (b.quantity_available ?? 0),
+      render: (v: number | undefined) => <span>{v ?? 0}</span>,
       width: "5%",
       align: "center",
     },
@@ -210,6 +233,14 @@ export function BookTable({ data, loading, onView, currentPage, pageSize }: Book
             </TooltipTrigger>
             <TooltipContent>Xem chi tiết</TooltipContent>
           </Tooltip>
+          {/* <Tooltip>
+            <TooltipTrigger asChild>
+              <Button type="link" onClick={() => onView(book)}>
+                <BookPlus className="w-4 h-4 text-primary dark:text-secondary" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Mượn sách</TooltipContent>
+          </Tooltip> */}
         </Space>
       ),
       width: "10%",
@@ -223,7 +254,7 @@ export function BookTable({ data, loading, onView, currentPage, pageSize }: Book
       dataSource={data}
       loading={loading}
       rowKey="id"
-      pagination={{ pageSize: 10 }}
+      pagination={{ pageSize }}
       bordered
       scroll={{ x: "max-content" }}
       className="!rounded-none [&_.ant-table-container]:!rounded-none [&_.ant-table]:!rounded-none [&_.ant-table-content]:!rounded-none"
