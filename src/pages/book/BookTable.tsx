@@ -256,7 +256,7 @@ export function BookTable({
       rowKey="id"
       pagination={{ pageSize }}
       bordered
-      scroll={{ x: "max-content" }}
+      scroll={{ x: true }}
       className="!rounded-none [&_.ant-table-container]:!rounded-none [&_.ant-table]:!rounded-none [&_.ant-table-content]:!rounded-none"
     />
   );

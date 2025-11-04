@@ -429,13 +429,13 @@ function BookStatisticsPage() {
                       pageSize={itemsPerPage}
                     />
 
-                    {books.length === 0 && (
+                    {/* {books.length === 0 && (
                       <div className="text-center py-16">
                         <BookOpen className="w-16 h-16 text-muted-foreground/20 mx-auto mb-4" />
                         <p className="text-muted-foreground text-lg font-medium">Chưa có sách nào trong hệ thống</p>
                         <p className="text-muted-foreground/60 text-sm mt-2">Hãy thêm sách đầu tiên để bắt đầu</p>
                       </div>
-                    )}
+                    )} */}
                   </div>
                 </CardContent>
               </Card>
