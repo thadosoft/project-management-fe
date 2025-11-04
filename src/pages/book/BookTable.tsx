@@ -6,7 +6,7 @@ import { SearchOutlined } from "@ant-design/icons";
 import type { ColumnType, ColumnsType } from "antd/es/table";
 import type { InputRef } from "antd";
 import type { Book } from "@/models/Book";
-import { Eye } from "lucide-react";
+import { BookPlus, Eye } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -19,6 +19,7 @@ interface BookTableProps {
   onView: (book: Book) => void;
   onEdit: (book: Book) => void;
   onDelete: (id: number) => void;
+  onBorrow: (book: Book) => void;
   currentPage: number;
   pageSize: number;
 }
@@ -27,6 +28,7 @@ export function BookTable({
   data,
   loading,
   onView,
+  onBorrow,
   currentPage,
   pageSize,
 }: BookTableProps) {
@@ -233,6 +235,14 @@ export function BookTable({
             </TooltipTrigger>
             <TooltipContent>Xem chi tiết</TooltipContent>
           </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button type="link" onClick={() => onBorrow(book)}>
+                <BookPlus className="w-4 h-4 text-primary dark:text-secondary" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Mượn sách</TooltipContent>
+          </Tooltip>
         </Space>
       ),
       width: "10%",
@@ -246,9 +256,9 @@ export function BookTable({
       dataSource={data}
       loading={loading}
       rowKey="id"
-      pagination={false}
+      pagination={{ pageSize }}
       bordered
-      scroll={{ x: true }}
+      scroll={{ x: "max-content" }}
       className="!rounded-none [&_.ant-table-container]:!rounded-none [&_.ant-table]:!rounded-none [&_.ant-table-content]:!rounded-none"
     />
   );

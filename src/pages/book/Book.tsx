@@ -33,7 +33,6 @@ import { BookDetailsModal } from "./BookDetailsModal";
 import { BookBorrowForm } from "@/components/book-borrow-form";
 import { BookLoan, CreateBookLoanRequest } from "@/models/BookLoan";
 import { createBookLoan, searchBookLoans } from "@/services/bookLoanService";
-import { Pagination } from "@/components/pagination";
 
 function BooksPage() {
   const [books, setBooks] = useState<Book[]>([]);
@@ -52,7 +51,9 @@ function BooksPage() {
   }>({ status: "", category: "" });
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
-  const itemsPerPage = 20;
+  const itemsPerPage = 15;
+  const [selectedBookForBorrow, setSelectedBookForBorrow] = useState<Book | null>(null);
+  const [borrowFormOpen, setBorrowFormOpen] = useState(false);
   //khai báo modal thông báo
   const [notification, setNotification] = useState<{
     open: boolean;
@@ -92,11 +93,6 @@ function BooksPage() {
   };
 
   useEffect(() => {
-    fetchBooks(currentPage - 1);
-  }, [currentPage]);
-
-  useEffect(() => {
-    setCurrentPage(1);
     fetchBooks(0);
   }, [debouncedQuery, filters]);
 
@@ -125,6 +121,11 @@ function BooksPage() {
     }
   };
 
+  // 📚 Khi người dùng bấm “Mượn sách” trong bảng
+  const handleBorrowBook = (book: Book) => {
+  setSelectedBookForBorrow(book);
+  setBorrowFormOpen(true);
+};
   const handleAddBookLoan = async (formData: CreateBookLoanRequest) => {
     setIsSubmitting(true);
     try {
@@ -136,10 +137,11 @@ function BooksPage() {
       });
 
       if (newBookLoan) {
+        // cập nhật danh sách phiếu mượn
         const loanResponse = await searchBookLoans({}, 0, 100);
         if (loanResponse?.content) setBookLoans(loanResponse.content);
 
-        // cập nhật lại danh sách sách
+        // ✅ cập nhật lại danh sách sách
         await searchBookLoans({}, 0, 100);
       }
     } catch (error) {
@@ -155,11 +157,17 @@ function BooksPage() {
   };
 
   const borrowForm = useMemo(
-    () => (
-      <BookBorrowForm onSubmit={handleAddBookLoan} isLoading={isSubmitting} setNotification={setNotification}/>
-    ),
-    [isSubmitting]
-  );
+  () => (
+    <BookBorrowForm
+      onSubmit={handleAddBookLoan}
+      isLoading={isSubmitting}
+      open={borrowFormOpen}
+      onOpenChange={setBorrowFormOpen}
+      selectedBook={selectedBookForBorrow}
+    />
+  ),
+  [isSubmitting, borrowFormOpen, selectedBookForBorrow]
+);
 
   const bookForm = useMemo(
     () => (
@@ -200,18 +208,34 @@ function BooksPage() {
     );
   }
 
+  // Thống kê dữ liệu thực
+  const totalBooks = books.length;
+  const availableBooks = books.filter(
+    (b) => (b.quantity_available ?? 0) >= 2
+  ).length;
   const outOfStockBooks = books.filter(
     (b) => (b.quantity_available ?? 0) === 0
   ).length;
+  // const lowStockBooks = books.filter(
+  //   (b) => (b.quantity_available ?? 0) > 0 && (b.quantity_available ?? 0) <= 1
+  // ).length;
 
   const stats = [
     {
       icon: BookOpen,
-      value: totalElements,
+      value: totalBooks,
       label: "Tổng sách",
       bgFrom: "from-blue-500",
       bgTo: "to-blue-600",
       shadow: "hover:shadow-blue-500/10",
+    },
+    {
+      icon: CheckCircle2,
+      value: availableBooks,
+      label: "Có sẵn",
+      bgFrom: "from-emerald-500",
+      bgTo: "to-emerald-600",
+      shadow: "hover:shadow-emerald-500/10",
     },
     {
       icon: Clock,
@@ -221,6 +245,14 @@ function BooksPage() {
       bgTo: "to-orange-600",
       shadow: "hover:shadow-orange-500/10",
     },
+    // {
+    //   icon: BellIcon,
+    //   value: lowStockBooks,
+    //   label: "Số lượng ít",
+    //   bgFrom: "from-red-500",
+    //   bgTo: "to-red-600",
+    //   shadow: "hover:shadow-red-500/10",
+    // },
   ];
 
   return (
@@ -322,22 +354,22 @@ function BooksPage() {
                       title="Quản lý thư viện"
                       email="tien.ntu@thadosoft.com"
                       phone="+84 853552097"
-                      avatar="\src\assets\imgs\avatar.jpg"
+                      avatar="https://scontent.fsgn5-14.fna.fbcdn.net/v/t39.30808-1/468279569_2080239279045625_1679455235350617662_n.jpg?stp=dst-jpg_s200x200_tt6&_nc_cat=106&ccb=1-7&_nc_sid=e99d92&_nc_ohc=XsAPMqT7_TQQ7kNvwEWIXMY&_nc_oc=Adkcx8Q895jlOK9XLRHGJME9FVjUwfNFkjm3gBWmn04Yk8LCUIVpbuQezA0uZLpMuLi-ZYcnzK8qdvr0jE4WTFmD&_nc_zt=24&_nc_ht=scontent.fsgn5-14.fna&_nc_gid=_CRCrJDHNbNbEpcrGvmGXw&oh=00_AfdXa7j3mMFkW_1JdZONhlZCXOjQ7PeqWADtY1x6lC9UAg&oe=68FE0FD2"
                     />
                   </div>
                 )}
               </div>
 
               {/* Stats Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto pb-10">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto pb-10">
                 {stats.map(
                   ({ icon: Icon, value, label, bgFrom, bgTo, shadow }) => (
                     <div
                       key={label}
                       className={`group p-6 rounded-2xl bg-gradient-to-br from-white/50 to-white/30 
-                      dark:from-slate-800/50 dark:to-slate-700/30 backdrop-blur-sm 
-                      border border-white/20 dark:border-slate-700/50 
-                      hover:scale-105 transition-all duration-300 ${shadow}`}
+                  dark:from-slate-800/50 dark:to-slate-700/30 backdrop-blur-sm 
+                  border border-white/20 dark:border-slate-700/50 
+                  hover:scale-105 transition-all duration-300 ${shadow}`}
                     >
                       <div className="flex items-center gap-4">
                         <div
@@ -385,20 +417,17 @@ function BooksPage() {
                       onView={handleViewDetails}
                       onEdit={handleEditBook}
                       onDelete={handleDeleteBook}
+                      onBorrow={handleBorrowBook} // 🆕
                       currentPage={currentPage}
                       pageSize={itemsPerPage}
                     />
                   </div>
 
-                  {books.length > 0 && (
+                  {/* {books.length > 0 && (
                     <div className="border-t border-border/50 bg-muted/30 px-6 py-4">
-                      <Pagination
-                        currentPage={currentPage}
-                        totalPages={totalPages}
-                        onPageChange={setCurrentPage}
-                      />
+                      <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
                     </div>
-                  )}
+                  )} */}
                 </CardContent>
               </Card>
             </div>
