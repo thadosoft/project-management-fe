@@ -385,9 +385,9 @@ export function BookLoanTable({
             (l) => l.status === "OVERDUE"
           ).length;
           const returnRate =
-            totalLoans > 0
+            totalLoans > 0 && (returnedCount > 0 || overdueCount > 0)
               ? (returnedCount / (returnedCount + overdueCount)) * 100
-              : undefined; // null nếu chưa có dữ liệu
+              : undefined;
 
           return {
             borrowerId: user.id,
@@ -533,9 +533,7 @@ export function BookLoanTable({
       <CardTitle className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent pl-2">
         Thống kê người mượn
       </CardTitle>
-      <div>
-        
-      </div>
+      <div></div>
       <Table
         columns={columns2}
         dataSource={userStats}

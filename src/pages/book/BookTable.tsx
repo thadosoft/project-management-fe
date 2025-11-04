@@ -6,7 +6,7 @@ import { SearchOutlined } from "@ant-design/icons";
 import type { ColumnType, ColumnsType } from "antd/es/table";
 import type { InputRef } from "antd";
 import type { Book } from "@/models/Book";
-import { BookPlus, Eye } from "lucide-react";
+import { Eye } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -233,14 +233,6 @@ export function BookTable({
             </TooltipTrigger>
             <TooltipContent>Xem chi tiết</TooltipContent>
           </Tooltip>
-          {/* <Tooltip>
-            <TooltipTrigger asChild>
-              <Button type="link" onClick={() => onView(book)}>
-                <BookPlus className="w-4 h-4 text-primary dark:text-secondary" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Mượn sách</TooltipContent>
-          </Tooltip> */}
         </Space>
       ),
       width: "10%",
@@ -254,7 +246,7 @@ export function BookTable({
       dataSource={data}
       loading={loading}
       rowKey="id"
-      pagination={{ pageSize }}
+      pagination={false}
       bordered
       scroll={{ x: true }}
       className="!rounded-none [&_.ant-table-container]:!rounded-none [&_.ant-table]:!rounded-none [&_.ant-table-content]:!rounded-none"

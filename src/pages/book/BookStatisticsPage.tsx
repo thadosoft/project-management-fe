@@ -316,7 +316,7 @@ function BookStatisticsPage() {
                         title="Quản lý thư viện"
                         email="tien.ntu@thadosoft.com"
                         phone="+84 853552097"
-                        avatar="https://scontent.fsgn5-14.fna.fbcdn.net/v/t39.30808-1/468279569_2080239279045625_1679455235350617662_n.jpg?stp=dst-jpg_s200x200_tt6&_nc_cat=106&ccb=1-7&_nc_sid=e99d92&_nc_ohc=XsAPMqT7_TQQ7kNvwEWIXMY&_nc_oc=Adkcx8Q895jlOK9XLRHGJME9FVjUwfNFkjm3gBWmn04Yk8LCUIVpbuQezA0uZLpMuLi-ZYcnzK8qdvr0jE4WTFmD&_nc_zt=24&_nc_ht=scontent.fsgn5-14.fna&_nc_gid=_CRCrJDHNbNbEpcrGvmGXw&oh=00_AfdXa7j3mMFkW_1JdZONhlZCXOjQ7PeqWADtY1x6lC9UAg&oe=68FE0FD2"
+                        avatar="\src\assets\imgs\avatar.jpg"
                       />
                     </div>
                   )}

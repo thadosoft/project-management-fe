@@ -24,10 +24,18 @@ import {
   CommandGroup,
   CommandItem,
 } from "@/components/ui/command";
+import { NotificationModal } from "./NotificationModal";
 
 interface BookBorrowFormProps {
   onSubmit: (data: CreateBookLoanRequest) => Promise<void>;
   isLoading?: boolean;
+  setNotification?: React.Dispatch<
+    React.SetStateAction<{
+      open: boolean;
+      message: string;
+      type: "success" | "error" | "warning";
+    }>
+  >;
 }
 
 export function BookBorrowForm({ onSubmit, isLoading }: BookBorrowFormProps) {
@@ -35,6 +43,17 @@ export function BookBorrowForm({ onSubmit, isLoading }: BookBorrowFormProps) {
   const [books, setBooks] = useState<Book[]>([]);
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+
+  //khai báo modal thông báo
+  const [notification, setNotification] = useState<{
+    open: boolean;
+    message: string;
+    type: "success" | "error" | "warning";
+  }>({
+    open: false,
+    message: "",
+    type: "success",
+  });
 
   const [formData, setFormData] = useState<CreateBookLoanRequest>({
     bookId: 0,
@@ -102,6 +121,14 @@ export function BookBorrowForm({ onSubmit, isLoading }: BookBorrowFormProps) {
     e.preventDefault();
     if (!formData.bookId || !formData.borrowerName) return;
 
+    if (selectedBook && (selectedBook.quantity_available ?? 0) <= 0) {
+      setNotification?.({
+        open: true,
+        message: `Sách "${selectedBook.title}" hiện đã hết, không thể mượn.`,
+        type: "error",
+      });
+      return;
+    }
     try {
       await onSubmit({
         ...formData,
@@ -241,6 +268,12 @@ export function BookBorrowForm({ onSubmit, isLoading }: BookBorrowFormProps) {
           </Button>
         </form>
       </DialogContent>
+      <NotificationModal
+        isOpen={notification.open}
+        onClose={() => setNotification({ ...notification, open: false })}
+        message={notification.message}
+        type={notification.type}
+      />
     </Dialog>
   );
 }
