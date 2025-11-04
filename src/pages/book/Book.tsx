@@ -33,6 +33,7 @@ import { BookDetailsModal } from "./BookDetailsModal";
 import { BookBorrowForm } from "@/components/book-borrow-form";
 import { BookLoan, CreateBookLoanRequest } from "@/models/BookLoan";
 import { createBookLoan, searchBookLoans } from "@/services/bookLoanService";
+import { Pagination } from "@/components/pagination";
 
 function BooksPage() {
   const [books, setBooks] = useState<Book[]>([]);
@@ -51,10 +52,10 @@ function BooksPage() {
   }>({ status: "", category: "" });
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
-  const itemsPerPage = 15;
-  const [selectedBookForBorrow, setSelectedBookForBorrow] = useState<Book | null>(null);
+  const itemsPerPage = 20;
+  const [selectedBookForBorrow, setSelectedBookForBorrow] =
+    useState<Book | null>(null);
   const [borrowFormOpen, setBorrowFormOpen] = useState(false);
-  //khai báo modal thông báo
   const [notification, setNotification] = useState<{
     open: boolean;
     message: string;
@@ -93,8 +94,14 @@ function BooksPage() {
   };
 
   useEffect(() => {
+    fetchBooks(currentPage - 1);
+  }, [currentPage]);
+
+  useEffect(() => {
+    setCurrentPage(1);
     fetchBooks(0);
   }, [debouncedQuery, filters]);
+  
 
   const handleViewDetails = (book: Book) => {
     setSelectedBook(book);
@@ -121,11 +128,10 @@ function BooksPage() {
     }
   };
 
-  // 📚 Khi người dùng bấm “Mượn sách” trong bảng
   const handleBorrowBook = (book: Book) => {
-  setSelectedBookForBorrow(book);
-  setBorrowFormOpen(true);
-};
+    setSelectedBookForBorrow(book);
+    setBorrowFormOpen(true);
+  };
   const handleAddBookLoan = async (formData: CreateBookLoanRequest) => {
     setIsSubmitting(true);
     try {
@@ -137,11 +143,9 @@ function BooksPage() {
       });
 
       if (newBookLoan) {
-        // cập nhật danh sách phiếu mượn
         const loanResponse = await searchBookLoans({}, 0, 100);
         if (loanResponse?.content) setBookLoans(loanResponse.content);
 
-        // ✅ cập nhật lại danh sách sách
         await searchBookLoans({}, 0, 100);
       }
     } catch (error) {
@@ -157,17 +161,18 @@ function BooksPage() {
   };
 
   const borrowForm = useMemo(
-  () => (
-    <BookBorrowForm
-      onSubmit={handleAddBookLoan}
-      isLoading={isSubmitting}
-      open={borrowFormOpen}
-      onOpenChange={setBorrowFormOpen}
-      selectedBook={selectedBookForBorrow}
-    />
-  ),
-  [isSubmitting, borrowFormOpen, selectedBookForBorrow]
-);
+    () => (
+      <BookBorrowForm
+        onSubmit={handleAddBookLoan}
+        isLoading={isSubmitting}
+        open={borrowFormOpen}
+        onOpenChange={setBorrowFormOpen}
+        selectedBook={selectedBookForBorrow}
+        setNotification={setNotification}
+      />
+    ),
+    [isSubmitting, borrowFormOpen, selectedBookForBorrow]
+  );
 
   const bookForm = useMemo(
     () => (
@@ -209,33 +214,18 @@ function BooksPage() {
   }
 
   // Thống kê dữ liệu thực
-  const totalBooks = books.length;
-  const availableBooks = books.filter(
-    (b) => (b.quantity_available ?? 0) >= 2
-  ).length;
   const outOfStockBooks = books.filter(
     (b) => (b.quantity_available ?? 0) === 0
   ).length;
-  // const lowStockBooks = books.filter(
-  //   (b) => (b.quantity_available ?? 0) > 0 && (b.quantity_available ?? 0) <= 1
-  // ).length;
 
   const stats = [
     {
       icon: BookOpen,
-      value: totalBooks,
+      value: totalElements,
       label: "Tổng sách",
       bgFrom: "from-blue-500",
       bgTo: "to-blue-600",
       shadow: "hover:shadow-blue-500/10",
-    },
-    {
-      icon: CheckCircle2,
-      value: availableBooks,
-      label: "Có sẵn",
-      bgFrom: "from-emerald-500",
-      bgTo: "to-emerald-600",
-      shadow: "hover:shadow-emerald-500/10",
     },
     {
       icon: Clock,
@@ -245,14 +235,6 @@ function BooksPage() {
       bgTo: "to-orange-600",
       shadow: "hover:shadow-orange-500/10",
     },
-    // {
-    //   icon: BellIcon,
-    //   value: lowStockBooks,
-    //   label: "Số lượng ít",
-    //   bgFrom: "from-red-500",
-    //   bgTo: "to-red-600",
-    //   shadow: "hover:shadow-red-500/10",
-    // },
   ];
 
   return (
@@ -361,7 +343,7 @@ function BooksPage() {
               </div>
 
               {/* Stats Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto pb-10">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto pb-10">
                 {stats.map(
                   ({ icon: Icon, value, label, bgFrom, bgTo, shadow }) => (
                     <div
@@ -417,17 +399,21 @@ function BooksPage() {
                       onView={handleViewDetails}
                       onEdit={handleEditBook}
                       onDelete={handleDeleteBook}
-                      onBorrow={handleBorrowBook} // 🆕
+                      onBorrow={handleBorrowBook}
                       currentPage={currentPage}
                       pageSize={itemsPerPage}
                     />
                   </div>
 
-                  {/* {books.length > 0 && (
+                  {books.length > 0 && (
                     <div className="border-t border-border/50 bg-muted/30 px-6 py-4">
-                      <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+                      <Pagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={setCurrentPage}
+                      />
                     </div>
-                  )} */}
+                  )}
                 </CardContent>
               </Card>
             </div>

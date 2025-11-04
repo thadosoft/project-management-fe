@@ -79,7 +79,6 @@ function BookStatisticsPage() {
     }
   };
 
-  //khai báo modal thông báo
   const [notification, setNotification] = useState<{
     open: boolean
     message: string
@@ -113,10 +112,8 @@ function BookStatisticsPage() {
     fetchBooks()
   }, [])
 
-  const totalPages = Math.ceil(books.length / itemsPerPage)
   const startIndex = (currentPage - 1) * itemsPerPage
   const endIndex = startIndex + itemsPerPage
-  const currentBooks = books.slice(startIndex, endIndex)
 
   const handleAddBook = async (formData: CreateBookLoanRequest) => {
     setIsSubmitting(true)
@@ -129,11 +126,9 @@ function BookStatisticsPage() {
       })
 
       if (newBookLoan) {
-        // cập nhật danh sách phiếu mượn
         const loanResponse = await searchBookLoans({}, 0, 100)
         if (loanResponse?.content) setBooks(loanResponse.content)
 
-        // ✅ cập nhật lại danh sách sách
         await searchBookLoans({}, 0, 100)
       }
     } catch (error) {
@@ -160,7 +155,6 @@ function BookStatisticsPage() {
         type: "success",
       });
 
-      // sau khi cập nhật xong, fetch lại danh sách và thống kê
       const request: BookLoanRequest = {}
       const response = await searchBookLoans(request, 0, 10)
       if (response?.content) setBooks(response.content)
@@ -174,12 +168,6 @@ function BookStatisticsPage() {
       setIsSubmitting(false)
     }
   }
-
-
-  const borrowForm = useMemo(() => (
-    <BookBorrowForm onSubmit={handleAddBook} isLoading={isSubmitting} />
-  ), [isSubmitting]);
-
 
   useEffect(() => {
     const fetchStats = async () => {

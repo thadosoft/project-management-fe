@@ -29,6 +29,9 @@ import { NotificationModal } from "./NotificationModal";
 interface BookBorrowFormProps {
   onSubmit: (data: CreateBookLoanRequest) => Promise<void>;
   isLoading?: boolean;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  selectedBook?: Book | null;
   setNotification?: React.Dispatch<
     React.SetStateAction<{
       open: boolean;
@@ -38,13 +41,16 @@ interface BookBorrowFormProps {
   >;
 }
 
-export function BookBorrowForm({ onSubmit, isLoading }: BookBorrowFormProps) {
+export function BookBorrowForm({
+  onSubmit,
+  isLoading,
+  open: externalOpen,
+  onOpenChange,
+  selectedBook,
+}: BookBorrowFormProps) {
   const [open, setOpen] = useState(false);
   const [books, setBooks] = useState<Book[]>([]);
-  const [selectedBook, setSelectedBook] = useState<Book | null>(null);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-
-  //khai báo modal thông báo
   const [notification, setNotification] = useState<{
     open: boolean;
     message: string;
@@ -67,7 +73,15 @@ export function BookBorrowForm({ onSubmit, isLoading }: BookBorrowFormProps) {
     remarks: "",
   });
 
-  // ✅ Lấy thông tin user hiện tại từ localStorage
+  useEffect(() => {
+    if (typeof externalOpen === "boolean") setOpen(externalOpen);
+  }, [externalOpen]);
+
+  const handleOpenChange = (val: boolean) => {
+    setOpen(val);
+    onOpenChange?.(val);
+  };
+
   useEffect(() => {
     const fetchUser = async () => {
       const accessToken = localStorage.getItem("accessToken");
@@ -93,9 +107,8 @@ export function BookBorrowForm({ onSubmit, isLoading }: BookBorrowFormProps) {
     fetchUser();
   }, []);
 
-  // ✅ Lấy danh sách sách mỗi lần mở form
   useEffect(() => {
-    if (!open) return; // chỉ fetch khi mở
+    if (!open) return;
     const fetchBooks = async () => {
       const result = await searchBooks({}, 0, 100);
       if (result?.content) setBooks(result.content);
@@ -103,11 +116,19 @@ export function BookBorrowForm({ onSubmit, isLoading }: BookBorrowFormProps) {
     fetchBooks();
   }, [open]);
 
-  // ✅ Chọn sách
+  useEffect(() => {
+    if (selectedBook) {
+      setFormData((prev) => ({
+        ...prev,
+        bookId: selectedBook.id,
+        bookTitle: selectedBook.title,
+      }));
+    }
+  }, [selectedBook]);
+
   const handleSelectBook = (bookId: number) => {
     const book = books.find((b) => b.id === bookId);
     if (book) {
-      setSelectedBook(book);
       setFormData((prev) => ({
         ...prev,
         bookId: book.id,
@@ -116,7 +137,6 @@ export function BookBorrowForm({ onSubmit, isLoading }: BookBorrowFormProps) {
     }
   };
 
-  // ✅ Submit form
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.bookId || !formData.borrowerName) return;
@@ -127,27 +147,27 @@ export function BookBorrowForm({ onSubmit, isLoading }: BookBorrowFormProps) {
         message: `Sách "${selectedBook.title}" hiện đã hết, không thể mượn.`,
         type: "error",
       });
-      return;
+      return; // chặn không gửi form
     }
+
     try {
       await onSubmit({
         ...formData,
         borrowDate: new Date().toISOString().split("T")[0] + "T00:00:00",
       });
-      setOpen(false);
+      handleOpenChange(false);
     } catch (error) {
       console.error("Error submitting form:", error);
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button
           type="button"
-          className=" gap-2 bg-gradient-to-l from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-medium shadow-md hover:shadow-lg transition-all duration-300"
+          className="gap-2 bg-gradient-to-l from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-medium shadow-md hover:shadow-lg transition-all duration-300"
         >
-          {" "}
           <Plus className="w-4 h-4" /> Mượn sách
         </Button>
       </DialogTrigger>
@@ -160,7 +180,6 @@ export function BookBorrowForm({ onSubmit, isLoading }: BookBorrowFormProps) {
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* ✅ Hiển thị thông tin người mượn hiện tại */}
           {currentUser && (
             <div className="bg-muted/30 rounded-lg p-3 border border-border/40">
               <p className="text-sm font-semibold mb-1">Người mượn hiện tại</p>
@@ -201,9 +220,9 @@ export function BookBorrowForm({ onSubmit, isLoading }: BookBorrowFormProps) {
                 </CommandGroup>
               </CommandList>
             </Command>
-            {selectedBook && (
+            {formData.bookTitle && (
               <p className="text-sm mt-2 text-muted-foreground">
-                ✅ Đã chọn: <strong>{selectedBook.title}</strong>
+                ✅ Đã chọn: <strong>{formData.bookTitle}</strong>
               </p>
             )}
           </div>
