@@ -19,6 +19,7 @@ interface BookTableProps {
   onView: (book: Book) => void;
   onEdit: (book: Book) => void;
   onDelete: (id: number) => void;
+  onBorrow: (book: Book) => void;
   currentPage: number;
   pageSize: number;
 }
@@ -27,6 +28,7 @@ export function BookTable({
   data,
   loading,
   onView,
+  onBorrow,
   currentPage,
   pageSize,
 }: BookTableProps) {
@@ -233,14 +235,14 @@ export function BookTable({
             </TooltipTrigger>
             <TooltipContent>Xem chi tiết</TooltipContent>
           </Tooltip>
-          {/* <Tooltip>
+          <Tooltip>
             <TooltipTrigger asChild>
-              <Button type="link" onClick={() => onView(book)}>
+              <Button type="link" onClick={() => onBorrow(book)}>
                 <BookPlus className="w-4 h-4 text-primary dark:text-secondary" />
               </Button>
             </TooltipTrigger>
             <TooltipContent>Mượn sách</TooltipContent>
-          </Tooltip> */}
+          </Tooltip>
         </Space>
       ),
       width: "10%",

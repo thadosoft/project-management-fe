@@ -36,7 +36,7 @@ import { createBookLoan, searchBookLoans } from "@/services/bookLoanService";
 
 function BooksPage() {
   const [books, setBooks] = useState<Book[]>([]);
-  const [bookLoans, setBookLoans] = useState<BookLoan[]>([])
+  const [bookLoans, setBookLoans] = useState<BookLoan[]>([]);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showContactInfo, setShowContactInfo] = useState(false);
@@ -52,18 +52,18 @@ function BooksPage() {
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const itemsPerPage = 15;
+  const [selectedBookForBorrow, setSelectedBookForBorrow] = useState<Book | null>(null);
+  const [borrowFormOpen, setBorrowFormOpen] = useState(false);
   //khai báo modal thông báo
   const [notification, setNotification] = useState<{
-    open: boolean
-    message: string
-    type: "success" | "error" | "warning"
+    open: boolean;
+    message: string;
+    type: "success" | "error" | "warning";
   }>({
     open: false,
     message: "",
     type: "success",
-  })
-
-
+  });
 
   const fetchBooks = async (page = 0) => {
     try {
@@ -101,7 +101,7 @@ function BooksPage() {
     setIsDetailsOpen(true);
   };
 
-  const handleEditBook = (book: Book) => { };
+  const handleEditBook = (book: Book) => {};
 
   const handleDeleteBook = async (id: number) => {
     try {
@@ -121,40 +121,53 @@ function BooksPage() {
     }
   };
 
+  // 📚 Khi người dùng bấm “Mượn sách” trong bảng
+  const handleBorrowBook = (book: Book) => {
+  setSelectedBookForBorrow(book);
+  setBorrowFormOpen(true);
+};
   const handleAddBookLoan = async (formData: CreateBookLoanRequest) => {
-    setIsSubmitting(true)
+    setIsSubmitting(true);
     try {
-      const newBookLoan = await createBookLoan(formData)
+      const newBookLoan = await createBookLoan(formData);
       setNotification({
         open: true,
         message: "Đã mượn sách thành công!",
         type: "success",
-      })
+      });
 
       if (newBookLoan) {
         // cập nhật danh sách phiếu mượn
-        const loanResponse = await searchBookLoans({}, 0, 100)
-        if (loanResponse?.content) setBookLoans(loanResponse.content)
+        const loanResponse = await searchBookLoans({}, 0, 100);
+        if (loanResponse?.content) setBookLoans(loanResponse.content);
 
         // ✅ cập nhật lại danh sách sách
-        await searchBookLoans({}, 0, 100)
+        await searchBookLoans({}, 0, 100);
       }
     } catch (error) {
-      console.error("Error adding book:", error)
+      console.error("Error adding book:", error);
       setNotification({
         open: true,
         message: "Không thể mượn sách!",
         type: "error",
-      })
+      });
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   const borrowForm = useMemo(
-    () => <BookBorrowForm onSubmit={handleAddBookLoan} isLoading={isSubmitting} />,
-    [isSubmitting]
-  );
+  () => (
+    <BookBorrowForm
+      onSubmit={handleAddBookLoan}
+      isLoading={isSubmitting}
+      open={borrowFormOpen}
+      onOpenChange={setBorrowFormOpen}
+      selectedBook={selectedBookForBorrow}
+    />
+  ),
+  [isSubmitting, borrowFormOpen, selectedBookForBorrow]
+);
 
   const bookForm = useMemo(
     () => (
@@ -404,6 +417,7 @@ function BooksPage() {
                       onView={handleViewDetails}
                       onEdit={handleEditBook}
                       onDelete={handleDeleteBook}
+                      onBorrow={handleBorrowBook} // 🆕
                       currentPage={currentPage}
                       pageSize={itemsPerPage}
                     />
