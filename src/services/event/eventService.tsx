@@ -1,0 +1,87 @@
+import { fetchData } from "@/utils/api";
+import tokenService from "@/services/tokenService.ts";
+import type { Event, EventRequest } from "@/models/Event";
+
+const API_URL = "events";
+
+interface EventSearchFilter {
+  title?: string;
+  startDate?: string;
+  endDate?: string;
+  type?: string;
+}
+
+export const searchEvents = async (
+  filters: EventSearchFilter = {},
+  page: number = 0,
+  size: number = 10,
+  sort: string = "title,asc"
+): Promise<{
+  content: Event[];
+  totalPages: number;
+  number: number;
+  numberOfElements: number;
+}> => {
+  try {
+    const { title = "", startDate = "", endDate = "", type = "" } = filters;
+
+    const requestBody = { title, startDate, endDate, type };
+
+    const response = await fetchData<{
+      content: Event[];
+      totalPages: number;
+      number: number;
+      numberOfElements: number;
+    }>(
+      `${API_URL}/search?page=${page}&size=${size}&sort=${sort}`,
+      "POST",
+      tokenService.accessToken,
+      requestBody
+    );
+
+    return {
+      content: response?.content || [],
+      totalPages: response?.totalPages || 1,
+      number: response?.number || 0,
+      numberOfElements: response?.numberOfElements || 0,
+    };
+  } catch (error) {
+    console.error("Error fetching events:", error);
+    return {
+      content: [],
+      totalPages: 1,
+      number: 0,
+      numberOfElements: 0,
+    };
+  }
+};
+
+// Thêm event mới
+export const createEvent = async (eventData: EventRequest): Promise<Event | null> => {
+  try {
+    const response = await fetchData<Event>(API_URL, "POST", tokenService.accessToken, eventData);
+    return response;
+  } catch (error) {
+    console.error("Error creating event:", error);
+    return null;
+  }
+};
+
+// Cập nhật event theo ID
+export const updateEvent = async (
+  id: string,
+  bookData: Partial<EventRequest>
+): Promise<Event | null> => {
+  try {
+    const response = await fetchData<Event>(
+      `${API_URL}/${id}`,
+      "PUT",
+      tokenService.accessToken,
+      bookData
+    );
+    return response;
+  } catch (error) {
+    console.error("Error updating event:", error);
+    return null;
+  }
+};

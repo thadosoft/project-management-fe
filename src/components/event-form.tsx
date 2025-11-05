@@ -16,9 +16,10 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 
-import type { Event } from "@/models/Event";
+import type { Event, EventRequest } from "@/models/Event";
 import { Project } from "@/models/Project";
 import { CalendarIcon, Plus, Save, X } from "lucide-react";
+import { EVENT_TYPE_OPTIONS } from "@/utils/event-utils";
 
 interface EventFormProps {
   open: boolean;
@@ -26,7 +27,7 @@ interface EventFormProps {
   event?: Event | null;
   projects?: Project[];
   onClose: () => void;
-  onSave: (data: Event) => void;
+  onSave: (data: EventRequest) => void;
 }
 
 export function EventForm({
@@ -66,13 +67,23 @@ export function EventForm({
 
   const handleSubmit = () => {
     if (!formData.title || !formData.startDate || !formData.project) return;
-    const tempId =
-      formData.id ?? `temp-${Math.random().toString(36).slice(2, 9)}`;
-    const payload: Event = {
-      ...(formData as Event),
-      id: tempId,
+
+    const startDate = formData.startDate.length === 16 ? formData.startDate + ":00" : formData.startDate;
+    const endDate = formData.endDate?.length === 16 ? formData.endDate + ":00" : formData.endDate;
+
+    const payload: EventRequest = {
+      title: formData.title,
+      description: formData.description,
+      location: formData.location,
+      startDate: startDate,
+      endDate: endDate,
+      type: formData.type!,
+      projectId: formData.project.id, 
     };
-    onSave(payload);
+
+    console.log("Payload",payload)
+
+    onSave(payload); 
     onClose();
   };
 
@@ -167,9 +178,9 @@ export function EventForm({
                 <SelectValue placeholder="Chọn loại sự kiện" />
               </SelectTrigger>
               <SelectContent>
-                {["Họp", "Khảo sát", "Demo"].map((type) => (
-                  <SelectItem key={type} value={type}>
-                    {type}
+                {EVENT_TYPE_OPTIONS.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -187,11 +198,11 @@ export function EventForm({
                 placeholder="Nhập mô tả"
               />
               {formData.description && (
-                  <X
-                    onClick={() => handleChange("description", "")}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 cursor-pointer"
-                  />
-                )}
+                <X
+                  onClick={() => handleChange("description", "")}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 cursor-pointer"
+                />
+              )}
             </div>
           </div>
 
