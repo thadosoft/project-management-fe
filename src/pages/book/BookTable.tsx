@@ -139,7 +139,7 @@ export function BookTable({
     {
       title: "STT",
       key: "index",
-      width: 70,
+      width: "2%",
       align: "center",
       render: (_: any, __: Book, index: number) =>
         (currentPage - 1) * pageSize + index + 1,
@@ -149,20 +149,20 @@ export function BookTable({
       dataIndex: "title",
       key: "title",
       ...getColumnSearchProps("title"),
-      width: "30%",
+      width: "20%",
     },
     {
       title: "Tác giả",
       dataIndex: "author",
       key: "author",
       ...getColumnSearchProps("author"),
-      width: "15%",
+      width: "10%",
     },
     {
-      title: "Thể loại",
-      dataIndex: "category",
-      key: "category",
-      ...getColumnSearchProps("category"),
+      title: "Chủ sở hữu",
+      dataIndex: "publisher",
+      key: "publisher",
+      ...getColumnSearchProps("publisher"),
       width: "10%",
     },
     {
@@ -196,13 +196,10 @@ export function BookTable({
         let color = "text-gray-500";
 
         if (available === false || quantity_available === 0) {
-          label = "Đã mượn hết";
+          label = "Đã hết";
           color = "text-red-600";
-        } else if (quantity_available && (quantity_available  === 1 || quantity_available  === 2)) { 
-          label = "Còn ít";
-          color = "text-orange-500";
-        } else if (quantity_available && quantity_available > 2) {
-          label = "Sẵn sàng mượn";
+        } else  {
+          label = "Còn sách";
           color = "text-green-600";
         }
 
@@ -258,7 +255,7 @@ export function BookTable({
       rowKey="id"
       pagination={false}
       bordered
-      scroll={{ x: "max-content" }}
+      scroll={{ x: true }}
       className="!rounded-none [&_.ant-table-container]:!rounded-none [&_.ant-table]:!rounded-none [&_.ant-table-content]:!rounded-none"
     />
   );
