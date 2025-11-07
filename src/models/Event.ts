@@ -25,3 +25,12 @@ export interface EventRequest {
   type: EventType;
   projectId?: string;
 }
+
+export interface EventFilterValues {
+  title?: string;
+  type?: EventType | "Tất cả";
+  mode: "ngày" | "tháng" | "quý" | "năm";
+  date?: Date;
+  quarter?: 1 | 2 | 3 | 4;
+  year?: number;
+}

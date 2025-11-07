@@ -6,7 +6,7 @@ import {
   Calendar as CalendarIcon,
   X,
 } from "lucide-react";
-import { EventType } from "@/models/Event";
+import { EventFilterValues, EventType } from "@/models/Event";
 import {
   Select,
   SelectTrigger,
@@ -17,15 +17,6 @@ import {
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-
-export interface EventFilterValues {
-  title?: string;
-  type?: EventType | "Tất cả";
-  mode: "ngày" | "tháng" | "quý" | "năm";
-  date?: Date;
-  quarter?: 1 | 2 | 3 | 4;
-  year?: number;
-}
 
 interface EventFilterProps {
   onFilter: (filters: EventFilterValues) => void;

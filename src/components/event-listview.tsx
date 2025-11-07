@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import type { Event } from "@/models/Event";
-import { getBadgeClass } from "@/utils/event-utils";
+import { getBadgeClass, getEventTypeLabel } from "@/utils/event-utils";
 import { Calendar1, Plus, ChevronLeft, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "./ui/button";
@@ -15,6 +15,7 @@ export function EventListView({ events, onAddEvent }: EventListViewProps) {
   const [page, setPage] = useState(0);
   const pageSize = 3; // hiển thị 4 record / page
   const totalPages = Math.ceil(events.length / pageSize);
+
 
   // reset page khi events thay đổi (ví dụ filter)
   useEffect(() => {
@@ -78,7 +79,7 @@ export function EventListView({ events, onAddEvent }: EventListViewProps) {
                       variant="outline"
                       className={`capitalize text-center px-2 py-0.5 text-xs font-medium ${getBadgeClass(event.type)}`}
                     >
-                      {event.type}
+                      {getEventTypeLabel(event.type)}
                     </Badge>
                   </td>
                   <td className="px-4 py-3 text-xs text-muted-foreground text-center">

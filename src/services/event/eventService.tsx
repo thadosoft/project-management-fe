@@ -4,11 +4,14 @@ import type { Event, EventRequest } from "@/models/Event";
 
 const API_URL = "events";
 
-interface EventSearchFilter {
+export interface EventSearchFilter {
   title?: string;
-  startDate?: string;
-  endDate?: string;
   type?: string;
+  startDate?: string;
+  endDate?: string; // YYYY-MM-DD
+  month?: number; // 1 - 12
+  quarter?: number; // 1 - 4
+  year?: number;
 }
 
 export const searchEvents = async (
@@ -23,9 +26,24 @@ export const searchEvents = async (
   numberOfElements: number;
 }> => {
   try {
-    const { title = "", startDate = "", endDate = "", type = "" } = filters;
-
-    const requestBody = { title, startDate, endDate, type };
+    const {
+      title = "",
+      type = "",
+      startDate,
+      endDate,
+      month,
+      quarter,
+      year,
+    } = filters;
+    const requestBody = {
+      title,
+      startDate,
+      endDate,
+      type,
+      month,
+      year,
+      quarter,
+    };
 
     const response = await fetchData<{
       content: Event[];
@@ -57,9 +75,16 @@ export const searchEvents = async (
 };
 
 // Thêm event mới
-export const createEvent = async (eventData: EventRequest): Promise<Event | null> => {
+export const createEvent = async (
+  eventData: EventRequest
+): Promise<Event | null> => {
   try {
-    const response = await fetchData<Event>(API_URL, "POST", tokenService.accessToken, eventData);
+    const response = await fetchData<Event>(
+      API_URL,
+      "POST",
+      tokenService.accessToken,
+      eventData
+    );
     return response;
   } catch (error) {
     console.error("Error creating event:", error);
@@ -83,5 +108,26 @@ export const updateEvent = async (
   } catch (error) {
     console.error("Error updating event:", error);
     return null;
+  }
+};
+
+// Xóa event
+export const deleteEvent = async (id: string): Promise<boolean> => {
+  try {
+    const numericId = Number(id); // convert string sang number (Long)
+    if (isNaN(numericId)) {
+      console.error("ID không hợp lệ:", id);
+      return false;
+    }
+
+    await fetchData(
+      `${API_URL}/${numericId}`,
+      "DELETE",
+      tokenService.accessToken
+    );
+    return true;
+  } catch (error) {
+    console.error("Error deleting event:", error);
+    return false;
   }
 };
