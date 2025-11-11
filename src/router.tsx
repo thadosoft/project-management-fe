@@ -28,6 +28,7 @@ import WarehouseOutryPage from "./pages/warehouse/WarehouseOutryPage"
 import { ProtectedRoute } from "@/components/ProtectedRoute"
 import BookStatisticsPage from "./pages/book/BookStatisticsPage"
 import Book from "./pages/book/Book"
+import EventPage from "./pages/event/EventPage"
 
 export const router = createBrowserRouter(
   [
@@ -242,7 +243,7 @@ export const router = createBrowserRouter(
         </ProtectedRoute>
       ),
     },
-
+    // library
     {
       path: "/book-statistics",
       element: (
@@ -260,6 +261,18 @@ export const router = createBrowserRouter(
         </ProtectedRoute>
       ),
     },
+
+    // Event
+    {
+      path: "/event",
+      element: (
+        <ProtectedRoute>
+          <EventPage/>
+        </ProtectedRoute>
+      ),
+    }
+
+   
   ],
   { basename: "/" },
 )

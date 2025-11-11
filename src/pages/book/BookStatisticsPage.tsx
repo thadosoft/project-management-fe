@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useState, useEffect, useMemo } from "react"
 import { ThemeProvider } from "@/components/theme-provider"
@@ -92,7 +92,7 @@ function BookStatisticsPage() {
 
   useEffect(() => {
     const fetchBooks = async () => {
-      setLoading(true)
+      setLoading(true);
       try {
         const request: BookLoanRequest = {}
         const response = await searchBookLoans(request, 0, 100)
@@ -105,12 +105,12 @@ function BookStatisticsPage() {
         console.error("Error fetching books:", error)
         setBooks([])
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchBooks()
-  }, [])
+    fetchBooks();
+  }, []);
 
   const startIndex = (currentPage - 1) * itemsPerPage
   const endIndex = startIndex + itemsPerPage
@@ -139,9 +139,9 @@ function BookStatisticsPage() {
         type: "error",
       })
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
 
   const handleCheckOverdue = async () => {
@@ -197,7 +197,7 @@ function BookStatisticsPage() {
           <Skeleton className="h-80 rounded-lg" />
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -208,18 +208,24 @@ function BookStatisticsPage() {
           <header className="sticky top-0 z-50 flex h-16 shrink-0 items-center gap-2 transition-all duration-300 bg-background/80 backdrop-blur-xl border-b border-border/50 shadow-sm">
             <div className="flex items-center gap-2 px-6">
               <SidebarTrigger className="-ml-1 hover:bg-accent/50 transition-colors" />
-              <Separator orientation="vertical" className="mr-2 h-4 opacity-50" />
+              <Separator
+                orientation="vertical"
+                className="mr-2 h-4 opacity-50"
+              />
               <Breadcrumb>
                 <BreadcrumbList>
                   <BreadcrumbItem className="hidden md:block">
-                    <BreadcrumbLink href="/home" className="hover:text-primary transition-colors font-medium">
+                    <BreadcrumbLink
+                      href="/home"
+                      className="hover:text-primary transition-colors font-medium"
+                    >
                       Trang chủ
                     </BreadcrumbLink>
                   </BreadcrumbItem>
                   <BreadcrumbSeparator className="hidden md:block opacity-50" />
                   <BreadcrumbItem>
                     <BreadcrumbPage className="font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                      Thống kê sách
+                      Thống kê mượn trả sách
                     </BreadcrumbPage>
                   </BreadcrumbItem>
                 </BreadcrumbList>
@@ -440,7 +446,7 @@ function BookStatisticsPage() {
       />
 
     </ThemeProvider>
-  )
+  );
 }
 
-export default BookStatisticsPage
+export default BookStatisticsPage;

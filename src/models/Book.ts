@@ -1,3 +1,6 @@
+import { ReferenceFile } from "./Material"
+
+
 export interface Book {
   id: number
   title: string
@@ -32,7 +35,6 @@ export interface UpdateBookRequest {
   title?: string
   author?: string
   category?: string
-  publisher?: string
   publicationYear?: number
   quantity_total?: number
   quantity_available?: number

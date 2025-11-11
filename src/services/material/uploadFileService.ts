@@ -55,3 +55,41 @@ export const getImage = async (filename: string): Promise<Blob> => {
     }
     return response;
 };
+
+export const uploadBookImage = async (
+    file: File,
+    bookId: number
+): Promise<ReferenceFile | null> => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("bookId", bookId.toString());
+
+    const result = await fetchData<ReferenceFile, FormData>(
+        "file-uploads/images/upload",
+        "POST",
+        tokenService.accessToken,
+        formData
+    );
+    return result;
+};
+
+export const uploadMultipleBookImages = async (
+    files: File[],
+    bookId: number
+): Promise<ReferenceFile[] | null> => {
+    const formData = new FormData();
+    
+    // Append each file to the form data
+    files.forEach(file => {
+        formData.append("files", file);
+    });
+    
+    formData.append("bookId", bookId.toString());
+    const result = await fetchData<ReferenceFile[], FormData>(
+        "file-uploads/images/upload",
+        "POST",
+        tokenService.accessToken,
+        formData
+    );
+    return result;
+};

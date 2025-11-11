@@ -6,7 +6,7 @@ import type {
     UpdateBookRequest
 } from "@/models/Book";
 
-const API_URL = "books"
+const API_URL = "books";
 
 // 🔍 Tìm kiếm sách (POST /books/search)
 export const searchBooks = async (
