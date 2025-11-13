@@ -33,6 +33,7 @@ export function EventFilter({ onFilter }: EventFilterProps) {
     "Demo",
     "Họp",
     "Khảo sát",
+    "Onsite nhà máy"
   ];
   const modeOptions: ("ngày" | "tháng" | "quý" | "năm")[] = [
     "ngày",

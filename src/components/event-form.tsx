@@ -20,14 +20,18 @@ import type { Event, EventRequest } from "@/models/Event";
 import { Project } from "@/models/Project";
 import { CalendarIcon, Plus, Save, X } from "lucide-react";
 import { EVENT_TYPE_OPTIONS } from "@/utils/event-utils";
+import { Employee } from "@/models/EmployeeRequest";
+import MultiSelect from "./ui/mutli-select";
+import { getParticipants } from "@/services/event/eventParticipantService";
 
 interface EventFormProps {
   open: boolean;
   mode: "add" | "edit";
   event?: Event | null;
   projects?: Project[];
+  employees?: Employee[];
   onClose: () => void;
-  onSave: (data: EventRequest) => void;
+  onSave: (data: EventRequest, participantIds?: number[]) => void;
 }
 
 export function EventForm({
@@ -35,6 +39,7 @@ export function EventForm({
   mode,
   event,
   projects,
+  employees,
   onClose,
   onSave,
 }: EventFormProps) {
@@ -42,18 +47,46 @@ export function EventForm({
 
   // Fill form on edit
   useEffect(() => {
+  if (open) {
     if (mode === "edit" && event) {
-      setFormData(event);
-    } else {
+      // điền dữ liệu ban đầu từ event
+      setFormData({
+        title: event.title || "",
+        type: event.type,
+        startDate: event.startDate || "",
+        endDate: event.endDate || "",
+        description: event.description || "",
+        location: event.location || "",
+        participantIds: [],
+      });
+
+      // gọi API lấy danh sách participant
+      getParticipants(event.id.toString()).then((ids) => {
+        if (ids) {
+          setFormData((prev) => ({
+            ...prev,
+            participantIds: ids,
+          }));
+        }
+      });
+    } else if (mode === "add") {
+      // nếu là thêm mới thì reset form trắng
       setFormData({
         title: "",
         type: undefined,
         startDate: "",
+        endDate: "",
         description: "",
-        project: undefined,
+        location: "",
+        participantIds: [],
       });
     }
-  }, [mode, event]);
+  } else {
+    // Khi form đóng → reset lại form để lần sau mở lại có dữ liệu gốc
+    setFormData({});
+  }
+}, [open, mode, event]);
+
 
   const handleChange = (key: keyof Event, value: any) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
@@ -66,10 +99,16 @@ export function EventForm({
   };
 
   const handleSubmit = () => {
-    if (!formData.title || !formData.startDate || !formData.project) return;
+    if (!formData.title || !formData.startDate) return;
 
-    const startDate = formData.startDate.length === 16 ? formData.startDate + ":00" : formData.startDate;
-    const endDate = formData.endDate?.length === 16 ? formData.endDate + ":00" : formData.endDate;
+    const startDate =
+      formData.startDate.length === 16
+        ? formData.startDate + ":00"
+        : formData.startDate;
+    const endDate =
+      formData.endDate?.length === 16
+        ? formData.endDate + ":00"
+        : formData.endDate;
 
     const payload: EventRequest = {
       title: formData.title,
@@ -78,12 +117,10 @@ export function EventForm({
       startDate: startDate,
       endDate: endDate,
       type: formData.type!,
-      projectId: formData.project.id, 
+      // projectId: formData.project.id,
     };
 
-    console.log("Payload",payload)
-
-    onSave(payload); 
+    onSave(payload, formData.participantIds);
     onClose();
   };
 
@@ -148,7 +185,7 @@ export function EventForm({
           </div>
 
           {/* Project Select */}
-          <div className="space-y-2">
+          {/* <div className="space-y-2">
             <Label>Chọn dự án / Chủ dự án</Label>
             <Select
               value={formData.project?.id || ""}
@@ -165,7 +202,7 @@ export function EventForm({
                 ))}
               </SelectContent>
             </Select>
-          </div>
+          </div> */}
 
           {/* Type */}
           <div className="space-y-2">
@@ -186,6 +223,14 @@ export function EventForm({
               </SelectContent>
             </Select>
           </div>
+
+          <MultiSelect
+            employees={employees || []}
+            selectedIds={formData.participantIds || []}
+            setSelectedIds={(ids) =>
+              setFormData((prev) => ({ ...prev, participantIds: ids }))
+            }
+          />
 
           {/* Description */}
           <div className="space-y-2">

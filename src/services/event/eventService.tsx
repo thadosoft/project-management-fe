@@ -77,9 +77,9 @@ export const searchEvents = async (
 // Thêm event mới
 export const createEvent = async (
   eventData: EventRequest
-): Promise<Event | null> => {
+): Promise<number | null> => {
   try {
-    const response = await fetchData<Event>(
+    const response = await fetchData<number>(
       API_URL,
       "POST",
       tokenService.accessToken,

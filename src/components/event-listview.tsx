@@ -4,18 +4,30 @@ import { getBadgeClass, getEventTypeLabel } from "@/utils/event-utils";
 import { Calendar1, Plus, ChevronLeft, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "./ui/button";
+import { Employee } from "@/models/EmployeeRequest";
+import { getParticipants } from "@/services/event/eventParticipantService";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "./ui/tooltip";
 
 interface EventListViewProps {
   events: Event[];
   onAddEvent: () => void;
+  employees: Employee[];
 }
 
-export function EventListView({ events, onAddEvent }: EventListViewProps) {
+export function EventListView({
+  events,
+  onAddEvent,
+  employees,
+}: EventListViewProps) {
   // --- Pagination state ---
   const [page, setPage] = useState(0);
   const pageSize = 3; // hiển thị 4 record / page
   const totalPages = Math.ceil(events.length / pageSize);
-
 
   // reset page khi events thay đổi (ví dụ filter)
   useEffect(() => {
@@ -27,8 +39,30 @@ export function EventListView({ events, onAddEvent }: EventListViewProps) {
     (a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime()
   );
 
+  // --- State lưu danh sách participant names cho từng event ---
+  const [eventsWithParticipants, setEventsWithParticipants] = useState<
+    (Event & { participantNames?: string[] })[]
+  >([]);
+
+  useEffect(() => {
+    const fetchParticipants = async () => {
+      const updatedEvents = await Promise.all(
+        sortedEvents.map(async (event) => {
+          const participantIds = await getParticipants(event.id.toString());
+          const participantNames = participantIds
+            ?.map((id) => employees.find((emp) => emp.id === id)?.fullName)
+            .filter(Boolean) as string[];
+          return { ...event, participantNames };
+        })
+      );
+      setEventsWithParticipants(updatedEvents);
+    };
+
+    fetchParticipants();
+  }, [sortedEvents, employees]);
+
   // --- Lấy events cho page hiện tại ---
-  const paginatedEvents = sortedEvents.slice(
+  const paginatedEvents = eventsWithParticipants.slice(
     page * pageSize,
     page * pageSize + pageSize
   );
@@ -61,8 +95,9 @@ export function EventListView({ events, onAddEvent }: EventListViewProps) {
               <th className="px-4 py-3 text-left font-semibold">Tên sự kiện</th>
               <th className="px-4 py-3 text-center font-semibold">Loại</th>
               <th className="px-4 py-3 text-center font-semibold">Thời gian</th>
-              <th className="px-4 py-3 text-center font-semibold">Dự án</th>
-              <th className="px-4 py-3 text-center font-semibold">Người phụ trách</th>
+              <th className="px-4 py-3 text-center font-semibold">
+                Thành viên
+              </th>
             </tr>
           </thead>
 
@@ -73,11 +108,15 @@ export function EventListView({ events, onAddEvent }: EventListViewProps) {
                   key={index}
                   className="hover:bg-muted/10 transition-colors text-foreground"
                 >
-                  <td className="px-4 py-3 font-medium text-xs">{event.title}</td>
+                  <td className="px-4 py-3 font-medium text-xs">
+                    {event.title}
+                  </td>
                   <td className="px-4 py-3 text-sm text-center">
                     <Badge
                       variant="outline"
-                      className={`capitalize text-center px-2 py-0.5 text-xs font-medium ${getBadgeClass(event.type)}`}
+                      className={`capitalize text-center px-2 py-0.5 text-xs font-medium ${getBadgeClass(
+                        event.type
+                      )}`}
                     >
                       {getEventTypeLabel(event.type)}
                     </Badge>
@@ -91,13 +130,29 @@ export function EventListView({ events, onAddEvent }: EventListViewProps) {
                       minute: "2-digit",
                     })}
                   </td>
-                  <td className="px-4 py-3 text-xs">{event.project?.name || "-"}</td>
-                  <td className="px-4 py-3 text-xs text-center">{event.project?.user.name || "-"}</td>
+
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <td className="px-4 py-3 text-xs max-w-[200px] truncate text-center">
+                          {event.participantNames?.join(", ") || "-"}
+                        </td>
+                      </TooltipTrigger>
+                      <TooltipContent className="TooltipContent" sideOffset={5}>
+                        <div className=" text-xs text-center">
+                          {event.participantNames?.join(", ") || "-"}
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground text-sm italic">
+                <td
+                  colSpan={5}
+                  className="px-4 py-8 text-center text-muted-foreground text-sm italic"
+                >
                   Không có sự kiện nào phù hợp
                 </td>
               </tr>
@@ -128,7 +183,9 @@ export function EventListView({ events, onAddEvent }: EventListViewProps) {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setPage((prev) => Math.min(prev + 1, totalPages - 1))}
+              onClick={() =>
+                setPage((prev) => Math.min(prev + 1, totalPages - 1))
+              }
               disabled={page >= totalPages - 1}
               className="gap-1"
             >

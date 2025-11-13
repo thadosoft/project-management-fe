@@ -20,6 +20,12 @@ import { EventOverlay } from "./event-overlay";
 import { EventFilter } from "./event-filter";
 import { EventForm } from "./event-form";
 import { EventListView } from "./event-listview";
+import {
+  createParticipants,
+  updateParticipants,
+} from "@/services/event/eventParticipantService";
+import { Employee } from "@/models/EmployeeRequest";
+import { getAllEmployees } from "@/services/employee/EmployeeService";
 
 export function EventCalendar() {
   const isDarkMode = useTheme();
@@ -36,12 +42,13 @@ export function EventCalendar() {
   const [openForm, setOpenForm] = useState(false);
   const [page, setPage] = useState(0);
   const [size] = useState(20);
+  const [employees, setEmployees] = useState<Employee[]>([]);
   const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(true);
   const [hasFiltered, setHasFiltered] = useState(false);
 
   // ========================
-  // 🧩 Helpers
+  //  Helpers
   // ========================
 
   /** Lấy danh sách sự kiện theo ngày */
@@ -82,7 +89,7 @@ export function EventCalendar() {
   };
 
   // ========================
-  // 🧭 CRUD Handlers
+  //  CRUD Handlers
   // ========================
 
   const loadEvents = async (pageNumber = page, pageSize = size) => {
@@ -108,16 +115,48 @@ export function EventCalendar() {
     }
   };
 
-  const handleSaveTask = async (data: EventRequest) => {
+  const fetchEmployees = async () => {
     try {
+      const data = await getAllEmployees(); // gọi API backend lấy tất cả nhân viên
+      setEmployees(data);
+    } catch (error) {
+      console.error("Error fetching employees:", error);
+    }
+  };
+
+  const handleSaveTask = async (
+    data: EventRequest,
+    participantIds: number[] = []
+  ) => {
+    try {
+      let eventId: string | undefined;
+
+      console.log("Data:", data)
+      console.log("participantIds:", participantIds)
+
+
       if (formMode === "add") {
-        await createEvent(data);
-        alert("Thêm sự kiện thành công ✅");
+        const createdEventId = await createEvent(data);
+        if (!createdEventId) return;
+        eventId = createdEventId.toString();
+
+        // Thêm participant
+        if (participantIds.length > 0) {
+          await createParticipants(eventId, { employeeIds: participantIds });
+        }
+
+        alert("Thêm sự kiện thành công");
       } else if (formMode === "edit" && editingEvent?.id) {
         await updateEvent(editingEvent.id, data);
-        alert("Cập nhật sự kiện thành công ✅");
+        eventId = editingEvent.id.toString();
+
+        // Update participant
+        await updateParticipants(eventId, { employeeIds: participantIds });
+
+        alert("Cập nhật sự kiện thành công");
       }
-      await loadEvents();
+
+      await loadEvents(); // reload calendar
     } catch (error) {
       console.error("Error:", error);
     }
@@ -145,7 +184,7 @@ export function EventCalendar() {
   };
 
   // ========================
-  // 🔍 Filtering
+  //  Filtering
   // ========================
 
   const handleFilter = async (filters: EventFilterValues) => {
@@ -155,7 +194,7 @@ export function EventCalendar() {
       setFilteredEvents(response.content);
       setHasFiltered(true);
     } catch (error) {
-      console.error("❌ Error filtering events:", error);
+      console.error("Error filtering events:", error);
     }
   };
 
@@ -164,7 +203,7 @@ export function EventCalendar() {
   }, [events]);
 
   // ========================
-  // 🧱 Render Calendar Cell
+  //  Render Calendar Cell
   // ========================
 
   const renderCell = (date: Date) => {
@@ -182,6 +221,7 @@ export function EventCalendar() {
           <EventOverlay
             ref={ref}
             {...props}
+            employees={employees}
             events={list}
             onDelete={handleDeleteTask}
             onEdit={handleEditTask}
@@ -206,7 +246,7 @@ export function EventCalendar() {
   };
 
   // ========================
-  // 🚀 Lifecycle
+  //  Lifecycle
   // ========================
 
   useEffect(() => {
@@ -217,8 +257,12 @@ export function EventCalendar() {
     fetchProjects();
   }, []);
 
+  useEffect(() => {
+    fetchEmployees();
+  }, []);
+
   // ========================
-  // 🎨 Render UI
+  //  Render UI
   // ========================
 
   return (
@@ -241,7 +285,7 @@ export function EventCalendar() {
         {/* 🔍 Filter + 📋 List (Phải) */}
         <div className="w-full xl:w-1/2 flex flex-col h-full gap-4">
           <EventFilter onFilter={handleFilter} />
-          <EventListView events={filteredEvents} onAddEvent={handleAddTask} />
+          <EventListView events={filteredEvents} onAddEvent={handleAddTask} employees={employees} />
         </div>
 
         {/* 📝 Modal Form */}
@@ -249,6 +293,7 @@ export function EventCalendar() {
           open={openForm}
           mode={formMode}
           event={editingEvent}
+          employees={employees}
           onClose={() => setOpenForm(false)}
           onSave={handleSaveTask}
           projects={projects}

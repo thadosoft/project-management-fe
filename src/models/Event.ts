@@ -1,6 +1,6 @@
 import { Project } from "./Project";
 
-export type EventType = "Demo" | "Họp" | "Khảo sát";
+export type EventType = "Demo" | "Họp" | "Khảo sát" | "Onsite nhà máy";
 
 export interface Event {
   id: string;
@@ -11,6 +11,7 @@ export interface Event {
   endDate?: string;
   type: EventType;
   projectId?: string;
+  participantIds?: number[];
   project?: Project;
   createdAt?: string;
   updatedAt?: string;

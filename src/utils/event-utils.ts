@@ -1,7 +1,7 @@
 import { TypeAttributes } from "rsuite/esm/internals/types";
 import type { EventType } from "@/models/Event";
 
-export type EventTypeAPI = "MEETING" | "SURVEY" | "DEMO";
+export type EventTypeAPI = "MEETING" | "SURVEY" | "DEMO" | "FACTORY";
 
 /**
  * 🧭 Mapping giữa giá trị API và nhãn hiển thị (EventType)
@@ -10,15 +10,17 @@ export const EVENT_TYPE_MAP: Record<EventTypeAPI, EventType> = {
   MEETING: "Họp",
   SURVEY: "Khảo sát",
   DEMO: "Demo",
+  FACTORY: "Onsite nhà máy",
 };
 
 /**
  * 🔁 Mapping ngược giữa nhãn hiển thị và giá trị API
  */
 export const EVENT_TYPE_REVERSE_MAP: Record<EventType, EventTypeAPI> = {
-  "Họp": "MEETING",
+  Họp: "MEETING",
   "Khảo sát": "SURVEY",
-  "Demo": "DEMO",
+  Demo: "DEMO",
+  "Onsite nhà máy": "FACTORY",
 };
 
 /**
@@ -49,7 +51,9 @@ export const EVENT_TYPE_OPTIONS = Object.entries(EVENT_TYPE_MAP).map(
 /**
  * 🎨 Badge color cho Calendar hoặc List
  */
-export function getBadgeColor(type: EventType): TypeAttributes.Color | undefined {
+export function getBadgeColor(
+  type: EventType
+): TypeAttributes.Color | undefined {
   switch (type.toUpperCase()) {
     case "DEMO":
       return "red";
@@ -59,6 +63,8 @@ export function getBadgeColor(type: EventType): TypeAttributes.Color | undefined
     case "KHẢO SÁT":
     case "SURVEY":
       return "green";
+    case "FACTORY":
+      return "blue";
     default:
       return undefined;
   }
@@ -77,6 +83,8 @@ export function getBadgeClass(type: EventType): string {
     case "KHẢO SÁT":
     case "SURVEY":
       return "bg-green-500/10 text-green-600 border border-green-500/20";
+    case "FACTORY":
+      return "bg-blue-500/10 text-blue-600 border border-blue-500/20";
     default:
       return "bg-gray-500/10 text-gray-600 border border-gray-500/20";
   }
