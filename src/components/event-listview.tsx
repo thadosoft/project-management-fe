@@ -46,6 +46,11 @@ export function EventListView({
 
   useEffect(() => {
     const fetchParticipants = async () => {
+      if (!sortedEvents.length) {
+        setEventsWithParticipants([]);
+        return;
+      }
+
       const updatedEvents = await Promise.all(
         sortedEvents.map(async (event) => {
           const participantIds = await getParticipants(event.id.toString());
